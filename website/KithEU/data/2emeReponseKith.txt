@@ -1,0 +1,1093 @@
+:status: 200
+cache-control: private, max-age=0
+x-content-type-options: nosniff
+content-type: text/plain; charset=utf-8
+content-encoding: gzip
+date: Fri, 14 May 2021 20:11:27 GMT
+server: ESF
+x-xss-protection: 0
+x-frame-options: SAMEORIGIN
+access-control-allow-origin: https://eu.kith.com
+vary: origin
+access-control-allow-credentials: true
+alt-svc: h3-29=":443"; ma=2592000,h3-T051=":443"; ma=2592000,h3-Q050=":443"; ma=2592000,h3-Q046=":443"; ma=2592000,h3-Q043=":443"; ma=2592000,quic=":443"; ma=2592000; v="46,43"
+
+663
+[[1,[{
+  "targetChange": {
+    "targetChangeType": "ADD",
+    "targetIds": [
+      2
+    ]
+  }
+}
+]],[2,[{
+  "documentDelete": {
+    "document": "projects/launches-by-seed/databases/(default)/documents/submission_tracking/yqRL4kPcTLDLKeBPQGSd-5141512028237",
+    "readTime": "2021-05-14T20:11:26.603330Z",
+    "removedTargetIds": [
+      2
+    ]
+  }
+}
+]],[3,[{
+  "targetChange": {
+    "targetChangeType": "CURRENT",
+    "targetIds": [
+      2
+    ],
+    "resumeToken": "CgkIwtj/yf3J8AI=",
+    "readTime": "2021-05-14T20:11:26.603330Z"
+  }
+}
+]],[4,[{
+  "targetChange": {
+    "resumeToken": "CgkIwtj/yf3J8AI=",
+    "readTime": "2021-05-14T20:11:26.603330Z"
+  }
+}
+]]]103
+[[5,[{
+  "targetChange": {
+    "targetChangeType": "REMOVE",
+    "targetIds": [
+      2
+    ]
+  }
+}
+]]]100
+[[6,[{
+  "targetChange": {
+    "targetChangeType": "ADD",
+    "targetIds": [
+      4
+    ]
+  }
+}
+]]]5673
+[[7,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd",
+      "fields": {
+        "raffleProductCheck": {
+          "booleanValue": false
+        },
+        "enterDrawingButtonText": {
+          "stringValue": "ENTER DRAWING"
+        },
+        "socialMediaHeader": {
+          "stringValue": "Follow us on"
+        },
+        "drawingClosedTitle": {
+          "stringValue": "DRAWING IS CLOSED "
+        },
+        "site": {
+          "stringValue": "kith-europe.myshopify.com"
+        },
+        "socialMediaTwitterEmbed": {
+          "stringValue": ""
+        },
+        "terms": {
+          "stringValue": ""
+        },
+        "send_date": {
+          "stringValue": "2021-05-14T09:00:00.000+01:00"
+        },
+        "termsUrl": {
+          "stringValue": ""
+        },
+        "captchaTitle": {
+          "stringValue": ""
+        },
+        "campaign_id": {
+          "stringValue": "yqRL4kPcTLDLKeBPQGSd"
+        },
+        "status": {
+          "stringValue": "open"
+        },
+        "customerMessageLabel": {
+          "stringValue": ""
+        },
+        "campaign_description": {
+          "stringValue": "\u003cp\u003eNike joins forces with Ambush to bring a lux execution to the classic Dunk High. Executed in a Deep Royal Blue / Black / White / Pale makeup, this model features a premium leather upper accompanied with exaggerated leather overlays while the perforated toe box ensures added breathability. The padded/quilted heel tabs provide added style as well as the comfortable rubber sole unit - lastly, this model features a TPU heel counter with and embossed Ambush logo and a TPU oversized and extended Swoosh.\u003c/p\u003e\u003cp\u003e\u003cbr\u003e\u003c/p\u003e\u003cp\u003e\u003cbr\u003e\u003c/p\u003e\u003cp data-f-id=\"pbf\" style=\"text-align: center; font-size: 14px; margin-top: 30px; opacity: 0.65; font-family: sans-serif;\"\u003ePowered by \u003ca href=\"https://www.froala.com/wysiwyg-editor?pb=1\" title=\"Froala Editor\"\u003eFroala Editor\u003c/a\u003e\u003c/p\u003e"
+        },
+        "agreeToTerms": {
+          "booleanValue": true
+        },
+        "drawingOpenTitle": {
+          "stringValue": "DRAWING WILL OPEN "
+        },
+        "winnerSet": {
+          "integerValue": "1"
+        },
+        "allOrdersProcessed": {
+          "booleanValue": false
+        },
+        "campaign_name": {
+          "stringValue": "Nike x Ambush Dunk Hi \"Deep Royal\" "
+        },
+        "twilioMessage": {
+          "stringValue": ""
+        },
+        "campaign_image": {
+          "stringValue": "https://cdn.shopify.com/s/files/1/0274/7469/0125/files/NKCU7544-400_RAFFLE.jpg?v=1620857253"
+        },
+        "raffleProductId": {
+          "stringValue": ""
+        },
+        "enteredSubTitle": {
+          "stringValue": "YOUR ENTRY HAS BEEN RECEIVED"
+        },
+        "sendOrders": {
+          "booleanValue": false
+        },
+        "termsLinkText": {
+          "stringValue": ""
+        },
+        "twilioAuthToken": {
+          "stringValue": ""
+        },
+        "shopBtnText": {
+          "stringValue": ""
+        },
+        "realProductId": {
+          "stringValue": ""
+        },
+        "start_date": {
+          "stringValue": "2021-05-12T06:08:00.000+01:00"
+        },
+        "campaign_price": {
+          "stringValue": "180€"
+        },
+        "agreeText": {
+          "stringValue": "By checking this you agree to our terms and conditions"
+        },
+        "shopBtnUrl": {
+          "stringValue": ""
+        },
+        "end_date": {
+          "stringValue": "2021-05-16T08:00:00.000Z"
+        },
+        "socialMediaInstagramEmbed": {
+          "stringValue": ""
+        },
+        "verifySubmissions": {
+          "booleanValue": false
+        },
+        "ccText": {
+          "stringValue": ""
+        },
+        "timezoneName": {
+          "stringValue": "Europe/London"
+        },
+        "twilioSid": {
+          "stringValue": ""
+        },
+        "selectSizeTitle": {
+          "stringValue": "SELECT SIZE"
+        },
+        "socialMediaTwitter": {
+          "stringValue": ""
+        },
+        "showCc": {
+          "booleanValue": false
+        },
+        "drawingEndsTitle": {
+          "stringValue": "DRAW ENDS "
+        },
+        "selectLocationTitle": {
+          "stringValue": "SELECT LOCATION"
+        },
+        "provincesAllowed": {
+          "stringValue": ""
+        },
+        "countriesAllowed": {
+          "stringValue": ""
+        },
+        "showCustomerMessage": {
+          "booleanValue": false
+        },
+        "selectModelTitle": {
+          "stringValue": "SELECT MODEL"
+        },
+        "stripeKeyForm": {
+          "stringValue": "pk_nVZZO0N8OWtHr4kuNzHXnY3AtpzCE"
+        },
+        "twilioSendingNumber": {
+          "stringValue": ""
+        },
+        "socialMediaFacebookEmbed": {
+          "stringValue": ""
+        },
+        "id": {
+          "stringValue": "yqRL4kPcTLDLKeBPQGSd"
+        },
+        "socialMediaAccounts": {
+          "booleanValue": false
+        },
+        "followTwitterEnable": {
+          "booleanValue": false
+        },
+        "socialMediaFacebook": {
+          "stringValue": ""
+        },
+        "is_archived": {
+          "booleanValue": false
+        },
+        "previousWinner": {
+          "integerValue": "0"
+        },
+        "socialMediaInstagram": {
+          "stringValue": ""
+        },
+        "enteredTitle": {
+          "stringValue": "GOOD LUCK"
+        }
+      },
+      "createTime": "2021-05-12T22:09:15.877251Z",
+      "updateTime": "2021-05-14T10:41:48.901097Z"
+    },
+    "targetIds": [
+      4
+    ]
+  }
+}
+]]]190
+[[8,[{
+  "targetChange": {
+    "targetChangeType": "CURRENT",
+    "targetIds": [
+      4
+    ],
+    "resumeToken": "CgkIxbW9yv3J8AI=",
+    "readTime": "2021-05-14T20:11:27.614661Z"
+  }
+}
+]]]121
+[[9,[{
+  "targetChange": {
+    "resumeToken": "CgkIxbW9yv3J8AI=",
+    "readTime": "2021-05-14T20:11:27.614661Z"
+  }
+}
+]]]104
+[[10,[{
+  "targetChange": {
+    "targetChangeType": "REMOVE",
+    "targetIds": [
+      4
+    ]
+  }
+}
+]]]101
+[[11,[{
+  "targetChange": {
+    "targetChangeType": "ADD",
+    "targetIds": [
+      6
+    ]
+  }
+}
+]]]661
+[[12,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe",
+      "fields": {
+        "image": {
+          "stringValue": "https://cdn.shopify.com/s/files/1/0274/7469/0125/files/NKCU7544-400_RAFFLE.jpg?v=1620857253"
+        },
+        "productId": {
+          "stringValue": ""
+        },
+        "name": {
+          "stringValue": "Nike x Ambush Dunk Hi \"Deep Royal\" "
+        }
+      },
+      "createTime": "2021-05-12T22:10:14.948202Z",
+      "updateTime": "2021-05-12T22:10:14.948202Z"
+    },
+    "targetIds": [
+      6
+    ]
+  }
+}
+]]]191
+[[13,[{
+  "targetChange": {
+    "targetChangeType": "CURRENT",
+    "targetIds": [
+      6
+    ],
+    "resumeToken": "CgkI6P3Jyv3J8AI=",
+    "readTime": "2021-05-14T20:11:27.820520Z"
+  }
+}
+]]]122
+[[14,[{
+  "targetChange": {
+    "resumeToken": "CgkI6P3Jyv3J8AI=",
+    "readTime": "2021-05-14T20:11:27.820520Z"
+  }
+}
+]]]104
+[[15,[{
+  "targetChange": {
+    "targetChangeType": "REMOVE",
+    "targetIds": [
+      6
+    ]
+  }
+}
+]]]101
+[[16,[{
+  "targetChange": {
+    "targetChangeType": "ADD",
+    "targetIds": [
+      8
+    ]
+  }
+}
+]]]757
+[[17,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe/locations/r8vaarOGcXtKkUXvcHcC",
+      "fields": {
+        "locationId": {
+          "stringValue": "sEJVRxM91cjU5nriy45M"
+        },
+        "locationImage": {
+          "stringValue": "https://image-cdn.hypb.st/https%3A%2F%2Fhypebeast.com%2Fimage%2F2021%2F02%2Fkith-paris-flagship-store-opening-nike-air-force-1-collaboration-3.jpg"
+        },
+        "locationName": {
+          "stringValue": "Kith Paris"
+        }
+      },
+      "createTime": "2021-05-12T22:10:15.030507Z",
+      "updateTime": "2021-05-12T22:10:15.030507Z"
+    },
+    "targetIds": [
+      8
+    ]
+  }
+}
+]]]687
+[[18,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe/locations/SbZeFEnlSic8XxG1C6ta",
+      "fields": {
+        "locationName": {
+          "stringValue": "Kith Tokyo"
+        },
+        "locationImage": {
+          "stringValue": "https://cdn.shopify.com/s/files/1/0275/0922/7606/files/1_13.jpg?v=1618857139"
+        },
+        "locationId": {
+          "stringValue": "AYlrvbnBBPxc0Wz0GNex"
+        }
+      },
+      "createTime": "2021-05-12T22:10:16.804048Z",
+      "updateTime": "2021-05-12T22:10:16.804048Z"
+    },
+    "targetIds": [
+      8
+    ]
+  }
+}
+]]]191
+[[19,[{
+  "targetChange": {
+    "targetChangeType": "CURRENT",
+    "targetIds": [
+      8
+    ],
+    "resumeToken": "CgkIlu3Xyv3J8AI=",
+    "readTime": "2021-05-14T20:11:28.047766Z"
+  }
+}
+]]]122
+[[20,[{
+  "targetChange": {
+    "resumeToken": "CgkIlu3Xyv3J8AI=",
+    "readTime": "2021-05-14T20:11:28.047766Z"
+  }
+}
+]]]104
+[[21,[{
+  "targetChange": {
+    "targetChangeType": "REMOVE",
+    "targetIds": [
+      8
+    ]
+  }
+}
+]]]102
+[[22,[{
+  "targetChange": {
+    "targetChangeType": "ADD",
+    "targetIds": [
+      10
+    ]
+  }
+}
+]]]838
+[[23,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe/locations/r8vaarOGcXtKkUXvcHcC/sizes/WOzDxf26NJ5rBd8dAm3p",
+      "fields": {
+        "sizeName": {
+          "stringValue": "MEN'S US "
+        },
+        "sizeOrder": {
+          "integerValue": "4"
+        },
+        "inventory": {
+          "integerValue": "0"
+        },
+        "sizeId": {
+          "stringValue": "zmGYxBs0wazRj4SfxDt9"
+        },
+        "inventoryVariantId": {
+          "stringValue": "39331382034509"
+        },
+        "size": {
+          "stringValue": "4 US"
+        }
+      },
+      "createTime": "2021-05-13T17:33:57.363625Z",
+      "updateTime": "2021-05-13T21:53:33.982921Z"
+    },
+    "targetIds": [
+      10
+    ]
+  }
+}
+]]]840
+[[24,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe/locations/r8vaarOGcXtKkUXvcHcC/sizes/FP0czU4UIXWqdnoypwrj",
+      "fields": {
+        "size": {
+          "stringValue": " 4.5 US"
+        },
+        "inventory": {
+          "integerValue": "0"
+        },
+        "sizeOrder": {
+          "doubleValue": 4.5
+        },
+        "sizeId": {
+          "stringValue": "zmGYxBs0wazRj4SfxDt9"
+        },
+        "sizeName": {
+          "stringValue": "MEN'S US "
+        },
+        "inventoryVariantId": {
+          "stringValue": "39331382067277"
+        }
+      },
+      "createTime": "2021-05-12T22:10:15.260541Z",
+      "updateTime": "2021-05-13T21:53:40.094373Z"
+    },
+    "targetIds": [
+      10
+    ]
+  }
+}
+]]]839
+[[25,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe/locations/r8vaarOGcXtKkUXvcHcC/sizes/ERErcQ2HeDYNulU5ABPD",
+      "fields": {
+        "size": {
+          "stringValue": " 5 US"
+        },
+        "sizeId": {
+          "stringValue": "zmGYxBs0wazRj4SfxDt9"
+        },
+        "sizeOrder": {
+          "integerValue": "5"
+        },
+        "inventoryVariantId": {
+          "stringValue": "39331382100045"
+        },
+        "sizeName": {
+          "stringValue": "MEN'S US "
+        },
+        "inventory": {
+          "integerValue": "0"
+        }
+      },
+      "createTime": "2021-05-12T22:10:15.847480Z",
+      "updateTime": "2021-05-13T21:53:46.031911Z"
+    },
+    "targetIds": [
+      10
+    ]
+  }
+}
+]]]840
+[[26,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe/locations/r8vaarOGcXtKkUXvcHcC/sizes/l0ACTowxFWB12HIOqlX4",
+      "fields": {
+        "sizeId": {
+          "stringValue": "zmGYxBs0wazRj4SfxDt9"
+        },
+        "sizeName": {
+          "stringValue": "MEN'S US "
+        },
+        "inventory": {
+          "integerValue": "0"
+        },
+        "sizeOrder": {
+          "doubleValue": 5.5
+        },
+        "size": {
+          "stringValue": " 5.5 US"
+        },
+        "inventoryVariantId": {
+          "stringValue": "39331382132813"
+        }
+      },
+      "createTime": "2021-05-12T22:10:16.205412Z",
+      "updateTime": "2021-05-13T21:53:51.959473Z"
+    },
+    "targetIds": [
+      10
+    ]
+  }
+}
+]]]839
+[[27,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe/locations/r8vaarOGcXtKkUXvcHcC/sizes/OIbTWXwuOKIyMvOPB2Vt",
+      "fields": {
+        "inventoryVariantId": {
+          "stringValue": "39331382165581"
+        },
+        "sizeName": {
+          "stringValue": "MEN'S US "
+        },
+        "sizeId": {
+          "stringValue": "zmGYxBs0wazRj4SfxDt9"
+        },
+        "inventory": {
+          "integerValue": "0"
+        },
+        "sizeOrder": {
+          "integerValue": "6"
+        },
+        "size": {
+          "stringValue": " 6 US"
+        }
+      },
+      "createTime": "2021-05-12T22:10:16.284580Z",
+      "updateTime": "2021-05-13T21:53:58.615734Z"
+    },
+    "targetIds": [
+      10
+    ]
+  }
+}
+]]]840
+[[28,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe/locations/r8vaarOGcXtKkUXvcHcC/sizes/ViOFDyDbBEpDPnBYCbyO",
+      "fields": {
+        "inventoryVariantId": {
+          "stringValue": "39331382198349"
+        },
+        "inventory": {
+          "integerValue": "0"
+        },
+        "sizeName": {
+          "stringValue": "MEN'S US "
+        },
+        "sizeOrder": {
+          "doubleValue": 6.5
+        },
+        "sizeId": {
+          "stringValue": "zmGYxBs0wazRj4SfxDt9"
+        },
+        "size": {
+          "stringValue": " 6.5 US"
+        }
+      },
+      "createTime": "2021-05-12T22:10:16.647507Z",
+      "updateTime": "2021-05-13T21:54:03.902394Z"
+    },
+    "targetIds": [
+      10
+    ]
+  }
+}
+]]]839
+[[29,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe/locations/r8vaarOGcXtKkUXvcHcC/sizes/JiNCaCjmw3pUH6cCDz8Y",
+      "fields": {
+        "sizeId": {
+          "stringValue": "zmGYxBs0wazRj4SfxDt9"
+        },
+        "inventory": {
+          "integerValue": "0"
+        },
+        "size": {
+          "stringValue": " 7 US"
+        },
+        "inventoryVariantId": {
+          "stringValue": "39331382231117"
+        },
+        "sizeName": {
+          "stringValue": "MEN'S US "
+        },
+        "sizeOrder": {
+          "integerValue": "7"
+        }
+      },
+      "createTime": "2021-05-12T22:10:15.460780Z",
+      "updateTime": "2021-05-13T21:54:09.511640Z"
+    },
+    "targetIds": [
+      10
+    ]
+  }
+}
+]]]840
+[[30,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe/locations/r8vaarOGcXtKkUXvcHcC/sizes/TmuBn6RCjn5oq7ICteFI",
+      "fields": {
+        "sizeId": {
+          "stringValue": "zmGYxBs0wazRj4SfxDt9"
+        },
+        "sizeOrder": {
+          "doubleValue": 7.5
+        },
+        "sizeName": {
+          "stringValue": "MEN'S US "
+        },
+        "size": {
+          "stringValue": " 7.5 US"
+        },
+        "inventory": {
+          "integerValue": "0"
+        },
+        "inventoryVariantId": {
+          "stringValue": "39331382263885"
+        }
+      },
+      "createTime": "2021-05-12T22:10:15.367761Z",
+      "updateTime": "2021-05-13T21:54:14.825971Z"
+    },
+    "targetIds": [
+      10
+    ]
+  }
+}
+]]]839
+[[31,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe/locations/r8vaarOGcXtKkUXvcHcC/sizes/xLyf8RuMkn5jjS1gi3Dn",
+      "fields": {
+        "sizeOrder": {
+          "integerValue": "8"
+        },
+        "size": {
+          "stringValue": " 8 US"
+        },
+        "inventory": {
+          "integerValue": "0"
+        },
+        "sizeId": {
+          "stringValue": "zmGYxBs0wazRj4SfxDt9"
+        },
+        "sizeName": {
+          "stringValue": "MEN'S US "
+        },
+        "inventoryVariantId": {
+          "stringValue": "39331382296653"
+        }
+      },
+      "createTime": "2021-05-12T22:10:15.749759Z",
+      "updateTime": "2021-05-13T21:54:20.858191Z"
+    },
+    "targetIds": [
+      10
+    ]
+  }
+}
+]]]840
+[[32,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe/locations/r8vaarOGcXtKkUXvcHcC/sizes/hZ8OphsEuiBhcMOxCiZD",
+      "fields": {
+        "inventory": {
+          "integerValue": "0"
+        },
+        "sizeId": {
+          "stringValue": "zmGYxBs0wazRj4SfxDt9"
+        },
+        "sizeOrder": {
+          "doubleValue": 8.5
+        },
+        "sizeName": {
+          "stringValue": "MEN'S US "
+        },
+        "inventoryVariantId": {
+          "stringValue": "39331382329421"
+        },
+        "size": {
+          "stringValue": " 8.5 US"
+        }
+      },
+      "createTime": "2021-05-12T22:10:16.116259Z",
+      "updateTime": "2021-05-13T21:54:32.068431Z"
+    },
+    "targetIds": [
+      10
+    ]
+  }
+}
+]]]839
+[[33,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe/locations/r8vaarOGcXtKkUXvcHcC/sizes/zrLFczD9HqUOG9HzVZyA",
+      "fields": {
+        "sizeName": {
+          "stringValue": "MEN'S US "
+        },
+        "sizeOrder": {
+          "integerValue": "9"
+        },
+        "inventory": {
+          "integerValue": "0"
+        },
+        "sizeId": {
+          "stringValue": "zmGYxBs0wazRj4SfxDt9"
+        },
+        "size": {
+          "stringValue": " 9 US"
+        },
+        "inventoryVariantId": {
+          "stringValue": "39331382362189"
+        }
+      },
+      "createTime": "2021-05-12T22:10:16.369109Z",
+      "updateTime": "2021-05-13T21:54:38.560240Z"
+    },
+    "targetIds": [
+      10
+    ]
+  }
+}
+]]]840
+[[34,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe/locations/r8vaarOGcXtKkUXvcHcC/sizes/AMlEyxalv1HTsMgdzUx1",
+      "fields": {
+        "size": {
+          "stringValue": " 9.5 US"
+        },
+        "sizeId": {
+          "stringValue": "zmGYxBs0wazRj4SfxDt9"
+        },
+        "sizeOrder": {
+          "doubleValue": 9.5
+        },
+        "sizeName": {
+          "stringValue": "MEN'S US "
+        },
+        "inventoryVariantId": {
+          "stringValue": "39331382394957"
+        },
+        "inventory": {
+          "integerValue": "0"
+        }
+      },
+      "createTime": "2021-05-12T22:10:16.564065Z",
+      "updateTime": "2021-05-13T21:54:45.050872Z"
+    },
+    "targetIds": [
+      10
+    ]
+  }
+}
+]]]841
+[[35,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe/locations/r8vaarOGcXtKkUXvcHcC/sizes/DdDfEmARJJzA8WiWFnFT",
+      "fields": {
+        "inventoryVariantId": {
+          "stringValue": "39331382427725"
+        },
+        "sizeOrder": {
+          "integerValue": "10"
+        },
+        "sizeName": {
+          "stringValue": "MEN'S US "
+        },
+        "sizeId": {
+          "stringValue": "zmGYxBs0wazRj4SfxDt9"
+        },
+        "inventory": {
+          "integerValue": "0"
+        },
+        "size": {
+          "stringValue": " 10 US"
+        }
+      },
+      "createTime": "2021-05-12T22:10:15.541254Z",
+      "updateTime": "2021-05-13T21:54:50.890022Z"
+    },
+    "targetIds": [
+      10
+    ]
+  }
+}
+]]]842
+[[36,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe/locations/r8vaarOGcXtKkUXvcHcC/sizes/jbNXTeOghKd9ScK7BF22",
+      "fields": {
+        "sizeName": {
+          "stringValue": "MEN'S US "
+        },
+        "size": {
+          "stringValue": " 10.5 US"
+        },
+        "sizeId": {
+          "stringValue": "zmGYxBs0wazRj4SfxDt9"
+        },
+        "inventory": {
+          "integerValue": "0"
+        },
+        "inventoryVariantId": {
+          "stringValue": "39331382460493"
+        },
+        "sizeOrder": {
+          "doubleValue": 10.5
+        }
+      },
+      "createTime": "2021-05-12T22:10:15.940515Z",
+      "updateTime": "2021-05-13T21:54:57.345182Z"
+    },
+    "targetIds": [
+      10
+    ]
+  }
+}
+]]]841
+[[37,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe/locations/r8vaarOGcXtKkUXvcHcC/sizes/ZQHrEgbNFZi9APeOdVqp",
+      "fields": {
+        "size": {
+          "stringValue": " 11 US"
+        },
+        "sizeOrder": {
+          "integerValue": "11"
+        },
+        "sizeId": {
+          "stringValue": "zmGYxBs0wazRj4SfxDt9"
+        },
+        "inventoryVariantId": {
+          "stringValue": "39331382493261"
+        },
+        "inventory": {
+          "integerValue": "0"
+        },
+        "sizeName": {
+          "stringValue": "MEN'S US "
+        }
+      },
+      "createTime": "2021-05-12T22:10:15.632483Z",
+      "updateTime": "2021-05-13T21:55:04.608763Z"
+    },
+    "targetIds": [
+      10
+    ]
+  }
+}
+]]]842
+[[38,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe/locations/r8vaarOGcXtKkUXvcHcC/sizes/TRWYkQxUZlaNvmojf1Xg",
+      "fields": {
+        "inventoryVariantId": {
+          "stringValue": "39331382526029"
+        },
+        "sizeName": {
+          "stringValue": "MEN'S US "
+        },
+        "sizeOrder": {
+          "doubleValue": 11.5
+        },
+        "sizeId": {
+          "stringValue": "zmGYxBs0wazRj4SfxDt9"
+        },
+        "inventory": {
+          "integerValue": "0"
+        },
+        "size": {
+          "stringValue": " 11.5 US"
+        }
+      },
+      "createTime": "2021-05-12T22:10:16.022981Z",
+      "updateTime": "2021-05-13T21:55:11.423934Z"
+    },
+    "targetIds": [
+      10
+    ]
+  }
+}
+]]]841
+[[39,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe/locations/r8vaarOGcXtKkUXvcHcC/sizes/1vSQN3pil3KK2q6oJptV",
+      "fields": {
+        "sizeId": {
+          "stringValue": "zmGYxBs0wazRj4SfxDt9"
+        },
+        "inventoryVariantId": {
+          "stringValue": "39331382558797"
+        },
+        "sizeName": {
+          "stringValue": "MEN'S US "
+        },
+        "size": {
+          "stringValue": " 12 US"
+        },
+        "inventory": {
+          "integerValue": "0"
+        },
+        "sizeOrder": {
+          "integerValue": "12"
+        }
+      },
+      "createTime": "2021-05-12T22:10:16.453341Z",
+      "updateTime": "2021-05-13T21:55:20.786802Z"
+    },
+    "targetIds": [
+      10
+    ]
+  }
+}
+]]]841
+[[40,[{
+  "documentChange": {
+    "document": {
+      "name": "projects/launches-by-seed/databases/(default)/documents/campaigns/yqRL4kPcTLDLKeBPQGSd/models/s8md8d2lbK4c8F9tzsBe/locations/r8vaarOGcXtKkUXvcHcC/sizes/4QYtpdwZLP5iTo8tN0Yr",
+      "fields": {
+        "size": {
+          "stringValue": " 13 US"
+        },
+        "sizeId": {
+          "stringValue": "zmGYxBs0wazRj4SfxDt9"
+        },
+        "inventory": {
+          "integerValue": "0"
+        },
+        "sizeName": {
+          "stringValue": "MEN'S US "
+        },
+        "sizeOrder": {
+          "integerValue": "13"
+        },
+        "inventoryVariantId": {
+          "stringValue": "39331382624333"
+        }
+      },
+      "createTime": "2021-05-12T22:10:16.728293Z",
+      "updateTime": "2021-05-13T21:55:27.738933Z"
+    },
+    "targetIds": [
+      10
+    ]
+  }
+}
+]]]192
+[[41,[{
+  "targetChange": {
+    "targetChangeType": "CURRENT",
+    "targetIds": [
+      10
+    ],
+    "resumeToken": "CgkI7ZDiyv3J8AI=",
+    "readTime": "2021-05-14T20:11:28.216173Z"
+  }
+}
+]]]122
+[[42,[{
+  "targetChange": {
+    "resumeToken": "CgkI7ZDiyv3J8AI=",
+    "readTime": "2021-05-14T20:11:28.216173Z"
+  }
+}
+]]]105
+[[43,[{
+  "targetChange": {
+    "targetChangeType": "REMOVE",
+    "targetIds": [
+      10
+    ]
+  }
+}
+]]]102
+[[44,[{
+  "targetChange": {
+    "targetChangeType": "ADD",
+    "targetIds": [
+      12
+    ]
+  }
+}
+]]]192
+[[45,[{
+  "targetChange": {
+    "targetChangeType": "CURRENT",
+    "targetIds": [
+      12
+    ],
+    "resumeToken": "CgkIobTuyv3J8AI=",
+    "readTime": "2021-05-14T20:11:28.417313Z"
+  }
+}
+]]]122
+[[46,[{
+  "targetChange": {
+    "resumeToken": "CgkIobTuyv3J8AI=",
+    "readTime": "2021-05-14T20:11:28.417313Z"
+  }
+}
+]]]105
+[[47,[{
+  "targetChange": {
+    "targetChangeType": "REMOVE",
+    "targetIds": [
+      12
+    ]
+  }
+}
+]]]

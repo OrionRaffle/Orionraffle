@@ -1,0 +1,62 @@
+GET RAFFLE
+
+
+Entry Raffle - 4 Request
+
+
+1. POST
+QueryString
+database	projects/launches-by-seed/databases/(default)
+VER	8
+RID	68507
+CVER	22
+X-HTTP-Session-Id	gsessionid
+zx	h73z7mcuc3zs (Random ?)
+ 
+Response -> 
+
+Headers: gessionid
+Data : SID
+
+
+2 GET
+Query String
+gsessionid: var(gessionid)
+VER	8
+RID	rpc
+SID	var(SID)
+CI	0
+AID	0
+TYPE	xmlhttp
+zx	2uldqu40xjww (Random ?)
+t	1
+
+Response -> 2 StreamToken: GRBoQgKB9LW1
+			   EAEZEGhCAoH0tbU=
+
+3. POST
+Query String pareil que l'autre
+FORM:
+req0___data__	
+{"streamToken":"GRBoQgKB9LW1", var(StreamToken) 1			
+projects/launches-by-seed/databases/(default)/documents/submissions/yqRL4kPcTLDLKeBPQGSd-5141512028237
+yqRL4kPcTLDLKeBPQGSd = idPaire
+5141512028237 = idCustomer
+
+
+"campaignId":{"stringValue":"yqRL4kPcTLDLKeBPQGSd"},
+"customerId":{"stringValue":"5141512028237"},
+{"stringValue":" 8 US"}
+,"model":{"stringValue":"s8md8d2lbK4c8F9tzsBe"},
+location":{"stringValue":"r8vaarOGcXtKkUXvcHcC"},
+
+
+
+4. POST
+Query String pareil que l'autre
+FORM:
+{"streamToken":"EAEZEGhCAoH0tbU=",
+projects/launches-by-seed/databases/(default)/documents/submission_tracking/yqRL4kPcTLDLKeBPQGSd-5141512028237",
+campaignId":{"stringValue":"yqRL4kPcTLDLKeBPQGSd"},
+"customerId":{"stringValue":"5141512028237"},
+"site":{"stringValue":"kith-europe.myshopify.com"}}}}]}
