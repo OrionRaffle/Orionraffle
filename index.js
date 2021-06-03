@@ -21,39 +21,17 @@ const { courirInstore } = require('./website/CourirInstore/courirInstore')
 var pjson = require('./package.json');
 
 const version = pjson.version;
+let discordUsername;
 
-async function display() {
-  console.log(
-    chalk.rgb(
-      247,
-      158,
-      2
-    )(
-      figlet.textSync(' Orion', {
-        font: 'Larry 3D',
-        horizontalLayout: 'fitted',
-      })
-    )
-  )
-  console.log(`\nWelcome ${`${user}`.magenta}`)
-  setTitle(`OrionRaffle | Private Beta | V.${version} | ${user}`)
+async function display() { // A quoi ça sert?
+  displayHeader()
+  console.log(`\nWelcome ${`${discordUsername}`.magenta}`)
+  setTitle(`OrionRaffle | Private Beta | V.${version} | ${discordUsername}`)
 }
 
 async function menu() {
-  clear()
-  console.log(
-    chalk.rgb(
-      247,
-      158,
-      2
-    )(
-      figlet.textSync(' Orion', {
-        font: 'Larry 3D',
-        horizontalLayout: 'fitted',
-      })
-    )
-  )
-  console.log(`\nWelcome ${`${user}`.magenta}`)
+  displayHeader()
+  console.log(`\nWelcome ${`${discordUsername}`.magenta}`)
   console.log('\n1 . SNS')
   console.log('2 . Footshop (Maintenance)')
   console.log('3 . Courir Online')
@@ -93,66 +71,65 @@ async function main() {
     authResult = await auth(data.LicenceKey, version, reject, authAccepted)
   }
   async function reject(error) {
-    console.log("[ERROR] : "+error)
+    console.log("[ERROR] : " + error)
     await sleep(10000)
     process.exit(1)
   }
   async function authAccepted(user) {
-    console.log('AUTH SUCCESS : '+user)
+    discordUsername = user;
     await checkVersion(version, versionUpToDate)
   }
   async function versionUpToDate() {
     console.log('Version up to date')
     await sleep(1000)
     console.clear()
-    console.log(Date.now() - start)
+    console.log("Display menu")
+    displayMenu()
   }
-  let start = Date.now();
-  await csvReadClientAuth(databaseAuthentification)
+  async function displayMenu() {
+    while (true) {
+      choice = await menu(version)
+      switch (choice) {
+        case '1':
+          await SNS(version)
+          break
+        case '2':
+          await footshop(version)
+          break
+        case "3":
+          await courir(version)
+          break
+        // case "5":
+        //   await footlocker(version)
+        //   break
+        case "4":
+          await courirInstore(version)
+          break
+        // case "5":
+        //   await shuzu(version)
+        //   break
 
-
-
-
-  await sleep(10000)
-  process.exit(1)
-
-  await checkVersion(version)
-
-  await display()
-
-
-
-  choix = await menu()
-
-  while (true) {
-    switch (choix) {
-      case '1':
-        await SNS(version)
-        break
-      case '2':
-        await footshop(version)
-        break
-      case "3":
-        await courir(version)
-        break
-      // case "5":
-      //   await footlocker(version)
-      //   break
-      case "4":
-        await courirInstore(version)
-        break
-      // case "5":
-      //   await shuzu(version)
-      //   break
-     
-      // case "6":
-      //   await kith(version)
-      //   break
-      default:
+        // case "6":
+        //   await kith(version)
+        //   break
+        default:
+          console.log('Wrong input')
+          break;
+      }
     }
-
-    choix = await menu(version)
   }
+  await csvReadClientAuth(databaseAuthentification)
 }
 
+function displayHeader() {
+  clear()
+  console.log(
+    chalk.rgb(247,158,2)(
+      figlet.textSync(' Orion', {
+        font: 'Larry 3D',
+        horizontalLayout: 'fitted',
+      })
+    )
+  )
+}
 main()
