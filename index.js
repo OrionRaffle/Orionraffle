@@ -105,8 +105,9 @@ async function main() {
     console.log('Version up to date')
     await sleep(1000)
     console.clear()
+    console.log(Date.now() - start)
   }
-
+  let start = Date.now();
   await csvReadClientAuth(databaseAuthentification)
 
 
