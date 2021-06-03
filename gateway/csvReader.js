@@ -33,6 +33,7 @@ console.log(
     }))
 )
 const setTitle = require('node-bash-title')
+const { resolve } = require('path')
 
 setTitle('OrionRaffle | Private Beta | V.0.3.6')
 
@@ -133,8 +134,12 @@ function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-async function csvconfigreader() {
-  return fs.createReadStream('./config.csv').pipe(csv())
+async function csvReadClientAuth(callback) {
+    return new Promise(()=>{
+        fs.createReadStream('./config.csv')
+        .pipe(csv())
+        .on('data', (data)=>callback(data))
+    })
 }
 
 async function csvconfigreaderShuzu() {
@@ -284,7 +289,7 @@ async function csvCourirInstoreLog(info) {
     fs.appendFileSync('./CourirInstore/log.csv', `\n${formattedDate()},${info.name},${info.idCard},${info.Country}`)
 }
 module.exports = {
-    csvconfigreader,
+    csvReadClientAuth,
     csvconfigreaderShuzu,
     csvproxyreader,
     csvrafflereaderSNS,

@@ -1,4 +1,5 @@
 /* eslint-disable camelcase */
+const path = require('path')
 const figlet = require('figlet')
 const colors = require('colors')
 const setTitle = require('node-bash-title')
@@ -6,8 +7,8 @@ const chalk = require('chalk')
 const clear = require('console-clear')
 const inputReader = require('wait-console-input')
 const { auth } = require('./utils/auth')
-const { csvconfigreader } = require('./init')
-const { checkVersion } = require('./utils/newUpdate')
+const { csvReadClientAuth } = require(path.join(__dirname, 'gateway/csvReader'))
+const { checkVersion } = require(path.join(__dirname, 'utils/update.js'));
 const { SNS } = require('./website/SNS/SNS')
 // const { shuzu } = require('./website/Shuzu/ShuzuLab')
 // const { kith } = require('./website/KithEU/kithRaffle')
@@ -16,9 +17,11 @@ const { courir } = require('./website/CourirOnline/courir')
 const { footshop } = require('./website/Footshop/footshop')
 const { courirInstore } = require('./website/CourirInstore/courirInstore')
 
+//Get package.json data
+var pjson = require('./package.json');
 
+const version = pjson.version;
 
-const version = '0.3.6'
 async function display() {
   console.log(
     chalk.rgb(
@@ -86,15 +89,31 @@ function sleep(ms) {
 }
 
 async function main() {
-  config = await csvconfigreader()
-
-  await sleep(500)
-
-  user = await auth(config[0].LicenceKey, version)
-  if (user === false) {
-    await sleep(10000)
-    process.exit()
+  async function databaseAuthentification(data) {
+    authResult = await auth(data.LicenceKey, version, reject, authAccepted)
   }
+  async function reject(error) {
+    console.log("[ERROR] : "+error)
+    await sleep(10000)
+    process.exit(1)
+  }
+  async function authAccepted(user) {
+    console.log('AUTH SUCCESS : '+user)
+    await checkVersion(version, versionUpToDate)
+  }
+  async function versionUpToDate() {
+    console.log('Version up to date')
+    await sleep(1000)
+    console.clear()
+  }
+
+  await csvReadClientAuth(databaseAuthentification)
+
+
+
+
+  await sleep(10000)
+  process.exit(1)
 
   await checkVersion(version)
 
