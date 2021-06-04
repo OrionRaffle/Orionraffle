@@ -1,16 +1,14 @@
-const mysql = require('mysql')
-const Downloader = require('node-url-downloader')
-const path = require('path')
-const { storageUrl, host, user, password, database } = require(path.join(__dirname, '../config/config'))
-const { spawn, exec } = require('child_process')
-const download = require('download')
-const fs = require('fs')
-const { exception } = require('console')
+const path = require('path');
+const mysql = require('mysql');
+const { storageUrl, host, user, password, database } = require(path.join(__dirname, '../config/config'));
+const { spawn } = require('child_process');
+const download = require('download');
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
 
+/** Download new version and lunch it
+* @author   bstn
+* @param    {String} newVersion           New version
+*/
 async function downloadNewVersion(newVersion) {
   (async () => {
     await download(
@@ -21,15 +19,21 @@ async function downloadNewVersion(newVersion) {
     process.exit()
   })()
 }
-
+/** Execute command after 1 second (to lunch bot after update)
+* @author   bstn
+* @param    {String} command           Commande
+*/
 function promiseBlindExecute(command) {
   return new Promise((resolve) => {
     spawn(command, [], { shell: true, detached: true })
     setTimeout(resolve, 1000)
   })
 }
-
-async function checkRemoteVersion(callback) {
+/** Get la current version sur la dtb
+* @author   bstn
+* @param    {function} callback           Callback pour gérer la remote version
+*/
+async function getRemoteVersion(callback) {
   const connection = mysql.createConnection({
     host: host,
     user: user,
@@ -46,7 +50,10 @@ async function checkRemoteVersion(callback) {
   })
   connection.end()
 }
-
+/** Check si la version est à jour
+* @author   bstn
+* @param    {function} callback           Callback pour gérer la remote version
+*/
 async function checkVersion(localVersion, resolve){
   function handleRemoteVersionResult(version) {
     if(localVersion===version) resolve();
@@ -57,7 +64,7 @@ async function checkVersion(localVersion, resolve){
     }
   }
   console.log('Checking Version..')
-  await checkRemoteVersion(handleRemoteVersionResult)
+  await getRemoteVersion(handleRemoteVersionResult)
 }
 
 module.exports = {
