@@ -1,7 +1,7 @@
 /** Set discord overlay for Orion
 * @author   bstn
 */
-function setRichPresence() {
+function setRichPresence(version) {
     try {
         const client = require('discord-rich-presence')('812828492474613780')
         client.on('unhandledRejection', () => {
@@ -16,7 +16,10 @@ function setRichPresence() {
           largeImageKey: 'orionlogoverybig',
           instance: true,
         })
-    } catch {}
+    } catch(error) {
+      console.log(error)
+      process.exit(1)
+    }
 }
 
 module.exports = {

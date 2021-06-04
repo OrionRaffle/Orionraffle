@@ -135,11 +135,9 @@ function sleep(ms) {
 }
 
 async function csvReadClientAuth(callback) {
-    return new Promise(()=>{
-        fs.createReadStream('./config.csv')
+    fs.createReadStream('./config.csv')
         .pipe(csv())
         .on('data', (data)=>callback(data))
-    })
 }
 
 async function csvconfigreaderShuzu() {
@@ -165,28 +163,22 @@ async function csvupdatereaderSNS() {
     return updatecsv
 }
 
-async function csvproxyreader() {
-    const proxycsv = []
-
-    await sleep(500)
-    const readInterface = readline.createInterface({
-        input: fs.createReadStream('./proxy.txt'),
-        console: false,
-    })
-    readInterface.on('line', (line) => {
-        newline = line.split(':')
-        data = {
-            ip: newline[0],
-            port: newline[1],
-            user: newline[2],
-            password: newline[3],
-        }
-        proxycsv.push(data)
-    })
-
-    await sleep(500)
-
-    return proxycsv
+function csvReadProxy(callback) {
+    let proxies = [];
+    const proxyLines = fs.readFileSync('./proxy.txt').toString().split("\n");
+    for(lines in proxyLines) {
+        let data = proxyLines[lines].split(':')
+        if(data[0]==='') continue;
+        proxies.push(
+            {
+                ip: data[0],
+                port: data[1],
+                user: data[2],
+                password: data[3],
+            }
+        );
+    }
+    callback(proxies);
 }
 
 async function csvrafflereaderSNS() {
@@ -291,7 +283,7 @@ async function csvCourirInstoreLog(info) {
 module.exports = {
     csvReadClientAuth,
     csvconfigreaderShuzu,
-    csvproxyreader,
+    csvReadProxy,
     csvrafflereaderSNS,
     csvupdatereaderSNS,
     csvrafflereaderFootshop,

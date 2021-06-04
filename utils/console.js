@@ -22,6 +22,16 @@ function displayHeader() {
   clear()
   console.log(logo)
 }
+/** Display module vue
+* @author   bstn
+* @param    {String}      module  Module name
+*/
+function displayModule(module) {
+  clear();
+  displayHeader();
+  console.log(chalk.rgb(247, 158, 2)(`\n ${module}`));
+  console.log("-----------------------------------------------------\n\n");
+}
 /** Display header logo (Orion)
 * @author   bstn
 * @param    {Array}       modules   All created modules
@@ -64,5 +74,7 @@ function logSuccess(message) {
 
 module.exports = {
   menu,
+  displayModule,
+  
   logError, logInfo, logSuccess
 }

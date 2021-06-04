@@ -1,16 +1,23 @@
+const path = require('path');
+
 const inputReader = require('wait-console-input');
 const figlet = require("figlet")
 const colors = require("colors")
 const clear = require('console-clear');
 const { Webhook, MessageBuilder } = require('discord-webhook-node');
 const chalk = require('chalk');
-const { csvregisterreaderCourir, csvloginreaderCourir, csvproxyreader, csvconfigreader,csvRegisterCourirLog,csvLoginCourirLog } = require('../../init')
+const { csvregisterreaderCourir, csvloginreaderCourir, csvproxyreader, csvconfigreader, csvRegisterCourirLog, csvLoginCourirLog } = require('../../init')
 const { loginfirst } = require('./login/loginfirst')
 const { logintwo } = require('./login/logintwo')
 const { registerfirst, getRaffleData } = require('./register/registerfirst')
 const { registertwo, getIdRecaptcha, getTokenRecaptcha } = require('./register/registertwo');
 const { getRaffleId } = require('./register/registerfirst');
 
+const { menu, displayModule, logError, logInfo, logSuccess } = require(path.join(__dirname, '../../utils/console'))
+const { csvReadProxy, csvReadClientAuth } = require(path.join(__dirname, '../../utils/csvReader'))
+const { reinitProgram } = require(path.join(__dirname, '../../utils/utils'))
+const { getRaffle } = require(path.join(__dirname, '../../utils/gateway/gatewayCourir'))
+const { getRaffleDataCourirEql } = require(path.join(__dirname, '../../utils/gateway/gatewayEql'))
 
 function pad(num) {
   return ("0" + num).slice(-2);
@@ -152,50 +159,69 @@ async function pourcentage(i, length, version, success) {
 }
 
 
-async function courir(version) {
+async function courir(version, module) {
+  let twoCaptchatKey;
 
   tabRange = []
   realTabRange = []
   var tabSizeEU = []
   var tabSize = []
-  config = await csvconfigreader()
   var raffleTab = []
 
+  async function checkConfig(configuration) {
+    twoCaptchatKey = configuration.Key2Captcha;
 
-  clear()
-  console.log(chalk.rgb(247, 158, 2)(figlet.textSync(' Orion', { font: 'Larry 3D', horizontalLayout: 'fitted' })));
-  console.log(chalk.rgb(247, 158, 2)("\n Courir Online Mode"))
-  console.log("-----------------------------------------------------\n")
+    if (twoCaptchatKey === "") await reinitProgram(`2Captcha Key required for ${module.label}`)
+    else await csvReadProxy(handleProxy);
+  }
+  async function handleProxy(proxies) {
+    if (proxies.length === 0) return reinitProgram(`Proxy required for ${module.label}`)
+    await getRaffle(handleRaffle)
+  }
+  async function handleRaffle(raffles) {
+    let rafflesData = [];
+    raffles = [
+      { 'Name': 'Test', 'id': 'nike-dunk-low-university-blue', 'link': 'https://eql.xyz/page-data/fr-FR/launch/courir/nike-dunk-low-university-blue/page-data.json' },
+    ]
+    if (raffles.length === 0) return await reinitProgram('No raffle available.');
 
-
-
-  csvproxy = await csvproxyreader()
-  await sleep(500)
-  if (csvproxy == 0) {
-    console.log("\n[Info] Proxy required")
-    await sleep(4000)
-    return
+    async function getRafflesData() {
+      raffles.forEach(async (raffle) => {
+        const json = await getRaffleDataCourirEql(raffle.id);
+        if (json === undefined) {
+          return reinitProgram(`Error with eql, raffle id: ${raffle.id}.`);
+        }
+        else {
+          let sizes = [];
+          json.inventory.forEach(size => {
+            sizes.push(size.variant_title)
+          })
+          rafflesData.push(
+            {
+              "name": json.product,
+              "price": json.price,
+              "id": json.id,
+              "sizeGlobal": tabSize,
+              "sizeRun": ""
+            });
+            console.log('finish')
+          return;
+        }
+      });
+    }
+    await getRafflesData();
+    console.log(rafflesData);
   }
 
-  if (config[0].Key2Captcha == "") {
-    console.log("\n[Info] 2Captcha Key required")
-    await sleep(4000)
-    return
-  }
+
+  displayModule(module.label);
+  csvReadClientAuth(checkConfig)
+  return;
 
   // raffle = [
   //   // { 'Name': 'Dunk Low SE Easter', 'id': 'CR0008', 'link': 'https://www.sneakql.com/page-data/fr-FR/launch/courir/nike-dunk-low-se-easter/page-data.json' },
   //   { 'Name': 'Dunk Low Free 99', 'id': 'CR0004', 'link': 'https://www.sneakql.com/page-data/fr-FR/launch/courir/nike-dunk-low-free-ninetynine/page-data.json' }
   // ]
-
-
-  idCourir = await getRaffleId()
-  await sleep(100)
-  if (idCourir.length == 0) {
-    console.log('\n[Info] No raffle at this moment\n')
-    await sleep(2000)
-    return
-  }
 
 
   for (let i = 0; i < idCourir.length; i++) {
@@ -281,9 +307,9 @@ async function courir(version) {
   // }else{
   //   sound = false
   // }
-  
 
-  
+
+
   clear()
   console.log(chalk.rgb(247, 158, 2)(figlet.textSync(' Orion', { font: 'Larry 3D', horizontalLayout: 'fitted' })));
   console.log(chalk.rgb(247, 158, 2)(`\n Courir Online Mode | ${raffle.name}`))
@@ -324,7 +350,7 @@ async function courir(version) {
       var revo = { "revoTask": "", "revoDelay": "" }
       for (let i = 0; i < csvraffle.length; i++) {
 
-        
+
         size = raffle.sizeRun[Math.floor(Math.random() * raffle.sizeRun.length)]
         csvraffle[i].Size = size
         csvraffle[i].IdRaffle = raffle.id
@@ -334,7 +360,7 @@ async function courir(version) {
         if ((csvraffle[i].Email == "") || (csvraffle[i].Password == "") || (csvraffle[i].FirstName == "") || (csvraffle[i].LastName == "") || (csvraffle[i].Country == "") || (csvraffle[i].Address == "") || (csvraffle[i].PostalCode == "") || (csvraffle[i].City == "") || (csvraffle[i].State == "") || (csvraffle[i].CardNumber == "") || (csvraffle[i].MM == "") || (csvraffle[i].YY == "") || (csvraffle[i].CVC = "")) {
           console.log(colors.red(await date(), 'Problem with a csv field'))
         } else {
-          info = await registerfirst(csvraffle[i], csvproxy[proxyid], parseInt((i) + 1) )
+          info = await registerfirst(csvraffle[i], csvproxy[proxyid], parseInt((i) + 1))
           while (info == -1) {
             console.log('[Info] Rotating proxy')
             proxyid++
@@ -343,7 +369,7 @@ async function courir(version) {
               console.log('\nPlease reboot the bot')
               await sleep(100000000)
             }
-            info = await registerfirst(csvraffle[i], csvproxy[proxyid], parseInt((i) + 1) )
+            info = await registerfirst(csvraffle[i], csvproxy[proxyid], parseInt((i) + 1))
           }
           if (info == 0) {
             try {
@@ -388,7 +414,7 @@ async function courir(version) {
             }
             console.log(colors.green("[Info][" + parseInt((i) + 1) + "][" + csvraffle[i].Email + "] Captcha success"))
 
-            error = await registertwo(info, parseInt((i) + 1), csvproxy[proxyid], responseCaptcha )
+            error = await registertwo(info, parseInt((i) + 1), csvproxy[proxyid], responseCaptcha)
             while (error == -1) {
               proxyid++
               // if (csvproxy.length <= proxyid) {
@@ -396,7 +422,7 @@ async function courir(version) {
               //   console.log('\nPlease reboot the bot')
               //   await sleep(100000000)
               // }
-              error = await registertwo(info, parseInt((i) + 1), csvproxy[proxyid], responseCaptcha )
+              error = await registertwo(info, parseInt((i) + 1), csvproxy[proxyid], responseCaptcha)
             }
             if (error != 0) {
               success++
@@ -458,11 +484,11 @@ async function courir(version) {
         csvraffle[i].IdRaffle = raffle.id
         csvraffle[i].NameRaffle = raffle.name
         csvraffle[i].revo = revo
-        
+
         if ((csvraffle[i].Email == "") || (csvraffle[i].Password == "") || (csvraffle[i].FirstName == "") || (csvraffle[i].LastName == "") || (csvraffle[i].Country == "") || (csvraffle[i].Address == "") || (csvraffle[i].PostalCode == "") || (csvraffle[i].City == "") || (csvraffle[i].State == "") || (csvraffle[i].CardNumber == "") || (csvraffle[i].MM == "") || (csvraffle[i].YY == "") || (csvraffle[i].CVC = "")) {
           console.log(colors.red(await date(), 'Problem with a csv field'))
         } else {
-          info = await loginfirst(csvraffle[i], parseInt((i) + 1), csvproxy[proxyid] )
+          info = await loginfirst(csvraffle[i], parseInt((i) + 1), csvproxy[proxyid])
           while (info == -1) {
             console.log('[Info] Rotating proxy')
             proxyid++
@@ -471,7 +497,7 @@ async function courir(version) {
             //   console.log('\nPlease reboot the bot')
             //   await sleep(100000000)
             // }
-            info = await loginfirst(csvraffle[i], parseInt((i) + 1), csvproxy[proxyid] )
+            info = await loginfirst(csvraffle[i], parseInt((i) + 1), csvproxy[proxyid])
           }
           if (info == 0) {
             try {

@@ -11,7 +11,7 @@ const { footshop } = require('./website/Footshop/footshop')
 const { courirInstore } = require('./website/CourirInstore/courirInstore')
 
 //Ourself Modules import
-const { csvReadClientAuth } = require(path.join(__dirname, 'gateway/csvReader'))
+const { csvReadClientAuth } = require(path.join(__dirname, 'utils/csvReader'))
 const { checkVersion } = require(path.join(__dirname, 'utils/update'));
 const { authUser } = require(path.join(__dirname, './utils/authentification'))
 const { menu, logError, logInfo, logSuccess } = require(path.join(__dirname, 'utils/console'))
@@ -59,7 +59,7 @@ async function main() {
     if (isNaN(choice)) logError('Wrong input.');
     else{
       choice--;
-      if (allModules[choice].state) await allModules[choice].callback(version);
+      if (allModules[choice].state) await allModules[choice].callback(version, allModules[choice]);
       else logError('Module down.');
     }
     await sleep(1500);
@@ -68,6 +68,7 @@ async function main() {
   await csvReadClientAuth(databaseAuthentification)
 }
 
-setRichPresence()
+setRichPresence(version)
 colors.enable()
-main()
+//main()
+courir(version, allModules[2])

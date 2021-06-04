@@ -57,7 +57,7 @@ async function authUser(key, version, reject, resolve) {
   const updateQuery = `UPDATE orion_user SET currentVersion="${version}" WHERE pw="${key}"`;
 
   connection.query(getUserQuery, async (error, results) => {
-    if (error) throw error
+    if (error) return reject('Authentification failed. Database is not joinable.');
     if (results.length != 1) reject('Invalid licence key')
     else {
       const user = results[0].user;
@@ -71,7 +71,7 @@ async function authUser(key, version, reject, resolve) {
       resolve(user)
     }
   })
-  connection.query(updateQuery, (error) => { if (error) throw error; })
+  connection.query(updateQuery, (error) => { if (error) return; })
   connection.end()
 }
 
