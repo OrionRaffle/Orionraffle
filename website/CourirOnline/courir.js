@@ -13,7 +13,7 @@ const { registerfirst, getRaffleData } = require('./register/registerfirst')
 const { registertwo, getIdRecaptcha, getTokenRecaptcha } = require('./register/registertwo');
 const { getRaffleId } = require('./register/registerfirst');
 
-const { menu, displayModule, displayCourirRaffle, displaySizeChoice, logError, logInfo, logSuccess } = require(path.join(__dirname, '../../utils/console'))
+const { menu, displayModule, displayCourirRaffle, displaySizeChoice, displayCourirMode, displayProxyTimeChoice, logError, logInfo, logSuccess } = require(path.join(__dirname, '../../utils/console'))
 const { csvReadProxy, csvReadClientAuth } = require(path.join(__dirname, '../../utils/csvReader'))
 const { reinitProgram } = require(path.join(__dirname, '../../utils/utils'))
 const { getRaffle } = require(path.join(__dirname, '../../utils/gateway/gatewayCourir'))
@@ -180,9 +180,6 @@ async function courir(version, module) {
   }
   async function handleRaffle(raffles) {
     let rafflesData = [];
-    raffles = [
-      { 'Name': 'Test', 'id': 'nike-dunk-low-university-blue', 'link': 'https://eql.xyz/page-data/fr-FR/launch/courir/nike-dunk-low-university-blue/page-data.json' },
-    ]
     if (raffles.length === 0) return await reinitProgram('No raffle available.');
 
     async function getRafflesData() {
@@ -215,77 +212,64 @@ async function courir(version, module) {
     choice = await displayCourirRaffle(rafflesData);
     choice = parseInt(choice);
     if (isNaN(choice)) logError('Wrong input.');
-    else{
+    else {
       choice--;
       if (rafflesData[choice] === undefined) logError('Invalid index.');
-      else return startRaffle(rafflesData[choice]);
+      else return getSizes(rafflesData[choice]);
     }
     await sleep(1500);
     displayModule(module.label);
     displayMenu(rafflesData);
   }
-  async function startRaffle(raffle) {
+  async function getSizes(raffle) {
     displayModule(module.label, raffle);
     const result = await displaySizeChoice(raffle.sizeGlobal);
-    if(result.from<=result.to) return console.log('Ok return');
+    if (result.from <= result.to) return getProxyTimes(result.from, result.to);
     logError('Invalid inputs.')
     await sleep(1500);
     displayModule(module.label);
-    startRaffle(raffle);
+    getSizes(raffle);
+  }
+  async function getProxyTimes(from, to) {
+    const result = await displayProxyTimeChoice()
+    if (result.from <= result.to && result.from >= 0) return chooseMode(from, to, result.from, result.to);
+    logError('Invalid inputs.')
+    await sleep(1500);
+    displayModule(module.label);
+    getProxyTimes(from, to);
+  }
+  async function chooseMode(sizeFrom, sizeTo, timeFrom, timeTo) {
+    console.log('from ' + timeFrom + ' to ' + timeTo + ' and from size ' + sizeFrom + ' to ' + sizeTo)
+    const choice = await displayCourirMode();
+    switch (choice) {
+      case 1:
+        return accountRegister();
+      case 2:
+        return accountLogin();
+      default:
+        break;
+    }
+    logError('Invalid inputs.')
+    await sleep(1500);
+    displayModule(module.label);
+    chooseMode(sizeFrom, sizeTo, timeFrom, timeTo);
+  }
+  async function accountRegister() {
+    console.log('a r')
+  }
+  async function accountLogin() {
+    console.log('a l')
   }
 
   displayModule(module.label);
-  csvReadClientAuth(checkConfig)
+  //csvReadClientAuth(checkConfig)
+  chooseMode(40, 41, 1, 15)
   return;
 
   // raffle = [
   //   // { 'Name': 'Dunk Low SE Easter', 'id': 'CR0008', 'link': 'https://www.sneakql.com/page-data/fr-FR/launch/courir/nike-dunk-low-se-easter/page-data.json' },
   //   { 'Name': 'Dunk Low Free 99', 'id': 'CR0004', 'link': 'https://www.sneakql.com/page-data/fr-FR/launch/courir/nike-dunk-low-free-ninetynine/page-data.json' }
   // ]
-
-
-  tabRangeSansEu = []
-  tabRange = []
-  for (let i = 0; i < tabSize.length; i++) {
-
-    if (tabSize[i] >= FromSize && tabSize[i] <= ToSize) {
-      tabRange.push(raffle.sizeGlobal[i])
-      tabRangeSansEu.push(tabSize[i])
-    }
-  }
-  if (tabRange == '') {
-    console.log(`[Error] Wrong size`)
-    await sleep(5000)
-    return
-  }
-  raffle.sizeRun = tabRange
-
-  clear()
-  console.log(chalk.rgb(247, 158, 2)(figlet.textSync(' Orion', { font: 'Larry 3D', horizontalLayout: 'fitted' })));
-  console.log(chalk.rgb(247, 158, 2)(`\n Courir Online Mode | ${raffle.name}`))
-  console.log("-----------------------------------------------------\n")
-
-  console.log('Range between each task ? (First number) (s)')
-  first = inputReader.readInteger()
-  console.log('Range between each task ? (Second number) (s)')
-  second = inputReader.readInteger()
-
-  // console.log('\n-----------------------------------------------------\n')
-  // console.log('Sound Effect (y/n) ?')
-  // sound = inputReader.readLine()
-  // while (true) {
-  //   if (sound == 'y' || sound == 'n') {
-  //     break
-  //   }
-  //   sound = inputReader.readLine()
-  // }
-
-  // if(sound == 'y'){
-  //   sound = true
-  // }else{
-  //   sound = false
-  // }
-
 
 
   clear()

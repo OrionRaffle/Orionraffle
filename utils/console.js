@@ -91,12 +91,33 @@ async function displaySizeChoice(sizes) {
 
   return {'from':from, 'to':to};
 }
+async function displayProxyTimeChoice() {
+  console.log('Range between each task ? (First number) (s)');
+  from = inputReader.readInteger();
+  console.log('Range between each task ? (Second number) (s)');
+  to = inputReader.readInteger();
+
+  return {'from':from, 'to':to};
+}
+
+async function displayCourirMode() {
+  displayHeader();
+  console.log("-----------------------------------------------------\n")
+  console.log("1. Account Register + Raffle Mode")
+  console.log("2. Account Login + Raffle Mode")
+  console.log('\n-----------------------------------------------------\n')
+  var input = inputReader.readInteger();
+
+  return input;
+}
 
 module.exports = {
   menu,
   displayModule,
   displayCourirRaffle,
   displaySizeChoice,
+  displayProxyTimeChoice,
+  displayCourirMode,
 
   logError, logInfo, logSuccess,
 }
