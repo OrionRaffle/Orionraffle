@@ -11,9 +11,9 @@ const logo = chalk.rgb(247, 158, 2)(
   })
 )
 async function display() { // A quoi ça sert?
-    displayHeader()
-    console.log(`\nWelcome ${`${discordUsername}`.magenta}`)
-    setTitle(`OrionRaffle | Private Beta | V.${version} | ${discordUsername}`)
+  displayHeader()
+  console.log(`\nWelcome ${`${discordUsername}`.magenta}`)
+  setTitle(`OrionRaffle | Private Beta | V.${version} | ${discordUsername}`)
 }
 /** Display header logo (Orion)
 * @author   bstn
@@ -26,11 +26,11 @@ function displayHeader() {
 * @author   bstn
 * @param    {String}      module  Module name
 */
-function displayModule(module) {
+function displayModule(module, raffle) {
   clear();
   displayHeader();
-  console.log(chalk.rgb(247, 158, 2)(`\n ${module}`));
-  console.log("-----------------------------------------------------\n\n");
+  console.log(chalk.rgb(247, 158, 2)(`\n ${module} ${raffle!==undefined?`| ${raffle.name}`:''}`));
+  console.log("-----------------------------------------------------\n");
 }
 /** Display header logo (Orion)
 * @author   bstn
@@ -72,9 +72,31 @@ function logSuccess(message) {
   console.log(`[Success]\t: ${message}`);
 }
 
+async function displayCourirRaffle(rafflesData) {
+  let index = 0;
+  rafflesData.forEach(raffle => {
+    index++;
+    console.log(`${index}. ${raffle.name} / ${raffle.price}€`)
+  })
+  console.log("\n-----------------------------------------------------\n")
+  input = inputReader.readLine();
+  return input;
+}
+async function displaySizeChoice(sizes) {
+  console.log('Size Available :', chalk.rgb(247, 158, 2)(...sizes));
+  console.log('\nFrom size ?');
+  from = inputReader.readFloat();
+  console.log('To size ?');
+  to = inputReader.readFloat();
+
+  return {'from':from, 'to':to};
+}
+
 module.exports = {
   menu,
   displayModule,
-  
-  logError, logInfo, logSuccess
+  displayCourirRaffle,
+  displaySizeChoice,
+
+  logError, logInfo, logSuccess,
 }

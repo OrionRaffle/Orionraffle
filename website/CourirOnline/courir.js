@@ -13,7 +13,7 @@ const { registerfirst, getRaffleData } = require('./register/registerfirst')
 const { registertwo, getIdRecaptcha, getTokenRecaptcha } = require('./register/registertwo');
 const { getRaffleId } = require('./register/registerfirst');
 
-const { menu, displayModule, logError, logInfo, logSuccess } = require(path.join(__dirname, '../../utils/console'))
+const { menu, displayModule, displayCourirRaffle, displaySizeChoice, logError, logInfo, logSuccess } = require(path.join(__dirname, '../../utils/console'))
 const { csvReadProxy, csvReadClientAuth } = require(path.join(__dirname, '../../utils/csvReader'))
 const { reinitProgram } = require(path.join(__dirname, '../../utils/utils'))
 const { getRaffle } = require(path.join(__dirname, '../../utils/gateway/gatewayCourir'))
@@ -186,33 +186,53 @@ async function courir(version, module) {
     if (raffles.length === 0) return await reinitProgram('No raffle available.');
 
     async function getRafflesData() {
-      raffles.forEach(async (raffle) => {
-        const json = await getRaffleDataCourirEql(raffle.id);
+      for (let index = 0; index < raffles.length; index++) {
+        const json = await getRaffleDataCourirEql(raffles[index].id);
         if (json === undefined) {
-          return reinitProgram(`Error with eql, raffle id: ${raffle.id}.`);
+          return reinitProgram(`Error with eql, raffle id: ${raffles[index].id}.`);
         }
         else {
           let sizes = [];
           json.inventory.forEach(size => {
-            sizes.push(size.variant_title)
+            sizes.push(size.variant_title.split("EU ")[1])
           })
           rafflesData.push(
             {
               "name": json.product,
               "price": json.price,
               "id": json.id,
-              "sizeGlobal": tabSize,
+              "sizeGlobal": sizes,
               "sizeRun": ""
             });
-            console.log('finish')
           return;
         }
-      });
+      }
     }
     await getRafflesData();
-    console.log(rafflesData);
+    displayMenu(rafflesData);
   }
-
+  async function displayMenu(rafflesData) {
+    choice = await displayCourirRaffle(rafflesData);
+    choice = parseInt(choice);
+    if (isNaN(choice)) logError('Wrong input.');
+    else{
+      choice--;
+      if (rafflesData[choice] === undefined) logError('Invalid index.');
+      else return startRaffle(rafflesData[choice]);
+    }
+    await sleep(1500);
+    displayModule(module.label);
+    displayMenu(rafflesData);
+  }
+  async function startRaffle(raffle) {
+    displayModule(module.label, raffle);
+    const result = await displaySizeChoice(raffle.sizeGlobal);
+    if(result.from<=result.to) return console.log('Ok return');
+    logError('Invalid inputs.')
+    await sleep(1500);
+    displayModule(module.label);
+    startRaffle(raffle);
+  }
 
   displayModule(module.label);
   csvReadClientAuth(checkConfig)
@@ -223,48 +243,6 @@ async function courir(version, module) {
   //   { 'Name': 'Dunk Low Free 99', 'id': 'CR0004', 'link': 'https://www.sneakql.com/page-data/fr-FR/launch/courir/nike-dunk-low-free-ninetynine/page-data.json' }
   // ]
 
-
-  for (let i = 0; i < idCourir.length; i++) {
-    json = await getRaffleData(idCourir[i].idRaffle)
-    let tabSize = []
-    for (let j = 0; j < json.inventory.length; j++) {
-      tabSize.push(json.inventory[j].variant_title)
-    }
-    raffleTab.push({ "name": json.product, "price": json.price, "id": json.id, "sizeGlobal": tabSize, "sizeRun": "" })
-  }
-
-  await sleep(100)
-  for (let i = 0; i < raffleTab.length; i++) {
-    // console.log(raffleTab[i].name)
-    console.log(`${i + 1}. ${raffleTab[i].name} / ${raffleTab[i].price}€`)
-  }
-  console.log("-----------------------------------------------------\n")
-
-  var input = inputReader.readInteger()
-  while (true) {
-    if (input <= raffleTab.length && input > 0) {
-      break
-    }
-    input = inputReader.readInteger()
-  }
-
-  raffle = raffleTab[input - 1]
-
-  clear()
-  console.log(chalk.rgb(247, 158, 2)(figlet.textSync(' Orion', { font: 'Larry 3D', horizontalLayout: 'fitted' })));
-  console.log(chalk.rgb(247, 158, 2)(`\n Courir Online Mode | ${raffle.name}`))
-  console.log("-----------------------------------------------------\n")
-
-
-  for (let i = 0; i < raffle.sizeGlobal.length; i++) {
-    tabSize.push(raffle.sizeGlobal[i].split("EU ")[1])
-  }
-  console.log('Size Available :', chalk.rgb(247, 158, 2)(...tabSize))
-  console.log('\nFrom size ?')
-  FromSize = inputReader.readFloat()
-  console.log('\nTo size ?')
-  ToSize = inputReader.readFloat()
-  if (FromSize > ToSize) return
 
   tabRangeSansEu = []
   tabRange = []
