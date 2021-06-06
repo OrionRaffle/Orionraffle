@@ -168,6 +168,8 @@ async function courir(version, module) {
   var tabSize = []
   var raffleTab = []
 
+  let rafflesData = [];
+
   async function checkConfig(configuration) {
     twoCaptchatKey = configuration.Key2Captcha;
 
@@ -179,7 +181,7 @@ async function courir(version, module) {
     await getRaffle(handleRaffle)
   }
   async function handleRaffle(raffles) {
-    let rafflesData = [];
+    raffles = { 'Name': 'Dunk Low SE Easter', 'id': 'CR0008', 'link': 'https://www.sneakql.com/page-data/fr-FR/launch/courir/nike-dunk-low-se-easter/page-data.json' }
     if (raffles.length === 0) return await reinitProgram('No raffle available.');
 
     async function getRafflesData() {
@@ -272,22 +274,8 @@ async function courir(version, module) {
   // ]
 
 
-  clear()
-  console.log(chalk.rgb(247, 158, 2)(figlet.textSync(' Orion', { font: 'Larry 3D', horizontalLayout: 'fitted' })));
-  console.log(chalk.rgb(247, 158, 2)(`\n Courir Online Mode | ${raffle.name}`))
-  console.log("-----------------------------------------------------\n")
-
-  console.log("1. Account Register + Raffle Mode")
-  console.log("2. Account Login + Raffle Mode")
-
-  console.log('\n-------------------------------------------\n')
-
-  var input = inputReader.readInteger()
-
   switch (input) {
-
     case 1:
-
       clear()
       console.log(chalk.rgb(247, 158, 2)(figlet.textSync(' Orion', { font: 'Larry 3D', horizontalLayout: 'fitted' })));
       console.log(chalk.rgb(247, 158, 2)(`\n Courir Online Mode | Account Register + Raffle Mode | ${raffle.name}`))
