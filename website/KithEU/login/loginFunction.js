@@ -82,7 +82,7 @@ const connect = async (sessionid) => {
     uri: 'https://eu.kith.com/account/login',
     encoding: "UTF-8",
     resolveWithFullResponse: true,
-    maxRedirects:1,
+    maxRedirects:10,
     headers: {
       // 'host': 'https://eu.kith.com/',
       'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
@@ -91,7 +91,7 @@ const connect = async (sessionid) => {
       // "Accept-Encoding": "gzip, deflate, br",
       // "Connection": "keep-alive",
       // 'Content-Type': 'application/x-www-form-urlencoded',
-      'Cookie': '_secure_session_id=' + sessionid,
+      'Cookie': sessionid,
     },
     simple: false,
     form: qs.stringify({
@@ -105,7 +105,7 @@ const connect = async (sessionid) => {
     proxy: proxyCharles
   });
 
-  // console.log(response.body)
+  console.log(response.body)
   return response.body.split('authenticity_token" value="')[1].split('"')[0]
 
   // try {
@@ -314,8 +314,8 @@ async function login() {
   // y = data[5].split(';')[0].split("=")[1]
   // s = data[6].split(';')[0].split("=")[1]
 
-  // console.log(data)
-  token = await connect(sessionId)
+  console.log(data)
+  token = await connect(data[0])
   console.log(token)
   // token = await getToken(sessionId)
 
@@ -333,6 +333,7 @@ async function login() {
  
 }
 
+login()
 
 
 module.exports = {

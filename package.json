@@ -1,6 +1,6 @@
 {
-  "name": "OrionRaffle-0.3.6.",
-  "version": "0.3.6",
+  "name": "OrionRaffle-0.3.7.",
+  "version": "0.3.7",
   "description": "Raffle Bot",
   "main": "index.js",
   "author": "bstn",
@@ -36,6 +36,7 @@
     "fingerprintjs2": "^2.1.4",
     "golang": "^0.1.5-stable",
     "http-proxy": "^1.18.1",
+    "https-proxy-agent": "^5.0.0",
     "install": "^0.13.0",
     "jsbn": "^1.1.0",
     "line-reader": "^0.4.0",

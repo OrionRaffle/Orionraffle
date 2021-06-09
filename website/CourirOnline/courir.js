@@ -12,10 +12,24 @@ const { logintwo } = require('./login/logintwo')
 const { registerfirst, getRaffleData } = require('./register/registerfirst')
 const { registertwo, getIdRecaptcha, getTokenRecaptcha } = require('./register/registertwo');
 const { getRaffleId } = require('./register/registerfirst');
+const { logError } = require('../../utils/console');
 
-const { menu, displayModule, displayCourirRaffle, displaySizeChoice, displayCourirMode, displayProxyTimeChoice, logError, logInfo, logSuccess } = require(path.join(__dirname, '../../utils/console'))
-const { csvReadProxy, csvReadClientAuth } = require(path.join(__dirname, '../../utils/csvReader'))
+const { 
+  menu,
+  displayModule, 
+  displayCourirRaffle, 
+  displaySizeChoice, 
+  displayCourirMode, 
+  displayProxyTimeChoice, 
+  displayRecap,
+  percent,
+  zlogError, 
+  logInfo, 
+  logSuccess 
+} = require(path.join(__dirname, '../../utils/console'))
+const { csvReadProxy, csvReadClientAuth, csvRegisterCourir } = require(path.join(__dirname, '../../utils/csvReader'))
 const { reinitProgram } = require(path.join(__dirname, '../../utils/utils'))
+const { validationCourirRegister } = require(path.join(__dirname, '../../utils/validation'))
 const { getRaffle } = require(path.join(__dirname, '../../utils/gateway/gatewayCourir'))
 const { getRaffleDataCourirEql } = require(path.join(__dirname, '../../utils/gateway/gatewayEql'))
 
@@ -142,21 +156,7 @@ function sleep(ms) {
     resolve => setTimeout(resolve, ms)
   );
 }
-async function pourcentage(i, length, version, success) {
 
-  instance = process.cwd()
-  instance = instance.split("\\").pop()
-
-
-  var setTitle = require('node-bash-title');
-  if (length == 0) {
-    a = 0
-  } else {
-    a = i / length
-  }
-
-  setTitle(`OrionRaffle | Instance /${instance} | Private Beta | V.${version} | ${parseInt(a * 100)}% | Success : ${success} | Failed : ${i - success}`);
-}
 
 
 async function courir(version, module) {
@@ -168,7 +168,8 @@ async function courir(version, module) {
   var tabSize = []
   var raffleTab = []
 
-  let rafflesData = [];
+  var rafflesData = [];
+  var proxiesTab = [];
 
   async function checkConfig(configuration) {
     twoCaptchatKey = configuration.Key2Captcha;
@@ -177,11 +178,11 @@ async function courir(version, module) {
     else await csvReadProxy(handleProxy);
   }
   async function handleProxy(proxies) {
-    if (proxies.length === 0) return reinitProgram(`Proxy required for ${module.label}`)
-    await getRaffle(handleRaffle)
+    if (proxies.length === 0) return reinitProgram(`Proxy required for ${module.label}`);
+    proxiesTab = proxies;
+    await getRaffle(handleRaffle);
   }
   async function handleRaffle(raffles) {
-    raffles = { 'Name': 'Dunk Low SE Easter', 'id': 'CR0008', 'link': 'https://www.sneakql.com/page-data/fr-FR/launch/courir/nike-dunk-low-se-easter/page-data.json' }
     if (raffles.length === 0) return await reinitProgram('No raffle available.');
 
     async function getRafflesData() {
@@ -203,12 +204,11 @@ async function courir(version, module) {
               "sizeGlobal": sizes,
               "sizeRun": ""
             });
-          return;
         }
       }
     }
     await getRafflesData();
-    displayMenu(rafflesData);
+    await displayMenu(rafflesData);
   }
   async function displayMenu(rafflesData) {
     choice = await displayCourirRaffle(rafflesData);
@@ -226,28 +226,36 @@ async function courir(version, module) {
   async function getSizes(raffle) {
     displayModule(module.label, raffle);
     const result = await displaySizeChoice(raffle.sizeGlobal);
-    if (result.from <= result.to) return getProxyTimes(result.from, result.to);
+    if (result.from <= result.to) {
+      var tabSize = [];
+      raffle.sizeGlobal.forEach(element=>{
+        element = parseFloat(element);
+        if(element<result.from) {}
+        else if(element>result.to) {}
+        else tabSize.push(element);
+      })
+      return getProxyTimes(raffle, tabSize);
+    }
     logError('Invalid inputs.')
     await sleep(1500);
     displayModule(module.label);
     getSizes(raffle);
   }
-  async function getProxyTimes(from, to) {
+  async function getProxyTimes(raffle, tabSize) {
     const result = await displayProxyTimeChoice()
-    if (result.from <= result.to && result.from >= 0) return chooseMode(from, to, result.from, result.to);
+    if (result.from <= result.to && result.from >= 0) return chooseMode(raffle, tabSize, result.from, result.to);
     logError('Invalid inputs.')
     await sleep(1500);
     displayModule(module.label);
     getProxyTimes(from, to);
   }
-  async function chooseMode(sizeFrom, sizeTo, timeFrom, timeTo) {
-    console.log('from ' + timeFrom + ' to ' + timeTo + ' and from size ' + sizeFrom + ' to ' + sizeTo)
+  async function chooseMode(raffle, tabSize, timeFrom, timeTo) {
     const choice = await displayCourirMode();
     switch (choice) {
       case 1:
-        return accountRegister();
+        return accountRegister(raffle, tabSize, timeFrom, timeTo);
       case 2:
-        return accountLogin();
+        return accountLogin(raffle, tabSize, timeFrom, timeTo);
       default:
         break;
     }
@@ -256,16 +264,57 @@ async function courir(version, module) {
     displayModule(module.label);
     chooseMode(sizeFrom, sizeTo, timeFrom, timeTo);
   }
-  async function accountRegister() {
-    console.log('a r')
+  async function accountRegister(raffle, tabSize, timeFrom, timeTo) {
+    const mode = 'Account Register + Raffle Mode';
+    displayRecap(module.label, mode,raffle.name, tabSize, timeFrom, timeTo);
+    csvRegisterCourir(raffle, tabSize, timeFrom, timeTo, handleAccountRegister);
   }
-  async function accountLogin() {
+
+  async function handleAccountRegister(raffle, tabSize, timeFrom, timeTo, accounts) {
+    if(accounts.length===0) return logError('The file courir/register.csv is empty.');
+    else{
+      var proxyIndex = 0;
+      const accountNumber = accounts.length;
+      var attemptCount = 0;
+      var successCount = 0;
+      var revo = { "revoTask": "", "revoDelay": "" }
+      
+      
+      logInfo('Start tasks..');
+      for (let i = 0; i < accountNumber; i++) {
+        await percent(attemptCount, accountNumber, successCount);
+        attemptCount++;
+        accounts[i].Size = tabSize[Math.floor(Math.random()*tabSize.length)];
+        accounts[i].IdRaffle = raffle.id;
+        accounts[i].NameRaffle = raffle.name;
+        accounts[i].revo = revo;
+        if(!validationCourirRegister(accounts[i])) return logError(`Problem with a csv field on email ${accounts[i].Email}.`,true);
+
+        const info = await registerfirst(accounts[i], proxiesTab, attemptCount);
+      };
+    }
+  }
+
+  async function accountLogin(sizeFrom, sizeTo, timeFrom, timeTo) {
+    const mode = 'Account Login + Raffle Mode';
+    displayRecap(module.label, mode, raffle.name, tabSize, timeFrom, timeTo);
     console.log('a l')
   }
 
   displayModule(module.label);
   //csvReadClientAuth(checkConfig)
-  chooseMode(40, 41, 1, 15)
+  accountRegister(
+    {
+      name: 'Dunk High Sail Crimson Tint',
+      price: 110,
+      id: 'CR0016',
+      sizeGlobal: [ '36.5', '37.5', '38', '39', '40', '41' ],
+      sizeRun: ''
+    },
+    [40, 41],
+    10,
+    12
+  )
   return;
 
   // raffle = [
@@ -276,19 +325,6 @@ async function courir(version, module) {
 
   switch (input) {
     case 1:
-      clear()
-      console.log(chalk.rgb(247, 158, 2)(figlet.textSync(' Orion', { font: 'Larry 3D', horizontalLayout: 'fitted' })));
-      console.log(chalk.rgb(247, 158, 2)(`\n Courir Online Mode | Account Register + Raffle Mode | ${raffle.name}`))
-      console.log("----------------------------------------------------------------------\n")
-      console.log(`[Settings] Size :`, chalk.rgb(247, 158, 2)(...tabRangeSansEu), `| Range : ${first} - ${second} seconds `)
-
-      csvraffle = await csvregisterreaderCourir()
-      if (csvraffle.length == 0) {
-        console.log(colors.brightRed('The file courir/register.csv is empty'))
-        await sleep(2000)
-        return
-      }
-
       console.log('\n[Info] Start tasks..')
 
       var proxyid = 0

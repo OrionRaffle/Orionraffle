@@ -16,7 +16,13 @@ async function getRaffle(callback) {
 
     connection.query(query, (error, results) => {
         if (error) throw error;
-        callback(results);
+        var res = [];
+        results.forEach(element => {
+            res.push({
+                id:element.idRaffle
+            })
+        });
+        callback(res);
     })
     connection.end()
 }

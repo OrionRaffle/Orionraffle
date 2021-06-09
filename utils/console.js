@@ -3,6 +3,12 @@ const chalk = require('chalk')
 const clear = require('console-clear')
 const figlet = require('figlet')
 const inputReader = require('wait-console-input')
+const colors = require("colors")
+
+//Get package.json data
+var pjson = require('../package.json');
+
+const version = pjson.version;
 
 const logo = chalk.rgb(247, 158, 2)(
   figlet.textSync(' Orion', {
@@ -49,26 +55,32 @@ async function menu(modules, username) {
   input = inputReader.readLine();
   return input;
 }
-
+function getDate() {
+  const date = new Date();
+  return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+}
 /** Log an error
 * @author   Lux
 * @param    {String}      message  Message
 */
-function logError(message) {
-  console.log(`[Error]\t: ${message}`);
+function logError(message, displayDate=false) {
+  if(displayDate) message = `${getDate()} - ${message}`;
+  console.log(colors.brightRed(`[Error]\t: ${message}`));
 }
 /** Log an info
 * @author   Lux
 * @param    {String}      message  Message
 */
-function logInfo(message) {
+function logInfo(message,displayDate=false) {
+  if(displayDate) message = `${getDate()} - ${message}`;
   console.log(`[Info]\t: ${message}`);
 }
 /** Log a success
 * @author   Lux
 * @param    {String}      message  Message
 */
-function logSuccess(message) {
+function logSuccess(message,displayDate=false) {
+  if(displayDate) message = `${getDate()} - ${message}`;
   console.log(`[Success]\t: ${message}`);
 }
 
@@ -78,10 +90,30 @@ async function displayCourirRaffle(rafflesData) {
     index++;
     console.log(`${index}. ${raffle.name} / ${raffle.price}€`)
   })
+  if(rafflesData.length===0) {
+    logInfo('No raffle.')
+    return undefined
+  }
   console.log("\n-----------------------------------------------------\n")
   input = inputReader.readLine();
   return input;
 }
+async function displayRecap(module, mode, raffleName, sizeTab, proxyFrom, proxyTo) {
+  displayHeader()
+  console.log(chalk.rgb(247, 158, 2)(`\n ${module} | ${mode} | ${raffleName}`))
+  console.log("----------------------------------------------------------------------\n")
+  console.log(`[Settings] Size :`, chalk.rgb(247, 158, 2)(...sizeTab), `| Range : ${proxyFrom} - ${proxyTo} seconds `)
+}
+
+async function percent(count, length, successCount) {
+  instance = process.cwd()
+  instance = instance.split("\\").pop()
+
+  if (length == 0) percentage = 0;
+  else percentage = count / length
+  setTitle(`OrionRaffle | Instance /${instance} | Private Beta | V.${version} | ${parseInt(percentage * 100)}% | Success : ${successCount} | Failed : ${count - successCount}`);
+}
+
 async function displaySizeChoice(sizes) {
   console.log('Size Available :', chalk.rgb(247, 158, 2)(...sizes));
   console.log('\nFrom size ?');
@@ -118,6 +150,8 @@ module.exports = {
   displaySizeChoice,
   displayProxyTimeChoice,
   displayCourirMode,
+  displayRecap,
+  percent,
 
   logError, logInfo, logSuccess,
 }

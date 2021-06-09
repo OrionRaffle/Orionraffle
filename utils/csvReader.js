@@ -193,16 +193,12 @@ async function csvrafflereaderSNS() {
     return rafflecsv
 }
 
-async function csvregisterreaderCourir() {
-    const registercsv = []
-
+async function csvRegisterCourir(raffle, tabSize, timeFrom, timeTo, callback) {
+    var dataTab = [];
     fs.createReadStream('./Courir/register.csv')
         .pipe(csv())
-        .on('data', (data) => registercsv.push(data))
-        .on('end', () => {})
-
-    await sleep(2000)
-    return registercsv
+        .on('data', (data)=>{ if(data.Email!==undefined) dataTab.push(data); })
+        .on('end', () => {callback(raffle, tabSize, timeFrom, timeTo, dataTab)})
 }
 
 async function csvloginreaderCourir() {
@@ -287,7 +283,7 @@ module.exports = {
     csvrafflereaderSNS,
     csvupdatereaderSNS,
     csvrafflereaderFootshop,
-    csvregisterreaderCourir,
+    csvRegisterCourir,
     csvloginreaderCourir,
     csvRegisterCourirLog,
     csvLoginCourirLog,
