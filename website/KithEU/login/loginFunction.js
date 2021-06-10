@@ -24,7 +24,20 @@ const basicHeader = {
   'Content-Type': 'application/x-www-form-urlencoded',
 }
 
-
+//Get basic cookies here
+/*
+[
+  '_secure_session_id=0bd396e8cf15e2b6dae121b9edfeb13b; path=/; expires=Fri, 11 Jun 2021 12:09:10 GMT; secure; HttpOnly; SameSite=Lax',
+  'cart_sig=93fb79fcccca0348d2fa31037ee15481; path=/; expires=Thu, 24 Jun 2021 12:09:10 GMT; HttpOnly; SameSite=Lax',
+  'secure_customer_sig=; path=/; expires=Fri, 10 Jun 2022 12:09:10 GMT; secure; HttpOnly; SameSite=Lax',
+  '_orig_referrer=; Expires=Thu, 24-Jun-21 12:09:10 GMT; Domain=kith.com; Path=/; HttpOnly; SameSite=Lax',
+  '_landing_page=%2Faccount%2Flogin; Expires=Thu, 24-Jun-21 12:09:10 GMT; Domain=kith.com; Path=/; HttpOnly; SameSite=Lax',
+  '_y=8493c79b-3b78-4b09-a305-6e5eea11d7e9; Expires=Fri, 10-Jun-22 12:09:10 GMT; Domain=kith.com; Path=/; SameSite=Lax',
+  '_s=57c29ba1-83cd-4d71-b9a3-18ad2fb0bdab; Expires=Thu, 10-Jun-21 12:39:10 GMT; Domain=kith.com; Path=/; SameSite=Lax',
+  '_shopify_y=8493c79b-3b78-4b09-a305-6e5eea11d7e9; Expires=Fri, 10-Jun-22 12:09:10 GMT; Domain=kith.com; Path=/; SameSite=Lax',       
+  '_shopify_s=57c29ba1-83cd-4d71-b9a3-18ad2fb0bdab; Expires=Thu, 10-Jun-21 12:39:10 GMT; Domain=kith.com; Path=/; SameSite=Lax'        
+]
+*/
 async function openSession() {
   const response = await axios({
     headers: basicHeader,
@@ -35,6 +48,8 @@ async function openSession() {
   })
   return response.headers['set-cookie'];
 }
+//Get Global E Data here
+//callback_SetLocalize({"CountryCode":"FR","CurrencyCode":"EUR","CultureCode":"fr","IsOperatedByGlobalE":true,"IsSupportsFixedPrice":false})
 async function getGlobalEData() {
   const response = await axios({
     headers: basicHeader,
@@ -44,7 +59,21 @@ async function getGlobalEData() {
   })
   return response.data;
 }
-
+//Get card/update cookie from shopify
+/*
+[
+  'cart=57d8a993b5a0260f5ab5541ba6aaf3ff; path=/; expires=Thu, 24 Jun 2021 12:09:11 GMT; SameSite=Lax',
+  'cart_ts=1623326951; path=/; expires=Thu, 24 Jun 2021 12:09:11 GMT; HttpOnly; SameSite=Lax',
+  'cart_currency=EUR; path=/; expires=Thu, 24 Jun 2021 12:09:11 GMT; SameSite=Lax',
+  'cart_sig=93fb79fcccca0348d2fa31037ee15481; path=/; expires=Thu, 24 Jun 2021 12:09:11 GMT; HttpOnly; SameSite=Lax',
+  'secure_customer_sig=; path=/; expires=Fri, 10 Jun 2022 12:09:11 GMT; secure; HttpOnly; SameSite=Lax',
+  'cart_ver=gcp-us-east1%3A1; path=/; expires=Thu, 24 Jun 2021 12:09:11 GMT; HttpOnly; SameSite=Lax',
+  '_y=8493c79b-3b78-4b09-a305-6e5eea11d7e9; Expires=Fri, 10-Jun-22 12:09:11 GMT; Domain=kith.com; Path=/; SameSite=Lax',
+  '_s=57c29ba1-83cd-4d71-b9a3-18ad2fb0bdab; Expires=Thu, 10-Jun-21 12:39:11 GMT; Domain=kith.com; Path=/; SameSite=Lax',
+  '_shopify_y=8493c79b-3b78-4b09-a305-6e5eea11d7e9; Expires=Fri, 10-Jun-22 12:09:11 GMT; Domain=kith.com; Path=/; SameSite=Lax',
+  '_shopify_s=57c29ba1-83cd-4d71-b9a3-18ad2fb0bdab; Expires=Thu, 10-Jun-21 12:39:11 GMT; Domain=kith.com; Path=/; SameSite=Lax'
+]
+*/
 async function update(cookies) {
   const resp = await axios({
     headers: {
@@ -65,7 +94,7 @@ const connect = async (cookies) => {
     uri: 'https://eu.kith.com/account/login',
     encoding: "UTF-8",
     resolveWithFullResponse: true,
-    maxRedirects: 10,
+    maxRedirects: 1,
     headers: {
       //'host': 'kith.com',
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0',
@@ -73,9 +102,9 @@ const connect = async (cookies) => {
       "Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
       "Accept-Encoding": "gzip, deflate, br",
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Origin': 'https://kith.com',
+      'Origin': 'https://eu.kith.com',
       'Connection': 'keep-alive',
-      'Referer': 'https://kith.com/account/login?return_url=%2Faccount',
+      'Referer': 'https://eu.kith.com/account/login?return_url=%2Faccount',
       'Upgrade-Insecure-Requests': '1',
       'Sec-Fetch-Dest': 'document',
       'Sec-Fetch-Mode': 'navigate',
@@ -96,8 +125,6 @@ const connect = async (cookies) => {
     followAllRedirects: true,
     proxy: proxyCharles
   });
-
-  //console.log(response.body)
   return response.body.split('authenticity_token" value="')[1].split('"')[0]
 }
 
@@ -122,10 +149,8 @@ async function login() {
   sessionCookie = parseCookie(sessionCookie);
 
   let globalEData = await getGlobalEData()
-  console.log(globalEData)
   globalEData = parseEData(globalEData)
 
-  console.log(globalEData)
   var cardCookie = [
     ' seedVisitedEU=true',
     'GlobalE_Data=' + globalEData,
