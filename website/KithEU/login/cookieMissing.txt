@@ -146,51 +146,8 @@ _shopify_s=39a732e6-47e5-429f-8e2b-2994952a5d42; Expires=Wed, 09-Jun-21 20:59:53
   'cart_currency=USD',
   'shopify_pay_redirect=pending',
   'dynamic_checkout_shown_on_cart=1',
-  ' seedVisitedEU=true',
-  'GlobalE_Data=%7B%22countryISO%22%3A%22$FR%22%2C%22currencyCode%22%3A%22EUR%22%2C%22cultureCode%22%3A%22fr%22%7D',
-  'GlobalE_SupportThirdPartCookies=true',
-  '_shopify_sa_p=',
-  '_shopify_sa_t=2021-06-10T12%3A15:46.151Z',
-  'GlobalE_Full_Redirect=false',
-  'displayedWelcomeMat=Thu%20Jun%2010%202021%2014%3A15%3A46%20GMT%2B0200%20(heure%20d%E2%80%99%C3%A9t%C3%A9%20d%E2%80%99Europe%20centrale)',
-  'snize-recommendation=6wl90wc12hk',
-  'geo_data={%22as%22:%22AS51207%20Free%20Mobile%20SAS%22%2C%22asname%22:%22FREEM%22%2C%22mobile%22:true%2C%22proxy%22:false%2C%22city%22:%22Paris%22%2C%22currency%22:{%22code%22:%22EUR%22}%2C%22country%22:{%22code%22:%22FR%22%2C%22country%22:%22France%22}%2C%22countryCode%22:%22FR%22%2C%22continent%22:%22Europe%22%2C%22continentCode%22:%22EU%22%2C%22isp%22:%22Free%20Mobile%22%2C%22lat%22:48.8714%2C%22lon%22:2.32141%2C%22org%22:%22Free%20Mobile%20SAS%22%2C%22query%22:%2237.164.206.4%22%2C%22region%22:%22IDF%22%2C%22regionName%22:%22%C3%8Ele-de-France%22%2C%22status%22:%22success%22%2C%22timezone%22:%22Europe/Paris%22%2C%22zip%22:%2275008%22%2C%22cloudflare%22:%22FR%22%2C%22ttl%22:1%2C%22env%22:%22PROD%22%2C%22currencyCode%22:%22EUR%22%2C%22countryName%22:%22France%22%2C%22service%22:%22ip.lovely-app.com%22}',
-  '__kla_id=eyIkcmVmZXJyZXIiOnsidHMiOjE2MjMyNzA1OTIsInZhbHVlIjoiIiwiZmlyc3RfcGFnZSI6Imh0dHBzOi8vZXUua2l0aC5jb20vYWNjb3VudC9sb2dpbj9yZXR1cm5fdXJsPSUyRmFjY291bnQifSwiJGxhc3RfcmVmZXJyZXIiOnsidHMiOjE2MjMyNzA1OTIsInZhbHVlIjoiIiwiZmlyc3RfcGFnZSI6Imh0dHBzOi8vZXUua2l0aC5jb20vYWNjb3VudC9sb2dpbj9yZXR1cm5fdXJsPSUyRmFjY291bnQifX0=',
-  '_secure_session_id=c0a095db18243ae1f777184129b57c69',
-  'cart_sig=93fb79fcccca0348d2fa31037ee15481',
-  'secure_customer_sig=',
-  '_orig_referrer=',
-  '_landing_page=%2Faccount%2Flogin%3Freturn_url%3D%252Faccount',
-  '_y=e981b230-f580-4701-b539-673fccd806b7',
-  '_s=7a34d6b6-3b4e-468a-b64e-71bf27d5d66c',
-  '_shopify_y=e981b230-f580-4701-b539-673fccd806b7',
-  '_shopify_s=7a34d6b6-3b4e-468a-b64e-71bf27d5d66c',
-  'cart=b08559f478a6cb558d4f60dbee315663',
-  'cart_ts=1623327345',
-  'cart_currency=EUR',
-  'cart_ver=gcp-us-east1%3A1'
+
 ]
 
-_secure_session_id=b468a5eb9ad9b9d8b5a5dab7a0a47ccb
-cart_sig=c825d3378f7f7bb9d0e91fca89560362
-secure_customer_sig=
-_orig_referrer=
-_landing_page=%2Faccount%2Flogin%3Freturn_url%3D%252Faccount
-_y=ade8bb1a-ca1a-4b77-a089-32c4b13f465f
-_s=39a732e6-47e5-429f-8e2b-2994952a5d42
-_shopify_y=ade8bb1a-ca1a-4b77-a089-32c4b13f465f
-_shopify_s=39a732e6-47e5-429f-8e2b-2994952a5d42
-seedVisitedEU=true
-__kla_id=eyIkcmVmZXJyZXIiOnsidHMiOjE2MjMyNzA1OTIsInZhbHVlIjoiIiwiZmlyc3RfcGFnZSI6Imh0dHBzOi8vZXUua2l0aC5jb20vYWNjb3VudC9sb2dpbj9yZXR1cm5fdXJsPSUyRmFjY291bnQifSwiJGxhc3RfcmVmZXJyZXIiOnsidHMiOjE2MjMyNzA1OTIsInZhbHVlIjoiIiwiZmlyc3RfcGFnZSI6Imh0dHBzOi8vZXUua2l0aC5jb20vYWNjb3VudC9sb2dpbj9yZXR1cm5fdXJsPSUyRmFjY291bnQifX0=
-_shopify_sa_t=2021-06-09T20%3A29%3A53.089Z
-_shopify_sa_p=
-GlobalE_Data=%7B%22countryISO%22%3A%22FR%22%2C%22currencyCode%22%3A%22EUR%22%2C%22cultureCode%22%3A%22fr%22%7D
-GlobalE_SupportThirdPartCookies=true
-geo_data={%22as%22:%22AS51207%20Free%20Mobile%20SAS%22%2C%22asname%22:%22FREEM%22%2C%22mobile%22:true%2C%22proxy%22:false%2C%22city%22:%22Paris%22%2C%22currency%22:{%22code%22:%22EUR%22}%2C%22country%22:{%22code%22:%22FR%22%2C%22country%22:%22France%22}%2C%22countryCode%22:%22FR%22%2C%22continent%22:%22Europe%22%2C%22continentCode%22:%22EU%22%2C%22isp%22:%22Free%20Mobile%22%2C%22lat%22:48.8714%2C%22lon%22:2.32141%2C%22org%22:%22Free%20Mobile%20SAS%22%2C%22query%22:%2237.164.206.4%22%2C%22region%22:%22IDF%22%2C%22regionName%22:%22%C3%8Ele-de-France%22%2C%22status%22:%22success%22%2C%22timezone%22:%22Europe/Paris%22%2C%22zip%22:%2275008%22%2C%22cloudflare%22:%22FR%22%2C%22ttl%22:1%2C%22env%22:%22PROD%22%2C%22currencyCode%22:%22EUR%22%2C%22countryName%22:%22France%22%2C%22service%22:%22ip.lovely-app.com%22}
-displayedWelcomeMat=Wed Jun 23 2021 22:29:54 GMT+0200 (heure d’été d’Europe centrale)
-GlobalE_Full_Redirect=false
-cart=f10f9624332966c04bc9a6c7e2e2724c
-cart_ts=1623270593
-cart_currency=EUR
-cart_ver=gcp-us-east1%3A1
-snize-recommendation=6wl90wc12hk
+
+

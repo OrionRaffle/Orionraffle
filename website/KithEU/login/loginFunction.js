@@ -85,7 +85,7 @@ async function update(cookies) {
     method: 'POST',
     url: 'https://eu.kith.com/cart/update.js',
   })
-  return resp.headers['set-cookie'];
+  return resp.headers['set-cookie'];//WHAT TO DO WITH TOKEN (it is cookie card value)? f10f9624332966c04bc9a6c7e2e2724c
 }
 
 const connect = async (cookies) => {
@@ -96,7 +96,7 @@ const connect = async (cookies) => {
     resolveWithFullResponse: true,
     maxRedirects: 1,
     headers: {
-      //'host': 'kith.com',
+      'host': 'eu.kith.com',
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0',
       "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
       "Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
@@ -127,7 +127,19 @@ const connect = async (cookies) => {
   });
   return response.body.split('authenticity_token" value="')[1].split('"')[0]
 }
-
+async function getGeoData() {
+  const resp = await axios({
+    headers: {
+      'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
+      'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    },
+    proxy: proxyConfig,
+    method: 'GET',
+    url: 'https://ip.lovely-app.com/',
+  })
+  console.log(resp.data)
+  return resp.data;
+}
 
 function parseCookie(cookies) {
   var cookiesToArray = []
@@ -167,16 +179,18 @@ async function login() {
   var cartCookieResult = await update(cardCookie);
   cartCookieResult = parseCookie(cartCookieResult);
 
+  const geoDataJson = await getGeoData()
+
   var loginCookie = [
     ' seedVisitedEU=true',
     'GlobalE_Data=' + globalEData,
     'GlobalE_SupportThirdPartCookies=true',
     '_shopify_sa_p=',
-    `_shopify_sa_t=${new Date().toISOString().replace(':', '%3A')}`,
+    `_shopify_sa_t=${encodeURIComponent(new Date().toISOString())}`,
     'GlobalE_Full_Redirect=false',
     `displayedWelcomeMat=${encodeURIComponent(new Date())}`,
     'snize-recommendation=6wl90wc12hk',
-    'geo_data={%22as%22:%22AS51207%20Free%20Mobile%20SAS%22%2C%22asname%22:%22FREEM%22%2C%22mobile%22:true%2C%22proxy%22:false%2C%22city%22:%22Paris%22%2C%22currency%22:{%22code%22:%22EUR%22}%2C%22country%22:{%22code%22:%22FR%22%2C%22country%22:%22France%22}%2C%22countryCode%22:%22FR%22%2C%22continent%22:%22Europe%22%2C%22continentCode%22:%22EU%22%2C%22isp%22:%22Free%20Mobile%22%2C%22lat%22:48.8714%2C%22lon%22:2.32141%2C%22org%22:%22Free%20Mobile%20SAS%22%2C%22query%22:%2237.164.206.4%22%2C%22region%22:%22IDF%22%2C%22regionName%22:%22%C3%8Ele-de-France%22%2C%22status%22:%22success%22%2C%22timezone%22:%22Europe/Paris%22%2C%22zip%22:%2275008%22%2C%22cloudflare%22:%22FR%22%2C%22ttl%22:1%2C%22env%22:%22PROD%22%2C%22currencyCode%22:%22EUR%22%2C%22countryName%22:%22France%22%2C%22service%22:%22ip.lovely-app.com%22}',
+    `geo_data=${encodeURIComponent(JSON.stringify(geoDataJson))}`,
     '__kla_id=eyIkcmVmZXJyZXIiOnsidHMiOjE2MjMyNzA1OTIsInZhbHVlIjoiIiwiZmlyc3RfcGFnZSI6Imh0dHBzOi8vZXUua2l0aC5jb20vYWNjb3VudC9sb2dpbj9yZXR1cm5fdXJsPSUyRmFjY291bnQifSwiJGxhc3RfcmVmZXJyZXIiOnsidHMiOjE2MjMyNzA1OTIsInZhbHVlIjoiIiwiZmlyc3RfcGFnZSI6Imh0dHBzOi8vZXUua2l0aC5jb20vYWNjb3VudC9sb2dpbj9yZXR1cm5fdXJsPSUyRmFjY291bnQifX0='
   ]
   sessionCookie.forEach(cook => {
