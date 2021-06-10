@@ -6,13 +6,23 @@ const colors = require("colors")
 const clear = require('console-clear');
 const { Webhook, MessageBuilder } = require('discord-webhook-node');
 const chalk = require('chalk');
-const { csvregisterreaderCourir, csvloginreaderCourir, csvproxyreader, csvconfigreader, csvRegisterCourirLog, csvLoginCourirLog } = require('../../init')
+const { 
+    csvregisterreaderCourir,
+    csvloginreaderCourir,
+    csvproxyreader,
+    csvconfigreader,
+    csvRegisterCourirLog, 
+    csvLoginCourirLog 
+  } = require('../../init')
 const { loginfirst } = require('./login/loginfirst')
 const { logintwo } = require('./login/logintwo')
 const { registerfirst, getRaffleData } = require('./register/registerfirst')
 const { registertwo, getIdRecaptcha, getTokenRecaptcha } = require('./register/registertwo');
 const { getRaffleId } = require('./register/registerfirst');
-const { logError } = require('../../utils/console');
+
+const { 
+  register 
+} = require(path.join(__dirname, 'courirApi'));
 
 const { 
   menu,
@@ -23,7 +33,7 @@ const {
   displayProxyTimeChoice, 
   displayRecap,
   percent,
-  zlogError, 
+  logError, 
   logInfo, 
   logSuccess 
 } = require(path.join(__dirname, '../../utils/console'))
@@ -170,6 +180,7 @@ async function courir(version, module) {
 
   var rafflesData = [];
   var proxiesTab = [];
+  var usedProxiesTab = [];
 
   async function checkConfig(configuration) {
     twoCaptchatKey = configuration.Key2Captcha;
@@ -290,11 +301,25 @@ async function courir(version, module) {
         accounts[i].revo = revo;
         if(!validationCourirRegister(accounts[i])) return logError(`Problem with a csv field on email ${accounts[i].Email}.`,true);
 
-        const info = await registerfirst(accounts[i], proxiesTab, attemptCount);
+        const info = await register(accounts[i], getAnotherProxy(), attemptCount,getAnotherProxy);
+        console.log(accounts[i].Email)
+        await sleep(2000);
       };
     }
   }
-
+  function getAnotherProxy() {
+    if(proxiesTab.length===0) throw 'No more proxies';
+    usedProxiesTab.push(proxiesTab[0]);
+    const proxy = proxiesTab.shift();
+    return {
+      host: proxy.ip,
+      port: proxy.port,
+      auth: {
+        username: proxy.user,
+        password: proxy.password
+      }
+    };
+  }
   async function accountLogin(sizeFrom, sizeTo, timeFrom, timeTo) {
     const mode = 'Account Login + Raffle Mode';
     displayRecap(module.label, mode, raffle.name, tabSize, timeFrom, timeTo);
@@ -303,6 +328,26 @@ async function courir(version, module) {
 
   displayModule(module.label);
   //csvReadClientAuth(checkConfig)
+  proxiesTab = [
+    {
+      ip: 'residential.bypassproxies.io',
+      port: '7777',
+      user: 'customer-tt_bp_bm_4058-cc-FR-sessid-gk4CxeklR',
+      password: 'Bp1ksrvj6g'
+    },
+    {
+      ip: 'residential.bypassproxies.io',
+      port: '7777',
+      user: 'customer-tt_bp_bm_4058-cc-FR-sessid-swmCkwLs5',
+      password: 'Bp1ksrvj6g'
+    },
+    {
+      ip: 'residential.bypassproxies.io',
+      port: '7777',
+      user: 'customer-tt_bp_bm_4058-cc-FR-sessid-e1Vtbt2wg',
+      password: 'Bp1ksrvj6g'
+    },
+  ];
   accountRegister(
     {
       name: 'Dunk High Sail Crimson Tint',
