@@ -118,8 +118,8 @@ const connect = async (cookies) => {
     form: qs.stringify({
       'form_type': 'customer_login',
       'utf8': '✓',
-      'customer[email]': 'djudjuldjul135@gmail.com',
-      'customer[password]': 'DSR44l55',
+      'customer[email]': 'soniastarlette@protonmail.com',
+      'customer[password]': 'POKEMON1',
       'return_url': '/account'
     }),
     followAllRedirects: true,
@@ -168,9 +168,6 @@ async function login() {
   cartCookieResult = parseCookie(cartCookieResult);
 
   var loginCookie = [
-    'cart_currency=USD',
-    'shopify_pay_redirect=pending',
-    'dynamic_checkout_shown_on_cart=1',
     ' seedVisitedEU=true',
     'GlobalE_Data=' + globalEData,
     'GlobalE_SupportThirdPartCookies=true',
@@ -180,7 +177,7 @@ async function login() {
     `displayedWelcomeMat=${encodeURIComponent(new Date())}`,
     'snize-recommendation=6wl90wc12hk',
     'geo_data={%22as%22:%22AS51207%20Free%20Mobile%20SAS%22%2C%22asname%22:%22FREEM%22%2C%22mobile%22:true%2C%22proxy%22:false%2C%22city%22:%22Paris%22%2C%22currency%22:{%22code%22:%22EUR%22}%2C%22country%22:{%22code%22:%22FR%22%2C%22country%22:%22France%22}%2C%22countryCode%22:%22FR%22%2C%22continent%22:%22Europe%22%2C%22continentCode%22:%22EU%22%2C%22isp%22:%22Free%20Mobile%22%2C%22lat%22:48.8714%2C%22lon%22:2.32141%2C%22org%22:%22Free%20Mobile%20SAS%22%2C%22query%22:%2237.164.206.4%22%2C%22region%22:%22IDF%22%2C%22regionName%22:%22%C3%8Ele-de-France%22%2C%22status%22:%22success%22%2C%22timezone%22:%22Europe/Paris%22%2C%22zip%22:%2275008%22%2C%22cloudflare%22:%22FR%22%2C%22ttl%22:1%2C%22env%22:%22PROD%22%2C%22currencyCode%22:%22EUR%22%2C%22countryName%22:%22France%22%2C%22service%22:%22ip.lovely-app.com%22}',
-    //'__kla_id=eyIkcmVmZXJyZXIiOnsidHMiOjE2MjMyNzA1OTIsInZhbHVlIjoiIiwiZmlyc3RfcGFnZSI6Imh0dHBzOi8vZXUua2l0aC5jb20vYWNjb3VudC9sb2dpbj9yZXR1cm5fdXJsPSUyRmFjY291bnQifSwiJGxhc3RfcmVmZXJyZXIiOnsidHMiOjE2MjMyNzA1OTIsInZhbHVlIjoiIiwiZmlyc3RfcGFnZSI6Imh0dHBzOi8vZXUua2l0aC5jb20vYWNjb3VudC9sb2dpbj9yZXR1cm5fdXJsPSUyRmFjY291bnQifX0='
+    '__kla_id=eyIkcmVmZXJyZXIiOnsidHMiOjE2MjMyNzA1OTIsInZhbHVlIjoiIiwiZmlyc3RfcGFnZSI6Imh0dHBzOi8vZXUua2l0aC5jb20vYWNjb3VudC9sb2dpbj9yZXR1cm5fdXJsPSUyRmFjY291bnQifSwiJGxhc3RfcmVmZXJyZXIiOnsidHMiOjE2MjMyNzA1OTIsInZhbHVlIjoiIiwiZmlyc3RfcGFnZSI6Imh0dHBzOi8vZXUua2l0aC5jb20vYWNjb3VudC9sb2dpbj9yZXR1cm5fdXJsPSUyRmFjY291bnQifX0='
   ]
   sessionCookie.forEach(cook => {
     if(cook[0]==='_landing_page'){loginCookie.push(`_landing_page=%2Faccount%2Flogin%3Freturn_url%3D%252Faccount`)}
@@ -194,6 +191,7 @@ async function login() {
   }
   loginCookie = loginCookie.filter(distinct)
   console.log(loginCookie)
+  console.log(loginCookie.length)
 
   await connect(loginCookie)
   process.exit(1)
