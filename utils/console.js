@@ -1,14 +1,34 @@
-const setTitle = require('node-bash-title')
-const chalk = require('chalk')
-const clear = require('console-clear')
-const figlet = require('figlet')
-const inputReader = require('wait-console-input')
-const colors = require("colors")
+const setTitle = require('node-bash-title');
+const chalk = require('chalk');
+const clear = require('console-clear');
+const figlet = require('figlet');
+const inputReader = require('wait-console-input');
+const colors = require("colors");
+const cliProgress = require('cli-progress');
 
 //Get package.json data
 var pjson = require('../package.json');
 
 const version = pjson.version;
+var progressBar = null;
+
+function initProgressBar() {
+  progressBar = new cliProgress.SingleBar({
+    format: 'Task completion |' + '{bar}' + '| {percentage}% || {value}/{total} task made',
+    barCompleteChar: '\u2588',
+    barIncompleteChar: '\u2591',
+    hideCursor: true
+  });
+}
+function updateProgressBar(made, total) {
+  progressBar.update(
+    parseInt(made / total * 100),
+    {
+      percentage: parseInt(made / total * 100),
+      value: made,
+      total: total
+    });
+}
 
 const logo = chalk.rgb(247, 158, 2)(
   figlet.textSync(' Orion', {
@@ -16,11 +36,6 @@ const logo = chalk.rgb(247, 158, 2)(
     horizontalLayout: 'fitted',
   })
 )
-async function display() { // A quoi ça sert?
-  displayHeader()
-  console.log(`\nWelcome ${`${discordUsername}`.magenta}`)
-  setTitle(`OrionRaffle | Private Beta | V.${version} | ${discordUsername}`)
-}
 /** Display header logo (Orion)
 * @author   bstn
 */
@@ -35,7 +50,7 @@ function displayHeader() {
 function displayModule(module, raffle) {
   clear();
   displayHeader();
-  console.log(chalk.rgb(247, 158, 2)(`\n ${module} ${raffle!==undefined?`| ${raffle.name}`:''}`));
+  console.log(chalk.rgb(247, 158, 2)(`\n ${module} ${raffle !== undefined ? `| ${raffle.name}` : ''}`));
   console.log("-----------------------------------------------------\n");
 }
 /** Display header logo (Orion)
@@ -63,24 +78,24 @@ function getDate() {
 * @author   Lux
 * @param    {String}      message  Message
 */
-function logError(message, displayDate=false) {
-  if(displayDate) message = `${getDate()} - ${message}`;
+function logError(message, displayDate = false) {
+  if (displayDate) message = `${getDate()} - ${message}`;
   console.log(colors.brightRed(`[Error]\t: ${message}`));
 }
 /** Log an info
 * @author   Lux
 * @param    {String}      message  Message
 */
-function logInfo(message,displayDate=false) {
-  if(displayDate) message = `${getDate()} - ${message}`;
+function logInfo(message, displayDate = false) {
+  if (displayDate) message = `${getDate()} - ${message}`;
   console.log(`[Info]\t: ${message}`);
 }
 /** Log a success
 * @author   Lux
 * @param    {String}      message  Message
 */
-function logSuccess(message,displayDate=false) {
-  if(displayDate) message = `${getDate()} - ${message}`;
+function logSuccess(message, displayDate = false) {
+  if (displayDate) message = `${getDate()} - ${message}`;
   console.log(`[Success]\t: ${message}`);
 }
 
@@ -90,7 +105,7 @@ async function displayCourirRaffle(rafflesData) {
     index++;
     console.log(`${index}. ${raffle.name} / ${raffle.price}€`)
   })
-  if(rafflesData.length===0) {
+  if (rafflesData.length === 0) {
     logInfo('No raffle.')
     return undefined
   }
@@ -121,7 +136,7 @@ async function displaySizeChoice(sizes) {
   console.log('To size ?');
   to = inputReader.readFloat();
 
-  return {'from':from, 'to':to};
+  return { 'from': from, 'to': to };
 }
 async function displayProxyTimeChoice() {
   console.log('Range between each task ? (First number) (s)');
@@ -129,7 +144,7 @@ async function displayProxyTimeChoice() {
   console.log('Range between each task ? (Second number) (s)');
   to = inputReader.readInteger();
 
-  return {'from':from, 'to':to};
+  return { 'from': from, 'to': to };
 }
 
 async function displayCourirMode() {
@@ -142,6 +157,17 @@ async function displayCourirMode() {
 
   return input;
 }
+async function displayLydiaMode() {
+  displayHeader();
+  console.log(chalk.rgb(247, 158, 2)("3D Secure authentification - Lydia"));
+  console.log("-----------------------------------------------------\n");
+  console.log("1. SMS Code");
+  console.log("2. Lydia App");
+  console.log('\n-----------------------------------------------------\n');
+  var input = inputReader.readInteger();
+
+  return input;
+}
 
 module.exports = {
   menu,
@@ -150,8 +176,10 @@ module.exports = {
   displaySizeChoice,
   displayProxyTimeChoice,
   displayCourirMode,
+  displayLydiaMode,
   displayRecap,
   percent,
-
+  initProgressBar,
+  updateProgressBar,
   logError, logInfo, logSuccess,
 }

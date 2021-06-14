@@ -42,6 +42,7 @@ const { reinitProgram } = require(path.join(__dirname, '../../utils/utils'))
 const { validationCourirRegister } = require(path.join(__dirname, '../../utils/validation'))
 const { getRaffle } = require(path.join(__dirname, '../../utils/gateway/gatewayCourir'))
 const { getRaffleDataCourirEql } = require(path.join(__dirname, '../../utils/gateway/gatewayEql'))
+const { sleep } = require(path.join(__dirname, '../../utils/utils'))
 
 function pad(num) {
   return ("0" + num).slice(-2);
@@ -158,13 +159,6 @@ async function range(first, second) {
   console.log(await date(), "[Info] Waiting for the next task during " + num + "s")
 
   await sleep(num * 1000)
-}
-
-
-function sleep(ms) {
-  return new Promise(
-    resolve => setTimeout(resolve, ms)
-  );
 }
 
 
@@ -328,6 +322,7 @@ async function courir(version, module) {
 
   displayModule(module.label);
   //csvReadClientAuth(checkConfig)
+
   proxiesTab = [
     {
       ip: 'residential.bypassproxies.io',
@@ -350,16 +345,22 @@ async function courir(version, module) {
   ];
   accountRegister(
     {
-      name: 'Dunk High Sail Crimson Tint',
+      name: 'Dunk Low SE Free 99',
       price: 110,
-      id: 'CR0016',
-      sizeGlobal: [ '36.5', '37.5', '38', '39', '40', '41' ],
+      id: 'CR0017',
+      sizeGlobal: [
+        '40', '41',
+        '42', '43',
+        '44', '45',
+        '46'
+      ],
       sizeRun: ''
     },
     [40, 41],
     10,
     12
   )
+  
   return;
 
   // raffle = [

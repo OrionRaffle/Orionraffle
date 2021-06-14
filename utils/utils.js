@@ -1,6 +1,5 @@
 //Modules import
 const path = require('path')
-const { spawn } = require('child_process');
 
 const { menu, logError, logInfo, logSuccess } = require(path.join(__dirname, 'console'))
 
@@ -27,8 +26,11 @@ async function handleProxyError(err) {
         || err.code === 'ENOENT'
         || err.code === 'ECONNRESET') return logError('Proxy error.', true);
     else if (err.code === 'ERR_SOCKET_CLOSED') return logError('Proxy does not exist.', true);
-    else if (err.response.status === '407') return logError('Proxy error.', true);
-    else if (err.response.status === '502') return logError('Proxy too slow.', true);
+    else if (err.response !== undefined){
+        if (err.response.status === '407') return logError('Proxy error.', true);
+        else if (err.response.status === '502') return logError('Proxy too slow.', true);
+        else return null;
+    }
     else return null;
 }
 

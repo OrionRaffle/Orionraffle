@@ -137,8 +137,7 @@ async function getGeoData() {
     method: 'GET',
     url: 'https://ip.lovely-app.com/',
   })
-  console.log(resp.data)
-  return resp.data;
+  return resp.data._secure_session_id;
 }
 
 function parseCookie(cookies) {

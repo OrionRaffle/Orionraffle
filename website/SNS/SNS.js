@@ -32,7 +32,6 @@ async function menu() {
       })
     )
   )
-  console.log(`\nWelcome ${`${user}`.magenta}`)
   console.log('\nSNS mode')
   console.log('1 . Update mode (Maintenance)')
   console.log('2 . Raffle mode\n')

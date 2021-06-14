@@ -228,12 +228,12 @@ const getRaffleData = async (id) => {
     console.log(err);
   }
 }
-async function getToken(secretAccessKey, accessKeyId, sessionToken, proxyconfig) {
+async function getToken(secretAccessKey, accessKeyId, sessionToken, proxyconfig,IdRaffle) {
 
 
   const request = {
     host: 'lg3wc3fu5e.execute-api.us-east-1.amazonaws.com',
-    method: 'GET',
+    method: 'POST',
     url: `https://lg3wc3fu5e.execute-api.us-east-1.amazonaws.com/v1/payment/token`,
     path: `/v1/payment/token`,
     proxy: proxyconfig,
@@ -245,6 +245,9 @@ async function getToken(secretAccessKey, accessKeyId, sessionToken, proxyconfig)
       'Accept-Language': 'fr,en-US;q=0.9,en;q=0.8',
       'Accept': 'application/json, text/plain, */*',
       'x-Amz-Security-Token': sessionToken
+    },
+    data:{
+      'drawId' : IdRaffle
     }
   }
 
@@ -738,10 +741,10 @@ async function registerfirst(info, proxy, numero) {
     proxyconfig = null
   }
 
-  proxyconfig = {
-    host: '127.0.0.1',
-    port: '8888'
-  }
+  // proxyconfig = {
+  //   host: '127.0.0.1',
+  //   port: '8888'
+  // }
 
   const srp = new SRPClient("nyu5Glqkw")
   yolo = srp.calculateA()
@@ -763,7 +766,7 @@ async function registerfirst(info, proxy, numero) {
   accessKeyId = data.Credentials.AccessKeyId
   secretAccessKey = data.Credentials.SecretKey
 
-  token = await getToken(secretAccessKey, accessKeyId, sessionToken, proxyconfig)
+  token = await getToken(secretAccessKey, accessKeyId, sessionToken, proxyconfig,info.IdRaffle)
 
   if (token == -1) return -1
   token = token.token

@@ -21,6 +21,7 @@
     "chalk": "^4.1.0",
     "child_process": "^1.0.2",
     "chunked-request": "^0.7.1",
+    "cli-progress": "^3.9.0",
     "colors": "^1.4.0",
     "console-clear": "^1.1.1",
     "csv-parser": "^3.0.0",

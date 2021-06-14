@@ -1,4 +1,8 @@
+const path = require('path');
 const axios = require('axios-https-proxy-fix');
+const {
+    handleProxyError
+} = require(path.join(__dirname, '../../utils/utils'));
 
 async function getIp(proxyconfig) {
     try {
