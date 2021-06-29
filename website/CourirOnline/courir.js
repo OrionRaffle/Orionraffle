@@ -216,9 +216,6 @@ async function courir(version, module) {
     await displayMenu(rafflesData);
   }
   async function displayMenu(rafflesData) {
-    await sleep(200)
-    console.log('hereA')
-
     choice = await displayCourirRaffle(rafflesData);
     choice = parseInt(choice);
     if (isNaN(choice)) logError('Wrong input.');
@@ -226,7 +223,6 @@ async function courir(version, module) {
       choice--;
       if (rafflesData[choice] === undefined) logError('Invalid index.');
       else {
-        console.log('getSize')
         await getSizes(rafflesData[choice]); 
         return;};
     }
@@ -348,7 +344,7 @@ async function courir(version, module) {
     console.log('a l')
   }
 
-  displayModule(module.label);
+  await displayModule(module.label);
   await csvReadClientAuth(checkConfig);
   /*
   proxiesTab = [
@@ -653,9 +649,7 @@ async function courir(version, module) {
 }
 
 async function syncCourir(version, module) {
-  console.log('lunch')
   await courir(version, module)
-  console.log('end')
 }
 
 module.exports = {

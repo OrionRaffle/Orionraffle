@@ -40,7 +40,7 @@ const logo = chalk.rgb(247, 158, 2)(
 * @author   bstn
 */
 function displayHeader() {
-  //clear()
+  clear()
   console.log(logo)
 }
 /** Display module vue
@@ -48,7 +48,7 @@ function displayHeader() {
 * @param    {String}      module  Module name
 */
 function displayModule(module, raffle) {
-  //clear();
+  clear();
   displayHeader();
   console.log(chalk.rgb(247, 158, 2)(`\n ${module} ${raffle !== undefined ? `| ${raffle.name}` : ''}`));
   console.log("-----------------------------------------------------\n");

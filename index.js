@@ -49,14 +49,12 @@ async function main() {
     await checkVersion(version, versionUpToDate);
   }
   async function versionUpToDate() {
-    //console.log('Version up to date')
-    //await sleep(1000)
     await displayMenu();
   }
   async function displayMenu() {
     choice = await menu(allModules, discordUsername);
     choice = parseInt(choice);
-    if (isNaN(choice)) logError('Wrong input.');
+    if (isNaN(choice) || choice>allModules.length || choice<1) logError('Wrong input.');
     else{
       choice--;
       if (allModules[choice].state){
@@ -71,7 +69,7 @@ async function main() {
     await sleep(1500);
     await displayMenu();
   }
-  await csvReadClientAuth(databaseAuthentification)
+  await csvReadClientAuth(databaseAuthentification);
 }
 
 setRichPresence(version)

@@ -135,9 +135,15 @@ function sleep(ms) {
 }
 
 async function csvReadClientAuth(callback) {
-    fs.createReadStream('./config.csv')
-        .pipe(csv())
-        .on('data', (data) => {callback(data)});
+    const promise = new Promise(async function(resolve) {
+        fs.createReadStream('./config.csv')
+            .pipe(csv())
+            .on('data', async (data) => {
+                await callback(data);
+                resolve();
+            });
+    });
+    await promise;
 }
 
 async function csvconfigreaderShuzu() {
@@ -148,7 +154,6 @@ async function csvconfigreaderShuzu() {
         .on('end', () => {})
     await sleep(1000)
     return configcsv
-
 }
 
 async function csvupdatereaderSNS() {
@@ -163,7 +168,7 @@ async function csvupdatereaderSNS() {
     return updatecsv
 }
 
-function csvReadProxy(callback) {
+async function csvReadProxy(callback) {
     let proxies = [];
     const proxyLines = fs.readFileSync('./proxy.txt').toString().split("\n");
     for(lines in proxyLines) {
@@ -178,7 +183,7 @@ function csvReadProxy(callback) {
             }
         );
     }
-    callback(proxies);
+    await callback(proxies);
 }
 
 async function csvrafflereaderSNS() {
@@ -194,22 +199,13 @@ async function csvrafflereaderSNS() {
 }
 
 async function csvRegisterCourir(raffle, tabSize, timeFrom, timeTo, callback) {
-    console.log('here2Z')
-      process.exit(1)
-    console.log('csvRegisterCourir')
     var dataTab = [];
-    async function resolve() {
-        console.log('here3');
-        await callback(raffle, tabSize, timeFrom, timeTo, dataTab);
-    }
     await new Promise(function(resolve) {
         fs.createReadStream('./Courir/register.csv')
             .pipe(csv())
             .on('data', (data)=>{ if(data.Email!==undefined) dataTab.push(data); })
-            .on('end', async () => { console.log('here1');resolve(); });
+            .on('end', async () => { await callback(raffle, tabSize, timeFrom, timeTo, dataTab);});
     })
-    console.log('here2');
-    process.exit(1);
 }
 
 async function csvloginreaderCourir() {
