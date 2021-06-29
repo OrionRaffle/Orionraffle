@@ -6,36 +6,36 @@ const colors = require("colors")
 const clear = require('console-clear');
 const { Webhook, MessageBuilder } = require('discord-webhook-node');
 const chalk = require('chalk');
-const { 
-    csvregisterreaderCourir,
-    csvloginreaderCourir,
-    csvproxyreader,
-    csvconfigreader,
-    csvRegisterCourirLog, 
-    csvLoginCourirLog 
-  } = require('../../init')
+const {
+  csvregisterreaderCourir,
+  csvloginreaderCourir,
+  csvproxyreader,
+  csvconfigreader,
+  csvRegisterCourirLog,
+  csvLoginCourirLog
+} = require('../../init')
 const { loginfirst } = require('./login/loginfirst')
 const { logintwo } = require('./login/logintwo')
 const { registerfirst, getRaffleData } = require('./register/registerfirst')
 const { registertwo, getIdRecaptcha, getTokenRecaptcha } = require('./register/registertwo');
 const { getRaffleId } = require('./register/registerfirst');
 
-const { 
-  register 
+const {
+  register
 } = require(path.join(__dirname, 'courirApi'));
 
-const { 
+const {
   menu,
-  displayModule, 
-  displayCourirRaffle, 
-  displaySizeChoice, 
-  displayCourirMode, 
-  displayProxyTimeChoice, 
+  displayModule,
+  displayCourirRaffle,
+  displaySizeChoice,
+  displayCourirMode,
+  displayProxyTimeChoice,
   displayRecap,
   percent,
-  logError, 
-  logInfo, 
-  logSuccess 
+  logError,
+  logInfo,
+  logSuccess
 } = require(path.join(__dirname, '../../utils/console'))
 const { csvReadProxy, csvReadClientAuth, csvRegisterCourir } = require(path.join(__dirname, '../../utils/csvReader'))
 const { reinitProgram } = require(path.join(__dirname, '../../utils/utils'))
@@ -161,8 +161,6 @@ async function range(first, second) {
   await sleep(num * 1000)
 }
 
-
-
 async function courir(version, module) {
   let twoCaptchatKey;
 
@@ -213,57 +211,83 @@ async function courir(version, module) {
       }
     }
     await getRafflesData();
+    await sleep(10000)
+
     await displayMenu(rafflesData);
   }
   async function displayMenu(rafflesData) {
+    await sleep(200)
+    console.log('hereA')
+
     choice = await displayCourirRaffle(rafflesData);
     choice = parseInt(choice);
     if (isNaN(choice)) logError('Wrong input.');
     else {
       choice--;
       if (rafflesData[choice] === undefined) logError('Invalid index.');
-      else return getSizes(rafflesData[choice]);
+      else {
+        console.log('getSize')
+        await getSizes(rafflesData[choice]); 
+        return;};
     }
     await sleep(1500);
     displayModule(module.label);
-    displayMenu(rafflesData);
+    await displayMenu(rafflesData);
   }
   async function getSizes(raffle) {
+    await sleep(200)
+    console.log('hereB')
     displayModule(module.label, raffle);
     const result = await displaySizeChoice(raffle.sizeGlobal);
     if (result.from <= result.to) {
       var tabSize = [];
-      raffle.sizeGlobal.forEach(element=>{
+      raffle.sizeGlobal.forEach(element => {
         element = parseFloat(element);
-        if(element<result.from) {}
-        else if(element>result.to) {}
+        if (element < result.from) { }
+        else if (element > result.to) { }
         else tabSize.push(element);
       })
-      return getProxyTimes(raffle, tabSize);
+      await getProxyTimes(raffle, tabSize);
+      return;
     }
     logError('Invalid inputs.')
     await sleep(1500);
     displayModule(module.label);
-    getSizes(raffle);
+    await getSizes(raffle);
   }
   async function getProxyTimes(raffle, tabSize) {
     const result = await displayProxyTimeChoice()
-    if (result.from <= result.to && result.from >= 0) return chooseMode(raffle, tabSize, result.from, result.to);
+    if (result.from <= result.to && result.from >= 0) return await chooseMode(raffle, tabSize, result.from, result.to);
     logError('Invalid inputs.')
     await sleep(1500);
     displayModule(module.label);
-    getProxyTimes(from, to);
+    await getProxyTimes(from, to);
   }
   async function chooseMode(raffle, tabSize, timeFrom, timeTo) {
     const choice = await displayCourirMode();
-    switch (choice) {
-      case 1:
-        return accountRegister(raffle, tabSize, timeFrom, timeTo);
-      case 2:
-        return accountLogin(raffle, tabSize, timeFrom, timeTo);
-      default:
-        break;
+
+    async function now() {
+      switch (choice) {
+        case 1:
+          await sleep(100)
+      console.log('here2Z')
+        process.exit(1)
+          console.log(choice)
+          await accountRegister(raffle, tabSize, timeFrom, timeTo);
+          console.log('exit')
+          process.exit(1)
+          return;
+        case 2:
+          console.log(choice)
+          return await accountLogin(raffle, tabSize, timeFrom, timeTo);
+        default:
+          break;
+      }
     }
+    await sleep(100)
+    console.log('here2Z')
+      process.exit(1)
+    await now();
     logError('Invalid inputs.')
     await sleep(1500);
     displayModule(module.label);
@@ -271,38 +295,42 @@ async function courir(version, module) {
   }
   async function accountRegister(raffle, tabSize, timeFrom, timeTo) {
     const mode = 'Account Register + Raffle Mode';
-    displayRecap(module.label, mode,raffle.name, tabSize, timeFrom, timeTo);
-    csvRegisterCourir(raffle, tabSize, timeFrom, timeTo, handleAccountRegister);
+    displayRecap(module.label, mode, raffle.name, tabSize, timeFrom, timeTo);
+    
+    await sleep(100)
+
+    await csvRegisterCourir(raffle, tabSize, timeFrom, timeTo, handleAccountRegister);
+    console.log('here');
+    process.exit(1)
   }
 
   async function handleAccountRegister(raffle, tabSize, timeFrom, timeTo, accounts) {
-    if(accounts.length===0) return logError('The file courir/register.csv is empty.');
-    else{
+    console.log('281')
+    if (accounts.length === 0) return logError('The file courir/register.csv is empty.');
+    else {
       var proxyIndex = 0;
       const accountNumber = accounts.length;
       var attemptCount = 0;
       var successCount = 0;
-      var revo = { "revoTask": "", "revoDelay": "" }
-      
-      
-      logInfo('Start tasks..');
+
+      logInfo('Start tasks.', true);
       for (let i = 0; i < accountNumber; i++) {
         await percent(attemptCount, accountNumber, successCount);
         attemptCount++;
-        accounts[i].Size = tabSize[Math.floor(Math.random()*tabSize.length)];
+        accounts[i].Size = tabSize[Math.floor(Math.random() * tabSize.length)];
         accounts[i].IdRaffle = raffle.id;
         accounts[i].NameRaffle = raffle.name;
-        accounts[i].revo = revo;
-        if(!validationCourirRegister(accounts[i])) return logError(`Problem with a csv field on email ${accounts[i].Email}.`,true);
+        if (!validationCourirRegister(accounts[i])) return logError(`Problem with a csv field on email ${accounts[i].Email}.`, true);
 
-        const info = await register(accounts[i], getAnotherProxy(), attemptCount,getAnotherProxy);
-        console.log(accounts[i].Email)
-        await sleep(2000);
+        const info = await register(accounts[i], getAnotherProxy(), attemptCount, getAnotherProxy);
+        logInfo('Checking for another task.', true);
       };
+      logSuccess('Tasks ended, thank you :)', true);
+      await sleep(2000);
     }
   }
   function getAnotherProxy() {
-    if(proxiesTab.length===0) throw 'No more proxies';
+    if (proxiesTab.length === 0) throw 'No more proxies';
     usedProxiesTab.push(proxiesTab[0]);
     const proxy = proxiesTab.shift();
     return {
@@ -321,8 +349,8 @@ async function courir(version, module) {
   }
 
   displayModule(module.label);
-  //csvReadClientAuth(checkConfig)
-
+  await csvReadClientAuth(checkConfig);
+  /*
   proxiesTab = [
     {
       ip: 'residential.bypassproxies.io',
@@ -360,7 +388,7 @@ async function courir(version, module) {
     10,
     12
   )
-  
+  */
   return;
 
   // raffle = [
@@ -624,7 +652,13 @@ async function courir(version, module) {
 
 }
 
+async function syncCourir(version, module) {
+  console.log('lunch')
+  await courir(version, module)
+  console.log('end')
+}
+
 module.exports = {
   courir,
-
+  syncCourir
 }

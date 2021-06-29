@@ -40,7 +40,7 @@ const logo = chalk.rgb(247, 158, 2)(
 * @author   bstn
 */
 function displayHeader() {
-  clear()
+  //clear()
   console.log(logo)
 }
 /** Display module vue
@@ -48,7 +48,7 @@ function displayHeader() {
 * @param    {String}      module  Module name
 */
 function displayModule(module, raffle) {
-  clear();
+  //clear();
   displayHeader();
   console.log(chalk.rgb(247, 158, 2)(`\n ${module} ${raffle !== undefined ? `| ${raffle.name}` : ''}`));
   console.log("-----------------------------------------------------\n");
@@ -96,7 +96,23 @@ function logInfo(message, displayDate = false) {
 */
 function logSuccess(message, displayDate = false) {
   if (displayDate) message = `${getDate()} - ${message}`;
-  console.log(`[Success]\t: ${message}`);
+  console.log(colors.green(`[Success]\t: ${message}`));
+}
+/** Log a unit test
+* @author   Lux
+* @param    {String}      file        File of the test
+* @param    {String}      func        Function of test
+* @param    {String}      line        Line of the test
+* @param    {String}      message     Message
+* @param    {String}      expectation Expected result
+* @param    {String}      result      Result
+* @param    {Boolean}     isSame      If the result is supposed to be exactly like expectation
+*/
+function logUnitTest(file, func, line, message, expectation='', result='', isSame = false) {
+  message = `${getDate()} - (${file}, ${func}(), line ${line}) \n ${message}`;
+  if(expectation!=='' || result!=='') message = `${message}\nExpectation: ${expectation}\nResult: ${result}`;
+  if(expectation===result || !isSame) console.log(colors.blue(`[VALIDATED]\t: ${message}`));
+  else console.log(colors.orange(`[UNVALIDATED]\t: ${message}`));
 }
 
 async function displayCourirRaffle(rafflesData) {
@@ -168,18 +184,34 @@ async function displayLydiaMode() {
 
   return input;
 }
+async function displayLydiaSMSCode() {
+  console.log("3DSecure Sms code : ");
+  const input = inputReader.readLine();
+  return input;
+}
+async function displayLydiaAppCode() {
+  console.log("Press when you validated from Lydia App : ");
+  inputReader.readLine();
+}
 
 module.exports = {
   menu,
   displayModule,
+
+  //COURIR
   displayCourirRaffle,
+  displayCourirMode,
+  //CHOICE
   displaySizeChoice,
   displayProxyTimeChoice,
-  displayCourirMode,
+  //LYDIA
   displayLydiaMode,
+  displayLydiaSMSCode,
+  displayLydiaAppCode,
+
   displayRecap,
   percent,
   initProgressBar,
   updateProgressBar,
-  logError, logInfo, logSuccess,
+  logError, logInfo, logSuccess, logUnitTest
 }

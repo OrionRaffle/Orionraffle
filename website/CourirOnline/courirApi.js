@@ -161,7 +161,6 @@ async function confirmStripeClient(account, token) {
         });
         return resp.data;
     } catch (err) {
-        console.log(err)
         if (err.response.data.error.type.includes("card_error")) logError(`[${account.Email}] card error, probably CC.`, true);
     }
 
@@ -189,9 +188,8 @@ async function getStripeAuth(stripeToken, proxy) {
     }
 }
 
-
-async function register(account, proxy, numero, getAnotherProxy) {
-    logInfo(`Trying to register ${account.Email}.`, true);
+async function register(account, proxy, number, getAnotherProxy) {
+    logInfo(`(Task ${number}) Trying to register ${account.Email}.`, true);
 
     const srpClient = new SRPClient("nyu5Glqkw");
     const srpA = srpClient.calculateA();
@@ -224,7 +222,7 @@ async function register(account, proxy, numero, getAnotherProxy) {
     account.payment_method = stripeData.payment_method;
     account.token = stripeData.id;
 
-    console.log(stripeData.next_action.use_stripe_sdk)
+    //console.log(stripeData.next_action.use_stripe_sdk) SOMETIMES ERROR
 
     const stripeBigToken = stripeData.next_action.use_stripe_sdk.stripe_js.split('/')[5];
     //const clientSecret = stripeBigToken.split("&")[0].split('=')[1];
@@ -233,192 +231,10 @@ async function register(account, proxy, numero, getAnotherProxy) {
     if (authData === undefined) return logError('An error occured. Entry canceled. (It can be a card issue) [Code 4]', true);
     if (authData.includes("Authentification terminé")) {
         logInfo(`[${account.Num}] [${account.Email}] SMS Code successfully added (no 3DS).`, true);
-        return 'SUCCESS';
     }
     else await handle3DSecure(authData, proxy);
-
-    process.exit(1)
-
-    data = await getPareq(bigToken, proxyconfig)
-
-    if (data == -1) return -1
-    pareq = data.split('value="')[1].split('"')[0]
-    linkStripe = data.split('value="')[2].split('"')[0]
-    linkForm = data.split('action="')[1].split('"')[0]
-
-    if (data.split('method="POST" action="')[1].includes('-acs.marqeta.co')) {
-
-        data = await getForm(pareq, linkForm, linkStripe, proxyconfig)
-        if (data == -1) return -1
-
-        try {
-            newUrl = data.split('m" action=')[1].split('"')[1]
-        } catch (e) {
-            console.log(colors.brightRed(`[Error][${numero}][${info.Email}] Problem with Lydia Card`))
-            return 0
-        }
-        shortCode = data.split('programShortCode"')[1].split('"')[1]
-        newPareq = data.split('pareqToken"')[1].split('"')[1]
-
-        console.log(chalk.rgb(247, 158, 2)("\n[Info] Lydia Menu (Choose what you received)"))
-        console.log(" 1. SMS Code (old version)")
-        console.log(" 2. Press the button (new version)\n")
-
-
-        input = inputReader.readInteger()
-        while (true) {
-            if (input == 1 || input == 2) {
-                break
-            }
-            input = inputReader.readInteger()
-        }
-
-        if (input == 1) {
-            console.log("[Info][" + numero + "][" + info.Email + "] 3DSecure Sms code : ")
-            input = inputReader.readLine()
-
-            data = await sendForm(newUrl, shortCode, newPareq, linkStripe, input, proxyconfig)
-            if (data == -1) return -1
-
-            error = data.includes('Le code de vérification n’est pas correct')
-            while (error) {
-                console.log(colors.brightRed("[Error][" + numero + "][" + info.Email + "] Incorrect verification code, a new one was sent"))
-                console.log("[Lydia][" + numero + "][" + info.Email + "] 3DSecure Sms code : ")
-                input = inputReader.readLine()
-                data = await sendForm(newUrl, shortCode, newPareq, linkStripe, input, proxyconfig)
-                if (data == -1) return -1
-
-                await sleep(1000)
-                error = data.includes('Le code de vérification n’est pas correct')
-            }
-            console.log(colors.green("[Lydia][" + numero + "][" + info.Email + "] SMS Code successfully added"))
-        } else {
-            console.log("[Lydia][" + numero + "][" + info.Email + "] Press enter when you confirm on Lydia App : ")
-            input = inputReader.readLine()
-            data = await sendForm(newUrl, "lyda", newPareq, linkStripe, undefined, proxyconfig)
-            if (data == -1) return -1
-
-            while (data.includes('"PaRes" value=""')) {
-                console.log("[Lydia][" + numero + "][" + info.Email + "] Press enter when you confirm on Lydia App : ")
-                input = inputReader.readLine()
-                data = await sendForm(newUrl, "lyda", newPareq, linkStripe, undefined, proxyconfig)
-                if (data == -1) return -1
-
-            }
-            if (data == -1) return -1
-            console.log(colors.green("[Lydia][" + numero + "][" + info.Email + "] 3DS successfully confirmed"))
-        }
-        pares = data.split('="PaRes" value="')[1].split('"')[0]
-
-        await redirect3DS(pares, linkStripe, proxyconfig)
-
-    } else if (data.split('method="POST" action="')[1].includes('touchtechpayments.com')) {
-
-
-        if (info.revo.revoTask == "") {
-            console.log("\n[Info] Revolut Menu (The settings will be saved for the next tasks)")
-            console.log("1. Press enter when you confirm")
-            console.log("2. Auto confirm with delay")
-
-
-            input = inputReader.readInteger()
-            while (true) {
-                if (input == 1 || input == 2) {
-                    break
-                }
-                input = inputReader.readInteger()
-            }
-
-            if (input == 1) {
-                info.revo.revoTask = 1
-                info.revo.revoDelay = 0
-            }
-
-            if (input == 2) {
-                info.revo.revoTask = 2
-                console.log("[Info] Delay ? (s)")
-                input = inputReader.readInteger()
-                while (true) {
-                    if (input != 0) {
-                        break
-                    }
-                    input = inputReader.readInteger()
-                }
-                info.revo.revoDelay = input * 1000
-            }
-        }
-        data = await getRevolutForm(pareq, linkStripe, proxyconfig)
-        if (data == -1) return -1
-        transToken = data.split('config.transaction = {')[1].split('"')[1]
-        if (info.revo.revoTask == 1) {
-            console.log("[Revolut][" + numero + "][" + info.Email + "] Press enter when you confirm on Revolut App : ")
-            input = inputReader.readLine()
-            data = await sendRevolutForm(transToken, proxyconfig)
-            if (data == -1) return -1
-            while (data.status.includes("pending")) {
-                console.log("[Revolut][" + numero + "][" + info.Email + "] Press enter when you confirm on Revolut App : ")
-                input = inputReader.readLine()
-                data = await sendRevolutForm(transToken, proxyconfig)
-                if (data == -1) return -1
-            }
-        }
-
-        if (info.revo.revoTask == 2) {
-            console.log("[Revolut][" + numero + "][" + info.Email + "] Auto confirm mode")
-            await sleep(2000)
-            console.log("[Revolut][" + numero + "][" + info.Email + "] Wait " + info.revo.revoDelay / 1000 + "s")
-            await sleep(info.revo.revoDelay)
-            data = await sendRevolutForm(transToken, proxyconfig)
-            if (data == -1) return -1
-
-            while (data.status.includes("pending")) {
-                console.log("[Revolut][" + numero + "][" + info.Email + "] Wait " + info.revo.revoDelay / 1000 + "s")
-                await sleep(info.revo.revoDelay)
-                data = await sendRevolutForm(transToken, proxyconfig)
-            }
-        }
-        console.log(colors.green("[Revolut][" + numero + "][" + info.Email + "] 3DS successfully confirmed"))
-        authToken = data.authToken
-        data = await confirmRevolutForm(transToken, authToken, proxyconfig)
-        if (data == -1) return -1
-
-        pares = data.Response
-        data = await RevolutRedirect3DS(pareq, linkStripe, proxyconfig)
-        if (data == -1) return -1
-
-        merchant = data.split('merchant" value="')[1].split('"')[0]
-        threeds = data.split('three_d_secure" value="')[1].split('"')[0]
-        await confirmRevolut3DS(pares, merchant, threeds, proxyconfig)
-    } else if (data.includes("3dsecure.monext.fr")) {
-
-        cookiesQonto = await getSessionQonto(pareq, linkStripe, proxyconfig)
-
-        link = cookiesQonto.split('<form action="')[1].split('"')[0]
-        await getQonto(link, proxyconfig)
-
-
-        console.log("[Qonto][Info][" + numero + "][" + info.Email + "] 3DSecure Sms code : ")
-        input = inputReader.readLine()
-        data = await sendQonto(link, input, proxyconfig)
-        if (data == -1) return -1
-
-        while (data.includes('Le code saisi est incorrect') || data.includes('Le code est obligatoire')) {
-            console.log(colors.brightRed("[Error][" + numero + "][" + info.Email + "] Incorrect verification code, a new one was sent"))
-            console.log("[Qonto][" + numero + "][" + info.Email + "] 3DSecure Sms code : ")
-            input = inputReader.readLine()
-            data = await sendQonto(link, input, proxyconfig)
-            if (data == -1) return -1
-        }
-        console.log(colors.green("[Qonto][" + numero + "][" + info.Email + "] SMS Code successfully added"))
-
-    } else {
-        console.log(colors.brightRed("[Error][" + numero + "][" + info.Email + "] Provider unknown, open a ticket"))
-        return 0
-    }
-
-
+    return 'SUCCESS';
 }
-
 
 module.exports = {
     register

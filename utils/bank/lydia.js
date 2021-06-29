@@ -6,6 +6,8 @@ const { sleep } = require(path.join(__dirname, '../utils'))
 
 const {
     displayLydiaMode,
+    displayLydiaSMSCode,
+    displayLydiaAppCode,
     logError,
     logInfo,
     logSuccess
@@ -29,67 +31,71 @@ async function handleLydia3DSecure(pareq, formLink, stripeLink, proxy) {
 
     const modeChoice = await askFor3DSSolveMode();
 
-    console.log(modeChoice)
-    console.log(newUrl)
-
+    var response;
     switch (modeChoice) {
         case 1: //SMS
-            await solve3DSFromSms();
+        response = await solve3DSFromSms(newUrl, shortCode, newPareq, stripeLink, proxy);
             break;
         case 2: //APP
-
+        response = await solve3DSFromApp(newUrl, shortCode, newPareq, stripeLink, proxy);
             break;
         default:
             break;
     }
-    return;
+    logSuccess('3DSecure confirmated.', true);
+    const pares = response.split('="PaRes" value="')[1].split('"')[0];
+    return pares;
+}
+async function solve3DSFromApp(newUrl, shortCode, newPareq, stripeLink, proxy) {
+    await displayLydiaAppCode();
+    const response = await sendForm(newUrl, "lyda", newPareq, stripeLink, undefined, proxy);
 
-    shortCode = formData.split('programShortCode"')[1].split('"')[1]
-    newPareq = formData.split('pareqToken"')[1].split('"')[1]
-
-
-    if (input == 1) {
-
-    } else {
-        console.log("[Lydia][" + numero + "][" + info.Email + "] Press enter when you confirm on Lydia App : ")
-        input = inputReader.readLine()
-        data = await sendForm(newUrl, "lyda", newPareq, linkStripe, undefined, proxyconfig)
-        if (data == -1) return -1
-
-        while (data.includes('"PaRes" value=""')) {
-            console.log("[Lydia][" + numero + "][" + info.Email + "] Press enter when you confirm on Lydia App : ")
-            input = inputReader.readLine()
-            data = await sendForm(newUrl, "lyda", newPareq, linkStripe, undefined, proxyconfig)
-            if (data == -1) return -1
-
-        }
-        if (data == -1) return -1
-        console.log(colors.green("[Lydia][" + numero + "][" + info.Email + "] 3DS successfully confirmed"))
+    if (response === 'FAILED') {
+        logInfo('Error, please try again.', true);
+        return await solve3DSFromApp(newUrl, shortCode, newPareq, stripeLink, proxy);
     }
-    pares = data.split('="PaRes" value="')[1].split('"')[0]
+    return response;
+}
+async function solve3DSFromSms(newUrl, shortCode, newPareq, stripeLink, proxy) {
+    const number = await displayLydiaSMSCode();
+    const response = await sendForm(newUrl, shortCode, newPareq, stripeLink, number, proxy);
 
-    await redirect3DS(pares, linkStripe, proxyconfig)
+    if (response === 'FAILED') {
+        logInfo('Wrong code provided. Another one was sent, please try again.', true);
+        return await solve3DSFromSms(newUrl, shortCode, newPareq, stripeLink, proxy);
+    }
+    return response;
 }
 
-async function solve3DSFromSms() {
-    console.log("[Info][" + numero + "][" + info.Email + "] 3DSecure Sms code : ")
-    input = inputReader.readLine()
-
-    data = await sendForm(newUrl, shortCode, newPareq, linkStripe, input, proxyconfig)
-    if (data == -1) return -1
-
-    error = data.includes('Le code de vérification n’est pas correct')
-    while (error) {
-        console.log(colors.brightRed("[Error][" + numero + "][" + info.Email + "] Incorrect verification code, a new one was sent"))
-        console.log("[Lydia][" + numero + "][" + info.Email + "] 3DSecure Sms code : ")
-        input = inputReader.readLine()
-        data = await sendForm(newUrl, shortCode, newPareq, linkStripe, input, proxyconfig)
-        if (data == -1) return -1
-
-        await sleep(1000)
-        error = data.includes('Le code de vérification n’est pas correct')
+async function sendForm(newUrl, shortCode, newPareq, stripeLink, code, proxy) {
+    try {
+        const resp = await axios({
+            headers: {
+                'Connection': 'keep-alive',
+                'Accept': '*/*',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Accept-Language': 'fr,en-US;q=0.9,en;q=0.8'
+            },
+            timeout: 10000,
+            method: 'POST',
+            url: 'https://authentication-acs.marqeta.com' + newUrl,
+            proxy: proxy,
+            data: qs.stringify({
+                'MD': '',
+                'PaRes': '',
+                'otp_attempt_counter_after_kba': '0',
+                'is_kba_completed': 'false',
+                'pareqToken': newPareq,
+                'programShortCode': shortCode,
+                'termUrl': stripeLink,
+                'oneTimePasscode': code
+            })
+        });
+        if (resp.data.includes('Le code de vérification n’est pas correct') || resp.data.includes('"PaRes" value=""')) { return 'FAILED'; }
+        else return resp.data;
+    } catch (err) {
+        return 'FAILED';
     }
-    console.log(colors.green("[Lydia][" + numero + "][" + info.Email + "] SMS Code successfully added"))
 }
 
 async function getForm(pareq, formLink, stripeLink, proxy) {
@@ -99,7 +105,6 @@ async function getForm(pareq, formLink, stripeLink, proxy) {
             'Accept': '*/*',
             'Accept-Encoding': 'gzip, deflate, br',
             'Accept-Language': 'fr,en-US;q=0.9,en;q=0.8'
-
         },
         timeout: 10000,
         method: 'POST',

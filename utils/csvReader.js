@@ -137,7 +137,7 @@ function sleep(ms) {
 async function csvReadClientAuth(callback) {
     fs.createReadStream('./config.csv')
         .pipe(csv())
-        .on('data', (data)=>callback(data))
+        .on('data', (data) => {callback(data)});
 }
 
 async function csvconfigreaderShuzu() {
@@ -194,11 +194,22 @@ async function csvrafflereaderSNS() {
 }
 
 async function csvRegisterCourir(raffle, tabSize, timeFrom, timeTo, callback) {
+    console.log('here2Z')
+      process.exit(1)
+    console.log('csvRegisterCourir')
     var dataTab = [];
-    fs.createReadStream('./Courir/register.csv')
-        .pipe(csv())
-        .on('data', (data)=>{ if(data.Email!==undefined) dataTab.push(data); })
-        .on('end', () => {callback(raffle, tabSize, timeFrom, timeTo, dataTab)})
+    async function resolve() {
+        console.log('here3');
+        await callback(raffle, tabSize, timeFrom, timeTo, dataTab);
+    }
+    await new Promise(function(resolve) {
+        fs.createReadStream('./Courir/register.csv')
+            .pipe(csv())
+            .on('data', (data)=>{ if(data.Email!==undefined) dataTab.push(data); })
+            .on('end', async () => { console.log('here1');resolve(); });
+    })
+    console.log('here2');
+    process.exit(1);
 }
 
 async function csvloginreaderCourir() {

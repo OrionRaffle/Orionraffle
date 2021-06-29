@@ -55,12 +55,12 @@ async function getRemoteVersion(callback) {
 * @param    {function} callback           Callback pour gérer la remote version
 */
 async function checkVersion(localVersion, resolve){
-  function handleRemoteVersionResult(version) {
-    if(localVersion===version) resolve();
+  async function handleRemoteVersionResult(version) {
+    if(localVersion===version) await resolve();
     else{
       console.log(`New version available : ${version}`);
       console.log('Downloading new version..');
-      downloadNewVersion(version)
+      downloadNewVersion(version);
     }
   }
   console.log('Checking Version..')

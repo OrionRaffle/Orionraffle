@@ -6,7 +6,7 @@ const { SNS } = require('./website/SNS/SNS')
 const { shuzu } = require('./website/Shuzu/ShuzuLab')
 // const { kith } = require('./website/KithEU/kithRaffle')
 // const { footlocker } = require('./website/FootLocker/FootLocker')
-const { courir } = require('./website/CourirOnline/courir')
+const { courir, syncCourir } = require('./website/CourirOnline/courir')
 const { footshop } = require('./website/Footshop/footshop')
 const { courirInstore } = require('./website/CourirInstore/courirInstore')
 
@@ -30,7 +30,7 @@ let discordUsername;
 const allModules = [
   new Module('SNS', SNS, true),
   new Module('Footshop', footshop, false),
-  new Module('Courir Online', courir, true),
+  new Module('Courir Online', syncCourir, true),
   new Module('Courir Instore', courirInstore, true),
   new Module('ShuzuLab', shuzu, false)
 ]
@@ -42,16 +42,16 @@ async function main() {
     process.exit(1)
   }
   async function databaseAuthentification(data) {
-    await authUser(data.LicenceKey, version, rejected, authAccepted)
+    await authUser(data.LicenceKey, version, rejected, authAccepted);
   }
   async function authAccepted(user) {
     discordUsername = user;
-    await checkVersion(version, versionUpToDate)
+    await checkVersion(version, versionUpToDate);
   }
   async function versionUpToDate() {
     //console.log('Version up to date')
     //await sleep(1000)
-    displayMenu()
+    await displayMenu();
   }
   async function displayMenu() {
     choice = await menu(allModules, discordUsername);
@@ -59,16 +59,22 @@ async function main() {
     if (isNaN(choice)) logError('Wrong input.');
     else{
       choice--;
-      if (allModules[choice].state) await allModules[choice].callback(version, allModules[choice]);
+      if (allModules[choice].state){
+        try {
+          await allModules[choice].callback(version, allModules[choice]);
+        } catch (error) {
+          logError('An error occured.'+error);
+        }
+      }
       else logError('Module down.');
     }
     await sleep(1500);
-    displayMenu();
+    await displayMenu();
   }
   await csvReadClientAuth(databaseAuthentification)
 }
 
 setRichPresence(version)
 colors.enable()
-//main()
-courir(version, allModules[2])
+main()
+//courir(version, allModules[2])

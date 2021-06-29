@@ -58,17 +58,17 @@ async function authUser(key, version, reject, resolve) {
 
   connection.query(getUserQuery, async (error, results) => {
     if (error) return reject('Authentification failed. Database is not joinable.');
-    if (results.length != 1) reject('Invalid licence key')
+    if (results.length != 1) return reject('Invalid licence key');
     else {
       const user = results[0].user;
       const databaseMachineId = results[0].machineId;
       const localMachineId = await machineId();
 
-      if(databaseMachineId==='') updateMachineId(key, localMachineId)
-      else if(databaseMachineId!==localMachineId) reject('Wrong machine, open a ticket for more informations')
+      if(databaseMachineId==='') await updateMachineId(key, localMachineId);
+      else if(databaseMachineId!==localMachineId) return reject('Wrong machine, open a ticket for more informations');
 
-      updateLastConnexionDate(key)
-      resolve(user)
+      updateLastConnexionDate(key);
+      await resolve(user);
     }
   })
   connection.query(updateQuery, (error) => { if (error) return; })
