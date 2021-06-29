@@ -1,0 +1,44 @@
+Guide Raffle Mode Kith :
+
+
+PARTIE OBLIGATOIRE A CHAQUE LANCEMENT DU MODE KITH RAFFLE
+-------------------------------------
+
+Au lancement du module, l'utilisateur va avoir le choix entre les différentes raffles à l'heure actuel sur KithEU,
+pour récupérer l'id des raffles, il faut obligatoirement se login (ici on prendra la première du csv, si error fermeture du module + explicaition)
+
+Explication détaillé de la fonction getAllRaffle
+- Login classique -> récupération du SessionId - getSessionid()
+- /pages/drawings-list pour récupérer les noms des raffles et les liens vers les raffles
+- Récupération du campaignId de chaque raffle sur chaque lien
+                 
+getAllRaffle() -> ex {
+                        ['title':'Yeezy 450 Dark Slate','link':'https://eu.kith.com/pages/kith-drawing-3-3','campaignId':'lc9ojhVUmGEw7v21Qs6U'],
+                        ['title':'New Balance x Salehe Bembury2002 Turquoise','link':'https://eu.kith.com/pages/kith-drawing-3-2','campaignId':'eS94iCibL5IKJH2gpeRo']
+                    }
+
+CampaignId = id de la raffle
+
+
+
+------------------------
+PARTIE OBLIGATOIRE A CHAQUE ENTRY
+-----------------------
+LOGIN 
+
+1) getCustomerId()
+Récupération du customerId après le login, ce customerId sera l'identifiant à entry dans la raffle
+
+SessionId aucune utilité ici.
+
+
+--------------------------------
+
+ENTRY
+
+
+1) kithEntry1()
+Récupération du gessionId et du SID, obligatoire pour les requêtes d'après
+
+
+
