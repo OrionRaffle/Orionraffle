@@ -70,6 +70,9 @@ async function menu(modules, username) {
   input = inputReader.readLine();
   return input;
 }
+/** Get current date
+* @author   Lux
+*/
 function getDate() {
   const date = new Date();
   return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
@@ -114,7 +117,10 @@ function logUnitTest(file, func, line, message, expectation='', result='', isSam
   if(expectation===result || !isSame) console.log(colors.blue(`[VALIDATED]\t: ${message}`));
   else console.log(colors.orange(`[UNVALIDATED]\t: ${message}`));
 }
-
+/** Display a Courir raffle from data
+* @author   Lux
+* @param    {JSON}      rafflesData  Json object that contains raffle data (name, price and more)
+*/
 async function displayCourirRaffle(rafflesData) {
   let index = 0;
   rafflesData.forEach(raffle => {
@@ -129,13 +135,27 @@ async function displayCourirRaffle(rafflesData) {
   input = inputReader.readLine();
   return input;
 }
+/** Display a recap on what the user is actually doing
+* @author   Lux
+* @param    {String}      module      Module name
+* @param    {String}      mode        Mode (update, register..) (only for courir)
+* @param    {String}      raffleName  Raffle name
+* @param    {String}      sizeTab     Size tab selected from the user
+* @param    {String}      proxyFrom   From X.s to 
+* @param    {String}      proxyTo     X. s (ex: 10-30s)
+*/
 async function displayRecap(module, mode, raffleName, sizeTab, proxyFrom, proxyTo) {
   displayHeader()
   console.log(chalk.rgb(247, 158, 2)(`\n ${module} | ${mode} | ${raffleName}`))
   console.log("----------------------------------------------------------------------\n")
   console.log(`[Settings] Size :`, chalk.rgb(247, 158, 2)(...sizeTab), `| Range : ${proxyFrom} - ${proxyTo} seconds `)
 }
-
+/** Update the percent header 
+* @author   bstn
+* @param    {int}      count          Task achieved
+* @param    {int}      length         Total task number
+* @param    {int}      successCount   Succes count
+*/
 async function percent(count, length, successCount) {
   instance = process.cwd()
   instance = instance.split("\\").pop()
@@ -144,7 +164,10 @@ async function percent(count, length, successCount) {
   else percentage = count / length
   setTitle(`OrionRaffle | Instance /${instance} | Private Beta | V.${version} | ${parseInt(percentage * 100)}% | Success : ${successCount} | Failed : ${count - successCount}`);
 }
-
+/** Display the size choice
+* @author   bstn
+* @param    {Array}      sizes    Contains all differents sizes
+*/
 async function displaySizeChoice(sizes) {
   console.log('Size Available :', chalk.rgb(247, 158, 2)(...sizes));
   console.log('\nFrom size ?');
@@ -154,6 +177,9 @@ async function displaySizeChoice(sizes) {
 
   return { 'from': from, 'to': to };
 }
+/** Display the proxy time choice
+* @author   bstn
+*/
 async function displayProxyTimeChoice() {
   console.log('Range between each task ? (First number) (s)');
   from = inputReader.readInteger();
@@ -162,7 +188,9 @@ async function displayProxyTimeChoice() {
 
   return { 'from': from, 'to': to };
 }
-
+/** Display the differents courir modes
+* @author   bstn
+*/
 async function displayCourirMode() {
   displayHeader();
   console.log("-----------------------------------------------------\n")
@@ -173,6 +201,7 @@ async function displayCourirMode() {
 
   return input;
 }
+
 async function displayLydiaMode() {
   displayHeader();
   console.log(chalk.rgb(247, 158, 2)("3D Secure authentification - Lydia"));
