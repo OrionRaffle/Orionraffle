@@ -29,9 +29,10 @@ async function handleLydia3DSecure(pareq, formLink, stripeLink, proxy) {
     const shortCode = formData.split('programShortCode"')[1].split('"')[1];
     const newPareq = formData.split('pareqToken"')[1].split('"')[1];
 
-    const modeChoice = await askFor3DSSolveMode();
-
     var response;
+
+    //const modeChoice = await askFor3DSSolveMode();
+    /*
     switch (modeChoice) {
         case 1: //SMS
         response = await solve3DSFromSms(newUrl, shortCode, newPareq, stripeLink, proxy);
@@ -42,6 +43,9 @@ async function handleLydia3DSecure(pareq, formLink, stripeLink, proxy) {
         default:
             break;
     }
+    */
+    response = await solve3DSFromApp(newUrl, shortCode, newPareq, stripeLink, proxy);
+    
     logSuccess('3DSecure confirmated.', true);
     const pares = response.split('="PaRes" value="')[1].split('"')[0];
     return pares;
