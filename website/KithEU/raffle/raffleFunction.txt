@@ -13,9 +13,19 @@ Explication détaillé de la fonction getAllRaffle
 - Récupération du campaignId de chaque raffle sur chaque lien
                  
 getAllRaffle() -> ex {
-                        ['title':'Yeezy 450 Dark Slate','link':'https://eu.kith.com/pages/kith-drawing-3-3','campaignId':'lc9ojhVUmGEw7v21Qs6U'],
-                        ['title':'New Balance x Salehe Bembury2002 Turquoise','link':'https://eu.kith.com/pages/kith-drawing-3-2','campaignId':'eS94iCibL5IKJH2gpeRo']
+                        [
+                        'title':'Yeezy 450 Dark Slate',
+                        'link':'https://eu.kith.com/pages/kith-drawing-3-3',
+                        'campaignId':'lc9ojhVUmGEw7v21Qs6U'
+                    
+                        ],
+                        [
+                        'title':'New Balance x Salehe Bembury2002 Turquoise',
+                        'link':'https://eu.kith.com/pages/kith-drawing-3-2',
+                        'campaignId':'eS94iCibL5IKJH2gpeRo'
+                        ]
                     }
+
 
 CampaignId = id de la raffle
 
@@ -37,7 +47,7 @@ SessionId aucune utilité ici.
 ENTRY
 
 
-1) kithEntry1()
+1) getSIDandgessionid
 Récupération du gessionId et du SID, obligatoire pour les requêtes d'après
 
 

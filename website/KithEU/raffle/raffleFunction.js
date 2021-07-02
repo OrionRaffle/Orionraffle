@@ -3,22 +3,29 @@ const qs = require('qs')
 const request = require('request-promise').defaults({
     jar: true
 });
+var HttpsProxyAgent = require('https-proxy-agent');
 var randomstring = require("randomstring");
 function getRandomIntInclusive(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
+// axios.defaults.timeout = 1000
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 const proxyConfig = {
     host: '127.0.0.1',
     port: '8888',
 }
+async function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 
 // Obligatoire pour la sélection de raffle cf. getAllRaffle
 async function getSessionId(proxyConfig, user) {
+    proxyConfig = 'http://16206265723739:hUo13ZOuhX74fN1i_country-France_session-162334362732@proxy.frappe-proxies.com:31112'
+
     try {
         const response = await request({
             proxy: proxyConfig,
@@ -45,16 +52,18 @@ async function getSessionId(proxyConfig, user) {
         })
         //Cette condition permet de vérifier si la redirection va sur /account dans le cas contraire, c'est un problème de login (email or password incorrect)
         if (response.body.includes('"https://eu.kith.com/account"')) {
-            console.log()
+
             let sessionId = response.request.headers['cookie'].split(';')[0].split('=')[1]
             console.log("[✓] Login Success - Récupération sessionId (" + sessionId + ")")
             return sessionId
         } else {
             console.log("Login ERROR")
-            process.exit(1)
+            return 1
         }
     } catch (err) {
-        console.log(err)
+        console.log("Proxy")
+
+        process.exit(1)
     }
 }
 
@@ -123,16 +132,350 @@ async function getCampaignId(proxyConfig, raffle, sessionId) {
     }
 }
 
+//Récupération du SID et du gessionid pour récuperer les données via FireBASE
+const getSessionFireBase = async (proxyConfig, raffle) => {
+    let dataLogin = {}
+    try {
+        const response = await axios({
+            headers: {
+                'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
+                "Accept": "*/*",
+                "Accept-Language": "fr-fr",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Connection": "keep-alive",
+                'Content-Type': 'application/x-www-form-urlencoded',
+
+            },
+            proxy: proxyConfig,
+            withCredentials: true,
+            method: 'POST',
+            url: `https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel`,
+            params: {
+                'database': 'projects/launches-by-seed/databases/(default)',
+                'VER': '8',
+                'RID': getRandomIntInclusive(1000, 99999),
+                'CVER': '22',
+                'X-HTTP-Session-Id': 'gsessionid',
+                '$httpHeaders': 'X-Goog-Api-Client:gl-js/ fire/7.23.0 Content-Type:text/plain',
+                'zx': randomstring.generate(11).toLowerCase(),
+                't': '1',
+            },
+            data: qs.stringify({
+                'count': '1',
+                'ofs': '0',
+                'req0___data__': `{"database": "projects/launches-by-seed/databases/(default)","addTarget": { "documents": { "documents": ["projects/launches-by-seed/databases/(default)/documents/campaigns/${raffle.campaignId}"]}, "targetId": 2 }}`
+
+            })
+        })
+
+        // console.log(raffle)
+        dataLogin.SID = response.data.split('","')[1]
+        dataLogin.gsessionid = response.headers['x-http-session-id']
+
+        raffle.dataLogin = dataLogin
+
+
+    } catch (err) {
+
+
+        console.log(err)
+        return 0
+
+    }
+}
+
+
+
+const fetch = require('node-fetch');
+const AbortController = require('node-abort-controller');
+const controller = new AbortController()
+const signal = controller.signal
+
+const getRaffleInfo = async (proxyConfig, raffle) => {
+
+    var myInit = {
+        method: 'GET',
+        headers: {
+            'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
+            "Accept": "*/*",
+            "Accept-Language": "fr-fr",
+            "Accept-Encoding": "gzip, deflate, br",
+
+            'Content-Type': 'application/x-www-form-urlencoded',
+
+        },
+        mode: 'cors',
+        signal: signal,
+        cache: 'default',
+        agent: new HttpsProxyAgent('http://127.0.0.1:8888/')
+    };
+    let already1 = false
+    let already2 = false
+    var chunkedUrl = `https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?database=projects%2Flaunches-by-seed%2Fdatabases%2F(default)&gsessionid=${raffle.dataLogin.gsessionid}&VER=8&RID=rpc&SID=${raffle.dataLogin.SID}&CI=0&AID=0&TYPE=xmlhttp&zx=${randomstring.generate(11).toLowerCase()}&t=1`;
+    let a = ''
+    const promise = new Promise(async function (resolve) {
+        fetch(chunkedUrl, myInit).then(response => response.body)
+            .then(res => res.on('readable', () => {
+                // data = res.read().toString()
+                a =  a + res.read().toString()
+        
+            //    console.log(!already1)
+            //    console.log(a.includes('/models') + ' models')
+            //    console.log(a.includes('status') + ' status ')
+            //    console.log(a.includes("/location")  + " location\n")
+                while(a.includes('/models') && a.includes('status') && (!already1)) {
+                    // console.log(raffle)
+
+                    raffle.status = a.split('"status"')[1].split('"stringValue": "')[1].split('"')[0]
+                    raffle.models = a.split('/models/')[1].split('"')[0]
+                    getRaffleStatus3(proxyConfig, raffle)
+                    getRaffleStatus4(proxyConfig, raffle)
+                   
+                    already1 = true
+                }
+
+                if (a.includes("/locations/") && (!already2)) {
+                    // console.log(a)
+                    raffle.location = a.split('/locations/')[1].split('"')[0]
+                    console.log(raffle)
+                    already2 = true
+                    resolve()
+                }
+
+
+            }))
+        
+    });
+    await promise;
+    return
+}
+
+
+
+const getRaffleStatus = async (proxyConfig, raffle) => {
+    let dataLogin = {}
+    // console.log(raffle)
+    try {
+        const response = await axios({
+            headers: {
+                'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
+                "Accept": "*/*",
+                "Accept-Language": "fr-fr",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Connection": "keep-alive",
+                'Content-Type': 'application/x-www-form-urlencoded',
+
+            },
+            proxy: proxyConfig,
+            // withCredentials: true,
+            method: 'POST',
+            // timeout:700,
+            url: `https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel`,
+            params: {
+                'database': 'projects/launches-by-seed/databases/(default)',
+                'VER': '8',
+                'gsessionid': raffle.dataLogin.gsessionid,
+                'SID': raffle.dataLogin.SID,
+                'RID': getRandomIntInclusive(1000, 99999),
+                'CI': '0',
+                'AID': '4',
+                'zx': randomstring.generate(11).toLowerCase(),
+                't': '1',
+
+            },
+            data: qs.stringify({
+                'count': '1',
+                'ofs': '1',
+                'req0___data__': `{"database":"projects/launches-by-seed/databases/(default)","removeTarget":2}`
+
+            })
+        })
+        // console.log(response)
+    } catch (err) {
+        console.log(err)
+        return 0
+
+    }
+}
+const getRaffleStatus2 = async (proxyConfig, raffle) => {
+    let dataLogin = {}
+    // console.log(raffle)
+    try {
+        const response = await axios({
+            headers: {
+                'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
+                "Accept": "*/*",
+                "Accept-Language": "fr-fr",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Connection": "keep-alive",
+                'Content-Type': 'application/x-www-form-urlencoded',
+
+            },
+            proxy: proxyConfig,
+            // withCredentials: true,
+            method: 'POST',
+            url: `https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel`,
+            params: {
+                'database': 'projects/launches-by-seed/databases/(default)',
+                'VER': '8',
+                'gsessionid': raffle.dataLogin.gsessionid,
+                'SID': raffle.dataLogin.SID,
+                'RID': getRandomIntInclusive(1000, 99999),
+                'CI': '0',
+                'AID': '4',
+                'zx': randomstring.generate(11).toLowerCase(),
+                't': '1',
+
+            },
+            data: qs.stringify({
+                'count': '1',
+                'ofs': '2',
+                'req0___data__': `{"database":"projects/launches-by-seed/databases/(default)","addTarget":{"query":{"structuredQuery":{"from":[{"collectionId":"models"}],"orderBy":[{"field":{"fieldPath":"name"},"direction":"ASCENDING"},{"field":{"fieldPath":"__name__"},"direction":"ASCENDING"}]},"parent":"projects/launches-by-seed/databases/(default)/documents/campaigns/${raffle.campaignId}"},"targetId":4}}`
+
+            })
+        })
+        // console.log(raffle)
+    } catch (err) {
+        console.log(err)
+        return 0
+
+    }
+}
+
+const getRaffleStatus4 = async (proxyConfig, raffle) => {
+    let dataLogin = {}
+    // console.log(raffle)
+    try {
+        const response = await axios({
+            headers: {
+                'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
+                "Accept": "*/*",
+                "Accept-Language": "fr-fr",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Connection": "keep-alive",
+                'Content-Type': 'application/x-www-form-urlencoded',
+
+            },
+            proxy: proxyConfig,
+            // withCredentials: true,
+            method: 'POST',
+            url: `https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel`,
+            params: {
+                'database': 'projects/launches-by-seed/databases/(default)',
+                'VER': '8',
+                'gsessionid': raffle.dataLogin.gsessionid,
+                'SID': raffle.dataLogin.SID,
+                'RID': getRandomIntInclusive(1000, 99999),
+                'CI': '0',
+                'AID': '4',
+                'zx': randomstring.generate(11).toLowerCase(),
+                't': '1',
+
+            },
+            data: qs.stringify({
+                'count': '1',
+                'ofs': '4',
+                'req0___data__': `{"database":"projects/launches-by-seed/databases/(default)","addTarget":{"query":{"structuredQuery":{"from":[{"collectionId":"locations"}],"orderBy":[{"field":{"fieldPath":"locationName"},"direction":"ASCENDING"},{"field":{"fieldPath":"__name__"},"direction":"ASCENDING"}]},"parent":"projects/launches-by-seed/databases/(default)/documents/campaigns/${raffle.campaignId}/models/${raffle.models}"},"targetId":6}}`
+
+            })
+        })
+        // console.log(raffle)
+    } catch (err) {
+        console.log(err)
+        return 0
+
+    }
+}
+const getRaffleStatus3 = async (proxyConfig, raffle) => {
+    let dataLogin = {}
+    // console.log(raffle)
+    try {
+        const response = await axios({
+            headers: {
+                'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
+                "Accept": "*/*",
+                "Accept-Language": "fr-fr",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Connection": "keep-alive",
+                'Content-Type': 'application/x-www-form-urlencoded',
+
+            },
+            proxy: proxyConfig,
+            // withCredentials: true,
+            method: 'POST',
+            url: `https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel`,
+            params: {
+                'database': 'projects/launches-by-seed/databases/(default)',
+                'VER': '8',
+                'gsessionid': raffle.dataLogin.gsessionid,
+                'SID': raffle.dataLogin.SID,
+                'RID': getRandomIntInclusive(1000, 99999),
+                'CI': '0',
+                'AID': '4',
+                'zx': randomstring.generate(11).toLowerCase(),
+                't': '1',
+
+            },
+            data: qs.stringify({
+                'count': '1',
+                'ofs': '3',
+                'req0___data__': `{"database":"projects/launches-by-seed/databases/(default)","removeTarget":4}`
+
+            })
+        })
+        // console.log(raffle)
+    } catch (err) {
+        console.log(err)
+        return 0
+
+    }
+}
+
+
 //Récupération
 async function getAllRaffle(proxyConfig, user) {
 
     sessionId = await getSessionId(proxyConfig, user)
+    if (sessionId == 1) process.exit(1)
     raffleTab = await getRaffleName(proxyConfig)
+
+
     for (i in raffleTab) {
+
         await getCampaignId(proxyConfig, raffleTab[i], sessionId)
+        await getSessionFireBase(proxyConfig, raffleTab[i])
+        // getRaffleInfo(proxyConfig, raffleTab[i])
+        await getRaffleStatus(proxyConfig, raffleTab[i])
+        await getRaffleStatus2(proxyConfig, raffleTab[i])
+        // await getRaffleStatus3(proxyConfig, raffleTab[i])
+        await getRaffleInfo(proxyConfig, raffleTab[i])
+        // await sleep(2000)
+        // await getRaffleStatus3(proxyConfig, raffleTab[i])
+
+        // setTimeout(function() {
+
+        // await getRaffleInfo(proxyConfig, raffleTab[i])
+        // await sleep(1000)
+        // }, 1000); // after 3 min
+        // await getRaffleStatus4(proxyConfig, raffleTab[i])
+
+        // await getRaffleInfo(proxyConfig, raffleTab[i])
+        // await getRaffleInfo(proxyConfig, raffleTab[i])
+
+        // await getRaffleStatus(proxyConfig, raffleTab[i])
+        // await getRaffleStatus2(proxyConfig, raffleTab[i])
+
+
     }
-    console.log(raffleTab)
+    // await getSessionFireBase(proxyConfig, dataLogin)
+
+
+    // console.log(raffleTab)
 }
+
+
+//Récupération
+
 
 
 //Login Obligatoire
@@ -175,7 +518,7 @@ async function getCustomerId(proxyConfig, user) {
     }
 }
 
-const kithEntry1 = async (proxyConfig, user) => {
+const getSIDandgessionid = async (proxyConfig, user) => {
 
     try {
         const response = await axios({
@@ -273,6 +616,7 @@ const kithEntry2 = async (proxyConfig, user) => {
                                     "type": {
                                         "stringValue": ""
                                     },
+
                                     "size": {
                                         "stringValue": "8 US"
                                     },
@@ -500,6 +844,7 @@ async function raffleKith() {
     //         password: proxy1.password
     //       }
     //     };
+
     let user = {
         'email': 'clementTest@gmail.com',
         'password': 'POKEMON1'
@@ -509,14 +854,15 @@ async function raffleKith() {
         port: '8888',
     }
 
-    await getAllRaffle(proxyConfig, user)
-    console.log('LOGIN')
-    customerId = await getCustomerId(proxyConfig, user)
-    console.log('------------------------------')
-    console.log('\nENTRY')
-    console.log('\nFunction 1')
 
-    await kithEntry1(proxyConfig, user)
+    await getAllRaffle(proxyConfig, user)
+    // console.log('LOGIN')
+    // customerId = await getCustomerId(proxyConfig, user)
+    // console.log('------------------------------')
+    // console.log('\nENTRY')
+    // console.log('\nFunction 1')
+
+    // await kithEntry1(proxyConfig, user)
 
 
 }

@@ -1,6 +1,7 @@
 const path = require('path')
 const mysql = require('mysql')
 const { machineId } = require('node-machine-id')
+const { Console } = require('console')
 //Config
 const { host, user, password, database } = require(path.join(__dirname, '../config/config'))
 
@@ -65,6 +66,7 @@ async function authUser(key, version, reject, resolve) {
       const localMachineId = await machineId();
 
       if(databaseMachineId==='') await updateMachineId(key, localMachineId);
+    
       else if(databaseMachineId!==localMachineId) return reject('Wrong machine, open a ticket for more informations');
 
       updateLastConnexionDate(key);
