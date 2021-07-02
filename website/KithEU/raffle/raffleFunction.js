@@ -687,7 +687,6 @@ async function getAllRaffle(proxyConfig, user) {
         // await getRaffleStatus2(proxyConfig, raffleTab[i])
     }
     // await getSessionFireBase(proxyConfig, dataLogin)
-    console.log("ENDED")
     console.log(raffleTab)
 }
 
