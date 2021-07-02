@@ -211,8 +211,6 @@ async function courir(version, module) {
       }
     }
     await getRafflesData();
-    await sleep(10000)
-
     await displayMenu(rafflesData);
   }
   async function displayMenu(rafflesData) {
@@ -231,8 +229,6 @@ async function courir(version, module) {
     await displayMenu(rafflesData);
   }
   async function getSizes(raffle) {
-    await sleep(200)
-    console.log('hereB')
     displayModule(module.label, raffle);
     const result = await displaySizeChoice(raffle.sizeGlobal);
     if (result.from <= result.to) {
@@ -265,24 +261,13 @@ async function courir(version, module) {
     async function now() {
       switch (choice) {
         case 1:
-          await sleep(100)
-      console.log('here2Z')
-        process.exit(1)
-          console.log(choice)
-          await accountRegister(raffle, tabSize, timeFrom, timeTo);
-          console.log('exit')
-          process.exit(1)
-          return;
+          return await accountRegister(raffle, tabSize, timeFrom, timeTo);
         case 2:
-          console.log(choice)
           return await accountLogin(raffle, tabSize, timeFrom, timeTo);
         default:
           break;
       }
     }
-    await sleep(100)
-    console.log('here2Z')
-      process.exit(1)
     await now();
     logError('Invalid inputs.')
     await sleep(1500);
@@ -292,12 +277,8 @@ async function courir(version, module) {
   async function accountRegister(raffle, tabSize, timeFrom, timeTo) {
     const mode = 'Account Register + Raffle Mode';
     displayRecap(module.label, mode, raffle.name, tabSize, timeFrom, timeTo);
-    
-    await sleep(100)
 
     await csvRegisterCourir(raffle, tabSize, timeFrom, timeTo, handleAccountRegister);
-    console.log('here');
-    process.exit(1)
   }
 
   async function handleAccountRegister(raffle, tabSize, timeFrom, timeTo, accounts) {

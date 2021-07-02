@@ -24,7 +24,7 @@ async function sleep(ms) {
 
 // Obligatoire pour la sélection de raffle cf. getAllRaffle
 async function getSessionId(proxyConfig, user) {
-    proxyConfig = 'http://16206265723739:hUo13ZOuhX74fN1i_country-France_session-162334362732@proxy.frappe-proxies.com:31112'
+    proxyConfig = 'http://16206265723739:hUo13ZOuhX74fN1i_country-France_session-162334362740@proxy.frappe-proxies.com:31112'
 
     try {
         const response = await request({
@@ -208,87 +208,84 @@ const getRaffleInfo = async (proxyConfig, raffle) => {
         cache: 'default',
         agent: new HttpsProxyAgent('http://127.0.0.1:8888/')
     };
-    let already1 = false
-    let already2 = false
-    let already3 = false
+    let step = 0
     var chunkedUrl = `https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?database=projects%2Flaunches-by-seed%2Fdatabases%2F(default)&gsessionid=${raffle.dataLogin.gsessionid}&VER=8&RID=rpc&SID=${raffle.dataLogin.SID}&CI=0&AID=0&TYPE=xmlhttp&zx=${randomstring.generate(11).toLowerCase()}&t=1`;
     let a = ''
     const promise = new Promise(async function (resolve) {
         await fetch(chunkedUrl, myInit).then(response => response.body)
             .then(res => res.on('readable', () => {
                 // data = res.read().toString()
-                a = a + res.read().toString()
+                data = res.read()
+                if (data === null) return;
+                a = a + data.toString()
 
                 //    console.log(!already1)
                 //    console.log(a.includes('/models') + ' models')
                 //    console.log(a.includes('status') + ' status ')
                 //    console.log(a.includes("/location")  + " location\n")
-                if (a.includes('/models') && a.includes('status') && (!already1)) {
+                if (a.includes('/models') && a.includes('status') && (step === 0)) {
+                    console.log('Step 1 OK')
+                    step = 1
                     // console.log(raffle)
 
                     raffle.status = a.split('"status"')[1].split('"stringValue": "')[1].split('"')[0]
                     raffle.models = a.split('/models/')[1].split('"')[0]
                     getRaffleStatus3(proxyConfig, raffle)
                     getRaffleStatus4(proxyConfig, raffle)
-                   
-                    already1 = true
+
+
                 }
-            
-                if (a.includes("/locations/") && (!already2)) {
+
+                if (a.includes("/locations/") && ((step === 1))) {
+
+
                     // console.log(a)
-                    console.log(a.split('/locations/')[1].split('"')[0])
+                    // console.log('------------------')
+                    // console.log(a.substr(a.indexOf("/locations/") - 100, a.indexOf("/locations/") + 100))
+                    // console.log('------------------')
+                    // console.log(a.split('/locations/')[1].split('"')[0])
+
+
                     raffle.location = a.split('/locations/')[1].split('"')[0]
-                  
-                    
+                    if (raffle.location.length !== 20) return; //Location incomplete
+                    step = 2
+                    console.log('Step 2 OK')
+
+                    if(raffle.title.includes('Store Pick Up')) resolve();//No size
+
                     getRaffleStatus5(proxyConfig, raffle)
                     getRaffleStatus6(proxyConfig, raffle)
                     getRaffleStatus7(proxyConfig, raffle)
                     getRaffleStatus8(proxyConfig, raffle)
-
-                
-                    already2 = true
                 }
 
 
 
                 // console.log(a.split('"size"').length)
                 // console.log(a.includes('"size"'))
-                if (a.includes('"size"') && (!already3)) {
-                    console.log(a.split('"size"').length)
+                if (a.includes('"size"') && a.includes(']]]192') && (step === 2)) {
+
+                    //console.log(a.substr(a.indexOf(']]]192')-100,a.indexOf(']]]192')+100))
                     let inventory = []
-                    let sizes = {}
+                    let sizes = []
                     sizeLength = a
                     try {
                         for (let i = 0; i < sizeLength.split('"size"').length; i++) {
-                            let raffle = {}
-                          
                             str = a.split('"size"')[i + 1].split('stringValue": " ')[1]
 
-                            inventory[i] = str.split('U')[0]
-
+                            sizes.push(str.split(' U')[0])
                             // raffle.title = str.split('drawings__title">')[1].split('<')[0]
-                            // raffleTab.push(raffle)
-
+                            //raffleTab.push(raffle)
                         }
-
-
                     } catch (e) { }
-
-                    console.log(inventory)
-                    already3 = true
-                    //     raffle.location = a.split('/locations/')[1].split('"')[0]
-                    //     console.log(raffle)
-                    //     already2 = true
+                    raffle.sizes = sizes;
                     resolve()
                 }
-
-
-
             }))
 
     });
     await promise;
-    return
+    return;
 }
 
 
@@ -520,7 +517,6 @@ const getRaffleStatus5 = async (proxyConfig, raffle) => {
 }
 
 const getRaffleStatus6 = async (proxyConfig, raffle) => {
-    console.log(raffle)
     let dataLogin = {}
     // console.log(raffle)
     try {
@@ -665,7 +661,8 @@ async function getAllRaffle(proxyConfig, user) {
 
 
     for (i in raffleTab) {
-
+        console.log("i : "+i)
+        
         await getCampaignId(proxyConfig, raffleTab[i], sessionId)
         await getSessionFireBase(proxyConfig, raffleTab[i])
         // getRaffleInfo(proxyConfig, raffleTab[i])
@@ -688,13 +685,10 @@ async function getAllRaffle(proxyConfig, user) {
 
         // await getRaffleStatus(proxyConfig, raffleTab[i])
         // await getRaffleStatus2(proxyConfig, raffleTab[i])
-
-
     }
     // await getSessionFireBase(proxyConfig, dataLogin)
-
-
-    // console.log(raffleTab)
+    console.log("ENDED")
+    console.log(raffleTab)
 }
 
 

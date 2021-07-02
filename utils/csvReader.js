@@ -199,6 +199,23 @@ async function csvrafflereaderSNS() {
 }
 
 async function csvRegisterCourir(raffle, tabSize, timeFrom, timeTo, callback) {
+    let proxies = [];
+    const proxyLines = fs.readFileSync('./proxy.txt').toString().split("\n");
+    for(lines in proxyLines) {
+        let data = proxyLines[lines].split(':')
+        if(data[0]==='') continue;
+        proxies.push(
+            {
+                ip: data[0],
+                port: data[1],
+                user: data[2],
+                password: data[3],
+            }
+        );
+    }
+    await callback(proxies);
+
+
     var dataTab = [];
     await new Promise(function(resolve) {
         fs.createReadStream('./Courir/register.csv')
