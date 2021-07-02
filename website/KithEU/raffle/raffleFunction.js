@@ -263,21 +263,20 @@ const getRaffleInfo = async (proxyConfig, raffle) => {
 
                 // console.log(a.split('"size"').length)
                 // console.log(a.includes('"size"'))
-                if (a.includes('"size"') && a.includes(']]]192') && (step === 2)) {
-
+                if (a.includes('"size"') && data.toString().includes('targetChange') && (step === 2)) {
                     //console.log(a.substr(a.indexOf(']]]192')-100,a.indexOf(']]]192')+100))
                     let inventory = []
                     let sizes = []
                     sizeLength = a
                     try {
                         for (let i = 0; i < sizeLength.split('"size"').length; i++) {
-                            str = a.split('"size"')[i + 1].split('stringValue": " ')[1]
+                            str = a.split('"size"')[i + 1].split('stringValue": "')[1]
 
-                            sizes.push(str.split(' U')[0])
+                            sizes.push(str.split(' U')[0].trim())
                             // raffle.title = str.split('drawings__title">')[1].split('<')[0]
                             //raffleTab.push(raffle)
                         }
-                    } catch (e) { }
+                    } catch (e) {}
                     raffle.sizes = sizes;
                     resolve()
                 }
@@ -670,6 +669,7 @@ async function getAllRaffle(proxyConfig, user) {
         await getRaffleStatus2(proxyConfig, raffleTab[i])
         // await getRaffleStatus3(proxyConfig, raffleTab[i])
         await getRaffleInfo(proxyConfig, raffleTab[i])
+
         // await sleep(2000)
         // await getRaffleStatus3(proxyConfig, raffleTab[i])
 
