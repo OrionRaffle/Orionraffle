@@ -223,6 +223,11 @@ const getRaffleInfo = async (proxyConfig, raffle) => {
                 //    console.log(a.includes('/models') + ' models')
                 //    console.log(a.includes('status') + ' status ')
                 //    console.log(a.includes("/location")  + " location\n")
+                if(a.includes('Pick Up')){
+                    raffle.type = 'Instore'
+                }else{
+                    raffle.type = 'Online'
+                }
                 if (a.includes('/models') && a.includes('status') && (step === 0)) {
                     console.log('Step 1 OK')
                     step = 1
@@ -232,11 +237,12 @@ const getRaffleInfo = async (proxyConfig, raffle) => {
                     raffle.models = a.split('/models/')[1].split('"')[0]
                     getRaffleStatus3(proxyConfig, raffle)
                     getRaffleStatus4(proxyConfig, raffle)
+                    
 
 
                 }
 
-                if (a.includes("/locations/") && ((step === 1))) {
+                if (a.includes("/locations/") && ((step === 1)) && raffle.type == 'Online') {
 
 
                     // console.log(a)
@@ -244,8 +250,8 @@ const getRaffleInfo = async (proxyConfig, raffle) => {
                     // console.log(a.substr(a.indexOf("/locations/") - 100, a.indexOf("/locations/") + 100))
                     // console.log('------------------')
                     // console.log(a.split('/locations/')[1].split('"')[0])
-
-
+                
+                
                     raffle.location = a.split('/locations/')[1].split('"')[0]
                     if (raffle.location.length !== 20) return; //Location incomplete
                     step = 2
@@ -259,25 +265,68 @@ const getRaffleInfo = async (proxyConfig, raffle) => {
                     getRaffleStatus8(proxyConfig, raffle)
                 }
 
+                if (a.includes("/locations/") && ((step === 1))  && raffle.type == 'Instore') {
+
+
+                    // console.log(a)
+                    // console.log('------------------')
+                    // console.log(a.substr(a.indexOf("/locations/") - 100, a.indexOf("/locations/") + 100))
+                    // console.log('------------------')
+                    // console.log(a.split('/locations/')[1].split('"')[0])
+                
+                
+                    raffle.location = a.split('/locations/')[1].split('"')[0]
+                    if (raffle.location.length !== 20) return; //Location incomplete
+                    step = 1
+                   
+             
+                    getRaffleStatus5(proxyConfig, raffle)
+                    getRaffleStatus6(proxyConfig, raffle)
+                   
+                 
+                  
+                }
+                if (a.includes("/locations/") && ((step === 1))  && raffle.type == 'Instore' && a.includes('Kith Paris')) {
+
+
+                    // console.log(a)
+                    // console.log('------------------')
+                    // console.log(a.substr(a.indexOf("/locations/") - 100, a.indexOf("/locations/") + 100))
+                    // console.log('------------------')
+                    // console.log(a.split('/locations/')[1].split('"')[0])
+                
+                    
+                    raffle.location = a.split('/locations/')[2].split('"')[0]
+                    if (raffle.location.length !== 20) return; //Location incomplete
+                    step = 2
+                    console.log('Step 2 OK')
+
+                    getRaffleStatus7(proxyConfig, raffle)
+                    getRaffleStatus8(proxyConfig, raffle)
+                }
+
 
 
                 // console.log(a.split('"size"').length)
                 // console.log(a.includes('"size"'))
-                if (a.includes('"size"') && data.toString().includes('targetChange') && (step === 2)) {
+                if (a.includes('"inventory"') && data.toString().includes('targetChange') && (step === 2)) {
                     //console.log(a.substr(a.indexOf(']]]192')-100,a.indexOf(']]]192')+100))
                     let inventory = []
                     let sizes = []
-                    sizeLength = a
+                    inventoryLength = a
                     try {
                         for (let i = 0; i < sizeLength.split('"size"').length; i++) {
-                            str = a.split('"size"')[i + 1].split('stringValue": "')[1]
-
+                          
+                            str = a.split('"inventory"')[i + 1].split('stringValue": "')[1]
+                           
                             sizes.push(str.split(' U')[0].trim())
+                            
                             // raffle.title = str.split('drawings__title">')[1].split('<')[0]
                             //raffleTab.push(raffle)
                         }
-                    } catch (e) {}
+                    } catch (e) {console.log(e)}
                     raffle.sizes = sizes;
+                    raffle.inventory = inventory
                     resolve()
                 }
             }))
