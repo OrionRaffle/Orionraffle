@@ -187,9 +187,9 @@ const getSessionFireBase = async (proxyConfig, raffle) => {
 
 
 const fetch = require('node-fetch');
-const AbortController = require('node-abort-controller');
-const controller = new AbortController()
-const signal = controller.signal
+// const AbortController = require('node-abort-controller');
+// const controller = new AbortController()
+// const signal = controller.signal
 
 const getRaffleInfo = async (proxyConfig, raffle) => {
 
@@ -205,25 +205,25 @@ const getRaffleInfo = async (proxyConfig, raffle) => {
 
         },
         mode: 'cors',
-        signal: signal,
         cache: 'default',
         agent: new HttpsProxyAgent('http://127.0.0.1:8888/')
     };
     let already1 = false
     let already2 = false
+    let already3 = false
     var chunkedUrl = `https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?database=projects%2Flaunches-by-seed%2Fdatabases%2F(default)&gsessionid=${raffle.dataLogin.gsessionid}&VER=8&RID=rpc&SID=${raffle.dataLogin.SID}&CI=0&AID=0&TYPE=xmlhttp&zx=${randomstring.generate(11).toLowerCase()}&t=1`;
     let a = ''
     const promise = new Promise(async function (resolve) {
-        fetch(chunkedUrl, myInit).then(response => response.body)
+        await fetch(chunkedUrl, myInit).then(response => response.body)
             .then(res => res.on('readable', () => {
                 // data = res.read().toString()
-                a =  a + res.read().toString()
-        
-            //    console.log(!already1)
-            //    console.log(a.includes('/models') + ' models')
-            //    console.log(a.includes('status') + ' status ')
-            //    console.log(a.includes("/location")  + " location\n")
-                while(a.includes('/models') && a.includes('status') && (!already1)) {
+                a = a + res.read().toString()
+
+                //    console.log(!already1)
+                //    console.log(a.includes('/models') + ' models')
+                //    console.log(a.includes('status') + ' status ')
+                //    console.log(a.includes("/location")  + " location\n")
+                if (a.includes('/models') && a.includes('status') && (!already1)) {
                     // console.log(raffle)
 
                     raffle.status = a.split('"status"')[1].split('"stringValue": "')[1].split('"')[0]
@@ -233,18 +233,59 @@ const getRaffleInfo = async (proxyConfig, raffle) => {
                    
                     already1 = true
                 }
-
+            
                 if (a.includes("/locations/") && (!already2)) {
                     // console.log(a)
+                    console.log(a.split('/locations/')[1].split('"')[0])
                     raffle.location = a.split('/locations/')[1].split('"')[0]
-                    console.log(raffle)
+                  
+                    
+                    getRaffleStatus5(proxyConfig, raffle)
+                    getRaffleStatus6(proxyConfig, raffle)
+                    getRaffleStatus7(proxyConfig, raffle)
+                    getRaffleStatus8(proxyConfig, raffle)
+
+                
                     already2 = true
+                }
+
+
+
+                // console.log(a.split('"size"').length)
+                // console.log(a.includes('"size"'))
+                if (a.includes('"size"') && (!already3)) {
+                    console.log(a.split('"size"').length)
+                    let inventory = []
+                    let sizes = {}
+                    sizeLength = a
+                    try {
+                        for (let i = 0; i < sizeLength.split('"size"').length; i++) {
+                            let raffle = {}
+                          
+                            str = a.split('"size"')[i + 1].split('stringValue": " ')[1]
+
+                            inventory[i] = str.split('U')[0]
+
+                            // raffle.title = str.split('drawings__title">')[1].split('<')[0]
+                            // raffleTab.push(raffle)
+
+                        }
+
+
+                    } catch (e) { }
+
+                    console.log(inventory)
+                    already3 = true
+                    //     raffle.location = a.split('/locations/')[1].split('"')[0]
+                    //     console.log(raffle)
+                    //     already2 = true
                     resolve()
                 }
 
 
+
             }))
-        
+
     });
     await promise;
     return
@@ -342,50 +383,7 @@ const getRaffleStatus2 = async (proxyConfig, raffle) => {
     }
 }
 
-const getRaffleStatus4 = async (proxyConfig, raffle) => {
-    let dataLogin = {}
-    // console.log(raffle)
-    try {
-        const response = await axios({
-            headers: {
-                'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
-                "Accept": "*/*",
-                "Accept-Language": "fr-fr",
-                "Accept-Encoding": "gzip, deflate, br",
-                "Connection": "keep-alive",
-                'Content-Type': 'application/x-www-form-urlencoded',
 
-            },
-            proxy: proxyConfig,
-            // withCredentials: true,
-            method: 'POST',
-            url: `https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel`,
-            params: {
-                'database': 'projects/launches-by-seed/databases/(default)',
-                'VER': '8',
-                'gsessionid': raffle.dataLogin.gsessionid,
-                'SID': raffle.dataLogin.SID,
-                'RID': getRandomIntInclusive(1000, 99999),
-                'CI': '0',
-                'AID': '4',
-                'zx': randomstring.generate(11).toLowerCase(),
-                't': '1',
-
-            },
-            data: qs.stringify({
-                'count': '1',
-                'ofs': '4',
-                'req0___data__': `{"database":"projects/launches-by-seed/databases/(default)","addTarget":{"query":{"structuredQuery":{"from":[{"collectionId":"locations"}],"orderBy":[{"field":{"fieldPath":"locationName"},"direction":"ASCENDING"},{"field":{"fieldPath":"__name__"},"direction":"ASCENDING"}]},"parent":"projects/launches-by-seed/databases/(default)/documents/campaigns/${raffle.campaignId}/models/${raffle.models}"},"targetId":6}}`
-
-            })
-        })
-        // console.log(raffle)
-    } catch (err) {
-        console.log(err)
-        return 0
-
-    }
-}
 const getRaffleStatus3 = async (proxyConfig, raffle) => {
     let dataLogin = {}
     // console.log(raffle)
@@ -431,6 +429,232 @@ const getRaffleStatus3 = async (proxyConfig, raffle) => {
     }
 }
 
+const getRaffleStatus4 = async (proxyConfig, raffle) => {
+    let dataLogin = {}
+    // console.log(raffle)
+    try {
+        const response = await axios({
+            headers: {
+                'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
+                "Accept": "*/*",
+                "Accept-Language": "fr-fr",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Connection": "keep-alive",
+                'Content-Type': 'application/x-www-form-urlencoded',
+
+            },
+            proxy: proxyConfig,
+            // withCredentials: true,
+            method: 'POST',
+            url: `https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel`,
+            params: {
+                'database': 'projects/launches-by-seed/databases/(default)',
+                'VER': '8',
+                'gsessionid': raffle.dataLogin.gsessionid,
+                'SID': raffle.dataLogin.SID,
+                'RID': getRandomIntInclusive(1000, 99999),
+                'CI': '0',
+                'AID': '4',
+                'zx': randomstring.generate(11).toLowerCase(),
+                't': '1',
+
+            },
+            data: qs.stringify({
+                'count': '1',
+                'ofs': '4',
+                'req0___data__': `{"database":"projects/launches-by-seed/databases/(default)","addTarget":{"query":{"structuredQuery":{"from":[{"collectionId":"locations"}],"orderBy":[{"field":{"fieldPath":"locationName"},"direction":"ASCENDING"},{"field":{"fieldPath":"__name__"},"direction":"ASCENDING"}]},"parent":"projects/launches-by-seed/databases/(default)/documents/campaigns/${raffle.campaignId}/models/${raffle.models}"},"targetId":6}}`
+
+            })
+        })
+        // console.log(raffle)
+    } catch (err) {
+        console.log(err)
+        return 0
+
+    }
+}
+
+const getRaffleStatus5 = async (proxyConfig, raffle) => {
+    let dataLogin = {}
+    // console.log(raffle)
+    try {
+        const response = await axios({
+            headers: {
+                'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
+                "Accept": "*/*",
+                "Accept-Language": "fr-fr",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Connection": "keep-alive",
+                'Content-Type': 'application/x-www-form-urlencoded',
+
+            },
+            proxy: proxyConfig,
+            // withCredentials: true,
+            method: 'POST',
+            url: `https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel`,
+            params: {
+                'database': 'projects/launches-by-seed/databases/(default)',
+                'VER': '8',
+                'gsessionid': raffle.dataLogin.gsessionid,
+                'SID': raffle.dataLogin.SID,
+                'RID': getRandomIntInclusive(1000, 99999),
+                'CI': '0',
+                'AID': '4',
+                'zx': randomstring.generate(11).toLowerCase(),
+                't': '1',
+
+            },
+            data: qs.stringify({
+                'count': '1',
+                'ofs': '5',
+                'req0___data__': `{"database":"projects/launches-by-seed/databases/(default)","removeTarget":6}`
+
+            })
+        })
+        // console.log(raffle)
+    } catch (err) {
+        console.log(err)
+        return 0
+
+    }
+}
+
+const getRaffleStatus6 = async (proxyConfig, raffle) => {
+    console.log(raffle)
+    let dataLogin = {}
+    // console.log(raffle)
+    try {
+        const response = await axios({
+            headers: {
+                'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
+                "Accept": "*/*",
+                "Accept-Language": "fr-fr",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Connection": "keep-alive",
+                'Content-Type': 'application/x-www-form-urlencoded',
+
+            },
+            proxy: proxyConfig,
+            // withCredentials: true,
+            method: 'POST',
+            url: `https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel`,
+            params: {
+                'database': 'projects/launches-by-seed/databases/(default)',
+                'VER': '8',
+                'gsessionid': raffle.dataLogin.gsessionid,
+                'SID': raffle.dataLogin.SID,
+                'RID': getRandomIntInclusive(1000, 99999),
+                'CI': '0',
+                'AID': '4',
+                'zx': randomstring.generate(11).toLowerCase(),
+                't': '1',
+
+            },
+            data: qs.stringify({
+                'count': '1',
+                'ofs': '6',
+                'req0___data__': `{"database":"projects/launches-by-seed/databases/(default)","addTarget":{"query":{"structuredQuery":{"from":[{"collectionId":"sizes"}],"orderBy":[{"field":{"fieldPath":"sizeOrder"},"direction":"ASCENDING"},{"field":{"fieldPath":"__name__"},"direction":"ASCENDING"}]},"parent":"projects/launches-by-seed/databases/(default)/documents/campaigns/${raffle.campaignId}/models/${raffle.models}/locations/${raffle.locations}"},"targetId":8}}`
+
+            })
+        })
+        // console.log(raffle)
+    } catch (err) {
+        console.log(err)
+        return 0
+
+    }
+}
+
+
+const getRaffleStatus7 = async (proxyConfig, raffle) => {
+    let dataLogin = {}
+    // console.log(raffle)
+    try {
+        const response = await axios({
+            headers: {
+                'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
+                "Accept": "*/*",
+                "Accept-Language": "fr-fr",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Connection": "keep-alive",
+                'Content-Type': 'application/x-www-form-urlencoded',
+
+            },
+            proxy: proxyConfig,
+            // withCredentials: true,
+            method: 'POST',
+            url: `https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel`,
+            params: {
+                'database': 'projects/launches-by-seed/databases/(default)',
+                'VER': '8',
+                'gsessionid': raffle.dataLogin.gsessionid,
+                'SID': raffle.dataLogin.SID,
+                'RID': getRandomIntInclusive(1000, 99999),
+                'CI': '0',
+                'AID': '4',
+                'zx': randomstring.generate(11).toLowerCase(),
+                't': '1',
+
+            },
+            data: qs.stringify({
+                'count': '1',
+                'ofs': '7',
+                'req0___data__': `{"database":"projects/launches-by-seed/databases/(default)","removeTarget":8}`
+
+            })
+        })
+        // console.log(raffle)
+    } catch (err) {
+        console.log(err)
+        return 0
+
+    }
+}
+
+const getRaffleStatus8 = async (proxyConfig, raffle) => {
+    let dataLogin = {}
+    // console.log(raffle)
+    try {
+        const response = await axios({
+            headers: {
+                'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
+                "Accept": "*/*",
+                "Accept-Language": "fr-fr",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Connection": "keep-alive",
+                'Content-Type': 'application/x-www-form-urlencoded',
+
+            },
+            proxy: proxyConfig,
+            // withCredentials: true,
+            method: 'POST',
+            url: `https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel`,
+            params: {
+                'database': 'projects/launches-by-seed/databases/(default)',
+                'VER': '8',
+                'gsessionid': raffle.dataLogin.gsessionid,
+                'SID': raffle.dataLogin.SID,
+                'RID': getRandomIntInclusive(1000, 99999),
+                'CI': '0',
+                'AID': '4',
+                'zx': randomstring.generate(11).toLowerCase(),
+                't': '1',
+
+            },
+            data: qs.stringify({
+                'count': '1',
+                'ofs': '8',
+                'req0___data__': `{"database":"projects/launches-by-seed/databases/(default)","addTarget":{"query":{"structuredQuery":{"from":[{"collectionId":"sizes"}],"orderBy":[{"field":{"fieldPath":"sizeOrder"},"direction":"ASCENDING"},{"field":{"fieldPath":"__name__"},"direction":"ASCENDING"}]},"parent":"projects/launches-by-seed/databases/(default)/documents/campaigns/${raffle.campaignId}/models/${raffle.models}/locations/${raffle.location}"},"targetId":10}}`
+
+            })
+        })
+        // console.log(raffle)
+    } catch (err) {
+        console.log(err)
+        return 0
+
+    }
+}
 
 //Récupération
 async function getAllRaffle(proxyConfig, user) {
