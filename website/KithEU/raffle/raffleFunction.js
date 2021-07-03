@@ -598,57 +598,48 @@ async function getAllRaffle(proxyConfig, user) {
     //logInfo(`There is ${raffleTab.length} raffl`);
 
     for (i in raffleTab) {
-        await getCampaignId(proxyConfig, raffleTab[i], sessionId);
-        await getSessionFireBase(proxyConfig, raffleTab[i]);
+        console.log("i : " + i)
 
-        await getRaffleStatus(proxyConfig, raffleTab[i]);
-        await getRaffleStatus2(proxyConfig, raffleTab[i]);
+        await getCampaignId(proxyConfig, raffleTab[i], sessionId)
+        await getSessionFireBase(proxyConfig, raffleTab[i])
+        // getRaffleInfo(proxyConfig, raffleTab[i])
+        await getRaffleStatus(proxyConfig, raffleTab[i])
+        await getRaffleStatus2(proxyConfig, raffleTab[i])
+        // await getRaffleStatus3(proxyConfig, raffleTab[i])
+        await getRaffleInfo(proxyConfig, raffleTab[i])
 
-        await getRaffleInfo(proxyConfig, raffleTab[i]);
+
     }
+
     console.log(raffleTab)
 }
 
 //Login Obligatoire
-async function getCustomerId(proxyConfig, user) {
+async function getInformation(proxyConfig,user, sessionId) {
+    var raffleTab = []
+
     try {
-        const response = await request({
-            proxy: proxyConfig,
-            withCredentials: true,
-            method: 'POST',
-            followAllRedirects: true,
-            resolveWithFullResponse: true,
-            maxRedirects: 1,
-            headers: { //Headers minimum obligatoire
+        const response = await axios({
+            headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0',
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
                 "Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Connection': 'keep-alive',
+                'Cookie': '_secure_session_id=' + sessionId
             },
-            uri: 'https://eu.kith.com/account/login',
-            form: qs.stringify({
-                'form_type': 'customer_login',
-                'utf8': '✓',
-                'customer[email]': user.email, //Email
-                'customer[password]': user.password, //Password
-                'return_url': '/account'
-            }),
+            proxy: proxyConfig,
+            withCredentials: true,
+            method: 'GET',
+            url: 'https://eu.kith.com/account/addresses',
         })
-        //Cette condition permet de vérifier si la redirection va sur /account dans le cas contraire, c'est un problème de login (email or password incorrect)
-        if (response.body.includes('"https://eu.kith.com/account"')) {
-            let customerId = response.body.split('customer:')[1].split('|')[0].trim()
-            console.log("[✓] Login Success - Récupération customerId (" + customerId + ")")
-            return customerId
-        } else {
-            console.log("Login ERROR")
-            process.exit(1)
-        }
+
+        console.log(response)
     } catch (err) {
+
         console.log(err)
     }
 }
-
 const getSIDandgessionid = async (proxyConfig, user) => {
 
     try {
@@ -973,7 +964,20 @@ async function raffleKith() {
     const proxyConfig = {
         host: '127.0.0.1',
         port: '8888',
-    };
+    }
+
+
+    // await getAllRaffle(proxyConfig, user)
+    console.log('LOGIN')
+    sessionId = await getSessionId(proxyConfig, user)
+    if(sessionId == 1) return
+    await getInformation(proxyConfig,user, sessionId)
+    console.log('------------------------------')
+    // console.log('\nENTRY')
+    // console.log('\nFunction 1')
+
+    // // await kithEntry1(proxyConfig, user)
+
 
     await getAllRaffle(proxyConfig, user);
 }
