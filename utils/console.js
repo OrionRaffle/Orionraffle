@@ -40,7 +40,7 @@ const logo = chalk.rgb(247, 158, 2)(
 * @author   bstn
 */
 function displayHeader() {
-  clear()
+  clear();
   console.log(logo)
 }
 /** Display module vue
@@ -134,6 +134,31 @@ async function displayCourirRaffle(rafflesData) {
   console.log("\n-----------------------------------------------------\n")
   input = inputReader.readLine();
   return input;
+}
+
+async function displayKithRaffle(rafflesData) {
+  let index = 0;
+  rafflesData.forEach(raffle => {
+    index++;
+    console.log(`${index}. ${raffle.title} (${raffle.status})(${raffle.type})`)
+  })
+  if (rafflesData.length === 0) {
+    logInfo('No raffle.');
+    return undefined;
+  }
+  console.log("\n-----------------------------------------------------\n")
+  input = inputReader.readLine();
+  return input;
+}
+async function displayKithRaffleStock(raffle) {
+  console.log(`Title: ${raffle.title}\n`);
+  for (let i = 0; i < raffle.sizes.length; i++) {
+    console.log(`${raffle.sizes[i]} : ${raffle.inventory[i]} pieces`);
+  }
+  console.log("\nPress to quit ---------------------------------------\n")
+  input = inputReader.readLine();
+  clear();
+  return;
 }
 /** Display a recap on what the user is actually doing
 * @author   Lux
@@ -230,6 +255,9 @@ module.exports = {
   //COURIR
   displayCourirRaffle,
   displayCourirMode,
+  //KITH
+  displayKithRaffle,
+  displayKithRaffleStock,
   //CHOICE
   displaySizeChoice,
   displayProxyTimeChoice,
