@@ -28,7 +28,7 @@ function getRandomIntInclusive(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 const moduleK = {
-    label: 'Kith'
+    label: 'Kith EU'
 }
 const DEV = false;
 

@@ -140,7 +140,7 @@ async function displayKithRaffle(rafflesData) {
   let index = 0;
   rafflesData.forEach(raffle => {
     index++;
-    console.log(`${index}. ${raffle.title} (${raffle.status})(${raffle.type})`)
+    console.log(`${index}. ${raffle.title} (${raffle.status} | ${raffle.type})`)
   })
   if (rafflesData.length === 0) {
     logInfo('No raffle.');
@@ -151,7 +151,7 @@ async function displayKithRaffle(rafflesData) {
   return input;
 }
 async function displayKithRaffleStock(raffle) {
-  console.log(`Title: ${raffle.title}\n`);
+  console.log(`${raffle.title}\n`);
   for (let i = 0; i < raffle.sizes.length; i++) {
     console.log(`${raffle.sizes[i]} : ${raffle.inventory[i]} pieces`);
   }

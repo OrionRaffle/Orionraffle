@@ -12,7 +12,7 @@ const {
 } = require(path.join(__dirname, '../../utils/console'))
 
 const moduleK = {
-  label: 'Kith'
+  label: 'Kith EU'
 }
 
 function sleep(ms) {
