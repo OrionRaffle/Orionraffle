@@ -253,7 +253,7 @@ async function courir(version, module) {
     logError('Invalid inputs.')
     await sleep(1500);
     displayModule(module.label);
-    await getProxyTimes(from, to);
+    await getProxyTimes(raffle, tabSize);
   }
   async function chooseMode(raffle, tabSize, timeFrom, timeTo) {
     const choice = await displayCourirMode();
@@ -282,7 +282,6 @@ async function courir(version, module) {
   }
 
   async function handleAccountRegister(raffle, tabSize, timeFrom, timeTo, accounts) {
-    console.log('281')
     if (accounts.length === 0) return logError('The file courir/register.csv is empty.');
     else {
       var proxyIndex = 0;

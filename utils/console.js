@@ -83,7 +83,7 @@ function getDate() {
 */
 function logError(message, displayDate = false) {
   if (displayDate) message = `${getDate()} - ${message}`;
-  console.log(colors.brightRed(`[Error]\t: ${message}`));
+  console.log(colors.brightRed(`[Error]\t\t: ${message}`));
 }
 /** Log an info
 * @author   Lux
@@ -91,7 +91,7 @@ function logError(message, displayDate = false) {
 */
 function logInfo(message, displayDate = false) {
   if (displayDate) message = `${getDate()} - ${message}`;
-  console.log(`[Info]\t: ${message}`);
+  console.log(`[Info]\t\t: ${message}`);
 }
 /** Log a success
 * @author   Lux
@@ -135,7 +135,22 @@ async function displayCourirRaffle(rafflesData) {
   input = inputReader.readLine();
   return input;
 }
+/** Display the differents kith modes
+* @author   Lux
+*/
+async function displayKithMode() {
+  displayHeader();
+  console.log("-----------------------------------------------------\n");
+  console.log("1. Account generator");
+  console.log("2. Raffle mode (closed)");
+  console.log("3. Stock checker\n");
 
+  console.log("0. Back");
+  console.log('\n-----------------------------------------------------\n');
+  var input = inputReader.readInteger();
+
+  return input;
+}
 async function displayKithRaffle(rafflesData) {
   let index = 0;
   rafflesData.forEach(raffle => {
@@ -146,6 +161,7 @@ async function displayKithRaffle(rafflesData) {
     logInfo('No raffle.');
     return undefined;
   }
+  console.log(`\n0. Back`)
   console.log("\n-----------------------------------------------------\n")
   input = inputReader.readLine();
   return input;
@@ -258,6 +274,7 @@ module.exports = {
   //KITH
   displayKithRaffle,
   displayKithRaffleStock,
+  displayKithMode,
   //CHOICE
   displaySizeChoice,
   displayProxyTimeChoice,

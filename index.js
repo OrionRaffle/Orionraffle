@@ -4,7 +4,7 @@ const colors = require('colors')
 
 const { SNS } = require('./website/SNS/SNS')
 const { shuzu } = require('./website/Shuzu/ShuzuLab')
-// const { kith } = require('./website/KithEU/kithRaffle')
+const { kith } = require('./website/KithEU/kithRaffle')
 // const { footlocker } = require('./website/FootLocker/FootLocker')
 const { courir, syncCourir } = require('./website/CourirOnline/courir')
 const { footshop } = require('./website/Footshop/footshop')
@@ -32,7 +32,8 @@ const allModules = [
   new Module('Footshop', footshop, false),
   new Module('Courir Online', syncCourir, true),
   new Module('Courir Instore', courirInstore, true),
-  new Module('ShuzuLab', shuzu, false)
+  //new Module('ShuzuLab', shuzu, false),
+  new Module('Kith EU', kith, true)
 ]
 
 async function main() {

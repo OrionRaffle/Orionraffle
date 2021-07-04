@@ -4,7 +4,6 @@ const request = require('request-promise').defaults({
     jar: true
 });
 const path = require('path');
-var HttpsProxyAgent = require('https-proxy-agent');
 var randomstring = require("randomstring");
 const fetch = require('node-fetch');
 const console = require('console');
@@ -36,7 +35,7 @@ const DEV = false;
 async function getSessionId(proxyConfig, user) {
     try {
         const response = await request({
-            //proxy: `http://${proxyConfig.auth.username}:${proxyConfig.auth.password}@${proxyConfig.host}:${proxyConfig.port}`,
+            proxy: `http://${proxyConfig.auth.username}:${proxyConfig.auth.password}@${proxyConfig.host}:${proxyConfig.port}`,
             withCredentials: true,
             method: 'POST',
             followAllRedirects: true,
@@ -526,14 +525,14 @@ async function getAllRaffle(user) {
     async function handleProxies(proxies) {
         if (proxies.length === 0) return reinitProgram(`Proxy required for ${moduleK.label}`);
 
-        var proxyConfig = getAnotherProxy(proxies);
+        var proxyConfig = await getAnotherProxy(proxies);
 
         displayModule(moduleK.label);
         logInfo('Orion is getting raffle data. (It can last a few seconds).');
 
         const sessionId = await getSessionId(proxyConfig, user);
         if (sessionId === null) {
-            logError('Proxy error. Retrying in 2s.', true);
+            logInfo('Proxy error, rotating proxy', true);
             await sleep(2000);
             return await getAllRaffle(user);
         }
@@ -556,7 +555,7 @@ async function getAllRaffle(user) {
     return raffleData;
 }
 
-function getAnotherProxy(proxies) {
+async function getAnotherProxy(proxies) {
     if (proxies.length === 0) throw 'No more proxies';
     const proxy = proxies.shift();
     return {
