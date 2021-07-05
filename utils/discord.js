@@ -40,7 +40,7 @@ async function notifyDiscordAccountCreation(proxy, state, email, password, modul
     const hook = new Webhook(authCsv.webhook);
 
     var link = '';
-    if (moduleName === 'Kith EU') link = 'https://www.google.com/search?q=kith+eu&client=firefox-b-d&sxsrf=ALeKk02tsoRvKl8ESYm8Nm3gG8y2ylC2Eg:1625396182792&source=lnms&tbm=isch&sa=X&ved=2ahUKEwj1teDQoMnxAhVRxoUKHVzHAKoQ_AUoA3oECAEQBQ&biw=1536&bih=739#imgrc=e2m2Mp9-7u-9yM';
+    if (moduleName === 'KithEU') link = 'https://www.google.com/search?q=kith+eu&client=firefox-b-d&sxsrf=ALeKk02tsoRvKl8ESYm8Nm3gG8y2ylC2Eg:1625396182792&source=lnms&tbm=isch&sa=X&ved=2ahUKEwj1teDQoMnxAhVRxoUKHVzHAKoQ_AUoA3oECAEQBQ&biw=1536&bih=739#imgrc=e2m2Mp9-7u-9yM';
 
     const embed = new MessageBuilder()
       .setAuthor('OrionRaffle')

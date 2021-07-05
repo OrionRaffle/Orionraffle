@@ -14,7 +14,7 @@ const {
 } = require(path.join(__dirname, '../../utils/console'))
 
 const moduleK = {
-  label: 'Kith EU'
+  label: 'KithEU'
 }
 
 function sleep(ms) {
@@ -28,6 +28,7 @@ function getRandomIntInclusive(min, max) {
 }
 
 async function kith() {
+  displayModule(moduleK.label)
   var choice = await displayKithMode();
   while (choice < 0 || choice > 3) {
     logError('Invalid input');
@@ -70,7 +71,7 @@ async function stockChecker(raffleTab) {
     choice = await displayKithRaffle(raffleTab);
   }
   displayModule(moduleK.label);
-  if (choice === 0) return;
+  if (choice === '0') return;
   if (raffleTab[choice - 1].type === 'Instore') {
     logInfo('Stock are not available for Instore raffles.');
     await sleep(2000);

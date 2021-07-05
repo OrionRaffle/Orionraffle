@@ -5,7 +5,7 @@ const figlet = require('figlet');
 const inputReader = require('wait-console-input');
 const colors = require("colors");
 const cliProgress = require('cli-progress');
-
+const fs = require('fs');
 //Get package.json data
 var pjson = require('../package.json');
 
@@ -83,7 +83,8 @@ function getDate() {
 */
 function logError(message, displayDate = false) {
   if (displayDate) message = `${getDate()} - ${message}`;
-  console.log(colors.brightRed(`[Error]\t\t: ${message}`));
+  console.log(colors.brightRed(`[Error]\t: ${message}`));
+  logInFile(`[Error]\t: ${message}`);
 }
 /** Log an info
 * @author   Lux
@@ -91,7 +92,8 @@ function logError(message, displayDate = false) {
 */
 function logInfo(message, displayDate = false) {
   if (displayDate) message = `${getDate()} - ${message}`;
-  console.log(`[Info]\t\t: ${message}`);
+  console.log(`[Info]\t: ${message}`);
+  logInFile(`[Info]\t: ${message}`);
 }
 /** Log a success
 * @author   Lux
@@ -100,6 +102,7 @@ function logInfo(message, displayDate = false) {
 function logSuccess(message, displayDate = false) {
   if (displayDate) message = `${getDate()} - ${message}`;
   console.log(colors.green(`[Success]\t: ${message}`));
+  logInFile(`[Success]\t: ${message}`);
 }
 /** Log a unit test
 * @author   Lux
@@ -139,14 +142,11 @@ async function displayCourirRaffle(rafflesData) {
 * @author   Lux
 */
 async function displayKithMode() {
-  displayHeader();
-  console.log("-----------------------------------------------------\n");
   console.log("1. Account generator");
   console.log("2. Raffle mode (closed)");
   console.log("3. Stock checker\n");
 
   console.log("0. Back");
-  console.log('\n-----------------------------------------------------\n');
   var input = inputReader.readInteger();
 
   return input;
@@ -171,10 +171,13 @@ async function displayKithRaffleStock(raffle) {
   for (let i = 0; i < raffle.sizes.length; i++) {
     console.log(`${raffle.sizes[i]} : ${raffle.inventory[i]} pieces`);
   }
+  await pressToQuit();
+  return;
+}
+async function pressToQuit() {
   console.log("\nPress to quit ---------------------------------------\n")
   input = inputReader.readLine();
   clear();
-  return;
 }
 /** Display a recap on what the user is actually doing
 * @author   Lux
@@ -264,6 +267,10 @@ async function displayLydiaAppCode() {
   inputReader.readLine();
 }
 
+async function logInFile(message) {
+  fs.appendFile('logs.txt', message+'\n');
+}
+
 module.exports = {
   menu,
   displayModule,
@@ -287,5 +294,6 @@ module.exports = {
   percent,
   initProgressBar,
   updateProgressBar,
+  pressToQuit,
   logError, logInfo, logSuccess, logUnitTest
 }

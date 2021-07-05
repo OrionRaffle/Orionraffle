@@ -28,10 +28,10 @@ let discordUsername;
 
 //All modules availables
 const allModules = [
-  new Module('SNS', SNS, true),
+  new Module('SNS', SNS, false),
   new Module('Footshop', footshop, false),
-  new Module('Courir Online', syncCourir, true),
-  new Module('Courir Instore', courirInstore, true),
+  new Module('Courir Online', syncCourir, false),
+  new Module('Courir Instore', courirInstore, false),
   //new Module('ShuzuLab', shuzu, false),
   new Module('Kith EU', kith, true)
 ]

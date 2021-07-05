@@ -45,7 +45,7 @@ async function getRemoteVersion(callback) {
   let query = `SELECT remoteVersion from orion_version where id=1`
   connection.query(query, (error, results) => {
     if (error) throw error;
-    if(results.length!=1) throw 'No remote version';
+    if (results.length != 1) throw 'No remote version';
     callback(results[0].remoteVersion);
   })
   connection.end()
@@ -54,10 +54,10 @@ async function getRemoteVersion(callback) {
 * @author   bstn
 * @param    {function} callback           Callback pour gérer la remote version
 */
-async function checkVersion(localVersion, resolve){
+async function checkVersion(localVersion, resolve) {
   async function handleRemoteVersionResult(version) {
-    if(localVersion===version) await resolve();
-    else{
+    if (localVersion == version) await resolve();
+    else {
       console.log(`New version available : ${version}`);
       console.log('Downloading new version..');
       downloadNewVersion(version);

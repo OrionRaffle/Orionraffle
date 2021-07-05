@@ -10,7 +10,8 @@ const {
     displayModule,
     logError,
     logInfo,
-    logSuccess
+    logSuccess,
+    pressToQuit
 } = require(path.join(__dirname, '../../../utils/console'));
 const { notifyDiscordAccountCreation } = require(path.join(__dirname, '../../../utils/discord'));
 const { sleep, handleProxyError } = require(path.join(__dirname, '../../../utils/utils'));
@@ -113,14 +114,16 @@ async function register() {
         displayModule(moduleK.label);
         var successCount = 0;
         const csvLines = registerData.length;
+        await percent(0, csvLines, successCount);
         for (let i = 0; i < csvLines; i++) {
-            await percent(i, csvLines, successCount);
             var res = await registerUser(registerData[i], proxies);
             if(res==='SUCCESS') successCount++;
             await sleep((Math.floor(Math.random() * (proxyTimes.to - proxyTimes.from)) + proxyTimes.from) * 1000);
+            await percent(i, csvLines, successCount);
         }
         logInfo('All CSV lines was read.', true);
-        await sleep(2000);
+        logSuccess(`Recap:\n\t\t\tAttemps: ${csvLines}\n\t\t\tFails: ${csvLines-successCount}\n\t\t\tSuccess: ${successCount}`, true);
+        await pressToQuit();
     }
 }
 
@@ -141,7 +144,7 @@ async function registerUser(user, proxies) {
             await registerUser(user, proxies);
             break;
         case 'ACCOUNT':
-            logError("Account already exist", true);
+            logError("Account "+user.Email+" already exist", true);
             notifyDiscordAccountCreation(proxyConfig, 'ERROR', user.Email, user.Password, moduleK.label);
             break;
         default:

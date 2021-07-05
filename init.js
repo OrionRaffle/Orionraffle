@@ -18,8 +18,11 @@ async function date() {
 
     // prints date & time in YYYY-MM-DD format
     return `${pad(hour)}:${pad(minutes)}:${pad(seconds)}`
-
 }
+
+var pjson = require('./package.json');
+
+const version = pjson.version;
 
 clear()
 console.log(
@@ -34,7 +37,7 @@ console.log(
 )
 const setTitle = require('node-bash-title')
 
-setTitle('OrionRaffle | Private Beta | V.0.3.6')
+setTitle('OrionRaffle | Private Beta | V.'+version)
 
 try {
     if (!fs.existsSync('SNS')) {
@@ -59,6 +62,19 @@ try {
 try {
     if (!fs.existsSync('ShuzuLab')) {
         fs.mkdirSync('ShuzuLab');
+    }
+} catch (err) {}
+try {
+    if (!fs.existsSync('KithEU')) {
+        fs.mkdirSync('KithEU');
+    }
+} catch (err) {}
+try {
+    if (!fs.existsSync('./KithEU/register.csv')) {
+        fs.writeFileSync(
+            './KithEU/register.csv',
+            'Email,Password,FirstName,LastName,Country,Address,PostalCode,City'
+        )
     }
 } catch (err) {}
 try {

@@ -211,7 +211,7 @@ async function csvRegisterCourir(raffle, tabSize, timeFrom, timeTo, callback) {
 async function csvRegisterKith() {
     var dataTab = [];
     await new Promise(function (resolve) {
-        fs.createReadStream('./KithEu/register.csv')
+        fs.createReadStream('./KithEU/register.csv')
             .pipe(csv())
             .on('data', (data) => { if (data.Email !== undefined) dataTab.push(data); })
             .on('end', async () => { resolve(); });
