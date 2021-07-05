@@ -22,7 +22,7 @@ const { getRaffleId } = require('./register/registerfirst');
 
 const {
   register
-} = require(path.join(__dirname, 'courirApi'));
+} = require('./courirApi');
 
 const {
   menu,
@@ -36,13 +36,13 @@ const {
   logError,
   logInfo,
   logSuccess
-} = require(path.join(__dirname, '../../utils/console'))
-const { csvReadProxy, csvReadClientAuth, csvRegisterCourir } = require(path.join(__dirname, '../../utils/csvReader'))
-const { reinitProgram } = require(path.join(__dirname, '../../utils/utils'))
-const { validationCourirRegister } = require(path.join(__dirname, '../../utils/validation'))
-const { getRaffle } = require(path.join(__dirname, '../../utils/gateway/gatewayCourir'))
-const { getRaffleDataCourirEql } = require(path.join(__dirname, '../../utils/gateway/gatewayEql'))
-const { sleep } = require(path.join(__dirname, '../../utils/utils'))
+} = require('../../utils/console')
+const { csvReadProxy, csvReadClientAuth, csvRegisterCourir } = require('../../utils/csvReader')
+const { reinitProgram } = require('../../utils/utils')
+const { validationCourirRegister } = require('../../utils/validation')
+const { getRaffle } = require('../../utils/gateway/gatewayCourir')
+const { getRaffleDataCourirEql } = require('../../utils/gateway/gatewayEql')
+const { sleep } = require('../../utils/utils')
 
 function pad(num) {
   return ("0" + num).slice(-2);

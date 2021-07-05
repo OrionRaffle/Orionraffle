@@ -2,7 +2,7 @@ const path = require('path');
 const axios = require('axios-https-proxy-fix');
 const qs = require('qs');
 
-const { sleep } = require(path.join(__dirname, '../utils'))
+const { sleep } = require('../utils')
 
 const {
     displayLydiaMode,
@@ -11,7 +11,7 @@ const {
     logError,
     logInfo,
     logSuccess
-} = require(path.join(__dirname, '../console'))
+} = require('../console')
 
 async function handleLydia3DSecure(pareq, formLink, stripeLink, proxy) {
     async function askFor3DSSolveMode() {

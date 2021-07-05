@@ -35,7 +35,6 @@ console.log(
 const setTitle = require('node-bash-title')
 const { resolve } = require('path')
 
-setTitle('OrionRaffle | Private Beta | V.0.3.6')
 
 try {
     if (!fs.existsSync('SNS')) {

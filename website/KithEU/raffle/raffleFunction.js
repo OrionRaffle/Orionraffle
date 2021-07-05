@@ -29,7 +29,7 @@ function getRandomIntInclusive(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 // axios.defaults.timeout = 1000
-process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+// process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 const proxyConfig = 'http://16206265723739:hUo13ZOuhX74fN1i_country-France_session-162334362740@proxy.frappe-proxies.com:31112';
 async function sleep(ms) {

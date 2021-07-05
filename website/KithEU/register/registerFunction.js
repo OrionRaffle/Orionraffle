@@ -2,8 +2,9 @@ const qs = require('qs')
 const request = require('request-promise').defaults({
     jar: true
 });
+var faker = require('faker/locale/fr');;
 const path = require('path');
-const { csvReadProxy, csvRegisterKith } = require(path.join(__dirname, '../../../utils/csvReader'))
+const { csvReadProxy, csvRegisterKith } = require('../../../utils/csvReader')
 const {
     percent,
     displayProxyTimeChoice,
@@ -12,12 +13,12 @@ const {
     logInfo,
     logSuccess,
     pressToQuit
-} = require(path.join(__dirname, '../../../utils/console'));
-const { notifyDiscordAccountCreation } = require(path.join(__dirname, '../../../utils/discord'));
-const { sleep, handleProxyError } = require(path.join(__dirname, '../../../utils/utils'));
+} = require('../../../utils/console');
+const { notifyDiscordAccountCreation } = require('../../../utils/discord');
+const { sleep, handleProxyError,reinitProgram } = require('../../../utils/utils');
 
 const moduleK = {
-    label: 'Kieth EU'
+    label: 'KithEU'
 }
 
 const DEV = false;
@@ -36,6 +37,7 @@ const createAccount = async (proxyConfig, user) => {
             maxRedirects: 1,
             followAllRedirects: true,
             withCredentials: true,
+            timeout: 3500,
             method: 'POST',
             uri: `https://eu.kith.com/account`,
             body: qs.stringify({
@@ -74,6 +76,8 @@ const update = async (proxyConfig, user) => {
             },
             proxy: proxyConfig,
             resolveWithFullResponse: true,
+            followAllRedirects: false,
+            timeout: 3500,
             method: 'POST',
             uri: `https://eu.kith.com/account/addresses`,
             body: qs.stringify({
@@ -86,14 +90,17 @@ const update = async (proxyConfig, user) => {
                 'address[address2]': '',
                 'address[country]': user.Country,
                 'address[city]': user.City,
-                'address[zip]': user.Zip,
-                'address[phone]': "06" + Math.floor((Math.random() * 90000000) + 10000000)
+                'address[zip]': user.PostalCode,
+                'address[phone]': "06" + Math.floor((Math.random() * 90000000) + 10000000),
+                'address[default]': '1'
             })
         })
     } catch (err) {
         if (DEV) console.log(err);
-        if (handleProxyError(err) === null) logError('An unexpected error occured.', true);
-        return 'ERROR';
+        if (handleProxyError(err) === null) {
+            logError('An unexpected error occured.', true)
+            return 'ERROR';
+        }
     }
 }
 async function register() {
@@ -116,19 +123,23 @@ async function register() {
         const csvLines = registerData.length;
         await percent(0, csvLines, successCount);
         for (let i = 0; i < csvLines; i++) {
+
             var res = await registerUser(registerData[i], proxies);
-            if(res==='SUCCESS') successCount++;
+            if (res === 'SUCCESS') successCount++;
+          
             await sleep((Math.floor(Math.random() * (proxyTimes.to - proxyTimes.from)) + proxyTimes.from) * 1000);
             await percent(i, csvLines, successCount);
         }
         logInfo('All CSV lines was read.', true);
-        logSuccess(`Recap:\n\t\t\tAttemps: ${csvLines}\n\t\t\tFails: ${csvLines-successCount}\n\t\t\tSuccess: ${successCount}`, true);
+        logSuccess(`Recap:\n\t\t\tAttemps: ${csvLines}\n\t\t\tFails: ${csvLines - successCount}\n\t\t\tSuccess: ${successCount}`, true);
         await pressToQuit();
     }
 }
 
 async function registerUser(user, proxies) {
     logInfo(`User about to be created : ${user.Email}`, true);
+    user = await checkKithCSV(user)
+    if (user == 'ERROR') return 
     var proxyConfig = getAnotherProxy(proxies);
 
     const result = await createAccount(proxyConfig, user);
@@ -137,6 +148,7 @@ async function registerUser(user, proxies) {
             logSuccess(`Account ${user.Email} successfully created.`, true);
             const uRes = await update(proxyConfig, user);
             if (uRes === 'ERROR') logError(`Address update failed on ${user.Email}`);
+            logSuccess(`Account ${user.Email} successfully updated.`, true);
             notifyDiscordAccountCreation(proxyConfig, 'SUCCESS', user.Email, user.Password, moduleK.label);
             return 'SUCCESS';
         case 'PROXY':
@@ -144,7 +156,7 @@ async function registerUser(user, proxies) {
             await registerUser(user, proxies);
             break;
         case 'ACCOUNT':
-            logError("Account "+user.Email+" already exist", true);
+            logError("Account " + user.Email + " already exist", true);
             notifyDiscordAccountCreation(proxyConfig, 'ERROR', user.Email, user.Password, moduleK.label);
             break;
         default:
@@ -163,6 +175,32 @@ async function getProxyTimes() {
     await sleep(1500);
     displayModule(moduleK.label);
     return await getProxyTimes();
+}
+
+async function checkKithCSV(registerData) {
+
+
+    if (registerData.FirstName === '' || registerData.LastName === '' || registerData.Country === '' || registerData.Email === '' || registerData.Password === '' || registerData.Address === '' || registerData.PostalCode === '' || registerData.City === '') {
+        logError("Missing fields for this line.")
+        return 'ERROR'
+    }
+    if (registerData.FirstName.toLowerCase() == 'random') {
+        registerData.FirstName = faker.name.firstName()
+    }
+    if (registerData.LastName.toLowerCase() == 'random') {
+        registerData.LastName = faker.name.lastName()
+    }
+    if (registerData.Address.toLowerCase() == 'random') {
+        registerData.Address = faker.address.streetAddress()
+    }
+    if (registerData.PostalCode.toLowerCase() == 'random') {
+        registerData.PostalCode = faker.address.zipCode()
+      
+    }
+    if (registerData.City.toLowerCase() == 'random') {
+        registerData.City = faker.address.city()
+    }
+    return registerData
 }
 module.exports = {
     register

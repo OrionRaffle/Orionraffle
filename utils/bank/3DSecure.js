@@ -1,6 +1,6 @@
 const path = require('path');
 const { logError } = require('../console');
-const { handleLydia3DSecure } = require(path.join(__dirname, 'lydia'));
+const { handleLydia3DSecure } = require('./lydia');
 
 async function handle3DSecure(data, proxy) {
     const pareq = data.split('value="')[1].split('"')[0];

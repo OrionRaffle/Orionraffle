@@ -3,7 +3,7 @@ const { SRPClient } = require('amazon-user-pool-srp-client');
 const axios = require('axios-https-proxy-fix');
 const aws4 = require("aws4");
 const qs = require('qs');
-const { handle3DSecure } = require(path.join(__dirname, '../../utils/bank/3DSecure'));
+const { handle3DSecure } = require('../../utils/bank/3DSecure');
 
 const {
     initProgressBar,
@@ -11,17 +11,17 @@ const {
     logError,
     logInfo,
     logSuccess
-} = require(path.join(__dirname, '../../utils/console'));
+} = require('../../utils/console');
 
 const {
     handleProxyError
-} = require(path.join(__dirname, '../../utils/utils'))
+} = require('../../utils/utils')
 const {
     getPhoneNumber
-} = require(path.join(__dirname, '../../utils/generateData'))
+} = require('../../utils/generateData')
 const {
     getIp
-} = require(path.join(__dirname, '../../utils/gateway/gateway'))
+} = require('../../utils/gateway/gateway')
 
 async function ckeckUsername(account, srpA, proxy) {
     proxy = {
