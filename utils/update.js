@@ -1,6 +1,6 @@
 const path = require('path');
 const mysql = require('mysql');
-const { storageUrl, host, user, password, database } = require(path.join(__dirname, '../config/config'));
+const { storageUrl, host, user, password, database } = require('../config/config');
 const { spawn } = require('child_process');
 const download = require('download');
 
@@ -42,7 +42,7 @@ async function getRemoteVersion(callback) {
   })
   connection.connect()
 
-  let query = `SELECT remoteVersion from orion_version where id=1`
+  let query = `SELECT remoteVersion from orion_version where id=2`
   connection.query(query, (error, results) => {
     if (error) throw error;
     if (results.length != 1) throw 'No remote version';

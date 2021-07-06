@@ -7,19 +7,20 @@ const path = require('path');
 var randomstring = require("randomstring");
 const fetch = require('node-fetch');
 const console = require('console');
+const { csvReadProxy } = require('../../../utils/csvReader')
 
-const { csvReadProxy } = require(path.join(__dirname, '../../../utils/csvReader'))
 
 const {
     displayModule,
     logError,
     logInfo,
-} = require(path.join(__dirname, '../../../utils/console'));
+} = require('../../../utils/console');
 
 const {
     handleProxyError,
-    sleep
-} = require(path.join(__dirname, '../../../utils/utils'));
+    sleep,
+    reinitProgram
+} = require('../../../utils/utils');
 
 function getRandomIntInclusive(min, max) {
     min = Math.ceil(min);

@@ -1,7 +1,7 @@
 //Modules import
 const path = require('path')
 
-const { menu, logError, logInfo, logSuccess } = require(path.join(__dirname, 'console'))
+const { menu, logError, logInfo, logSuccess } = require('./console')
 
 
 /** Await for x ms of time

@@ -1,7 +1,7 @@
 const path = require('path')
 const mysql = require('mysql')
 //Config
-const { host, user, password, database } = require(path.join(__dirname, '../../config/config'))
+const { host, user, password, database } = require('../../config/config')
 
 
 async function getRaffle(callback) {

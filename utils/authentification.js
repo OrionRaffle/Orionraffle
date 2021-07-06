@@ -3,7 +3,7 @@ const mysql = require('mysql')
 const { machineId } = require('node-machine-id')
 const { Console } = require('console')
 //Config
-const { host, user, password, database } = require(path.join(__dirname, '../config/config'))
+const { host, user, password, database } = require('../config/config')
 
 /** Update machine id in database (only on first login)
 * @author   bstn

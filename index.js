@@ -11,14 +11,14 @@ const { footshop } = require('./website/Footshop/footshop')
 const { courirInstore } = require('./website/CourirInstore/courirInstore')
 
 //Ourself Modules import
-const { csvReadClientAuth } = require(path.join(__dirname, 'utils/csvReader'))
-const { checkVersion } = require(path.join(__dirname, 'utils/update'));
-const { authUser } = require(path.join(__dirname, './utils/authentification'))
-const { menu, logError, logInfo, logSuccess } = require(path.join(__dirname, 'utils/console'))
-const { sleep } = require(path.join(__dirname, 'utils/utils'))
-const { setRichPresence } = require(path.join(__dirname, 'utils/discord'));
+const { csvReadClientAuth } = require('./utils/csvReader')
+const { checkVersion } = require('./utils/update');
+const { authUser } = require('./utils/authentification')
+const { menu, logError, logInfo, logSuccess } = require('./utils/console')
+const { sleep } = require('./utils/utils')
+const { setRichPresence } = require('./utils/discord');
 
-const Module = require(path.join(__dirname, 'metier/Module'));
+const Module = require('./metier/Module');
 
 //Get package.json data
 var pjson = require('./package.json');

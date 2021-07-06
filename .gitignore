@@ -105,3 +105,10 @@ dist
 
 ./config.csv
 config.csv
+logs.txt
+*.exe
+proxy.txt
+proxy.txt
+proxy.txt
+proxy.txt
+config.csv

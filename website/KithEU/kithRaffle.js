@@ -11,7 +11,7 @@ const {
   logError,
   logInfo,
   logSuccess
-} = require(path.join(__dirname, '../../utils/console'))
+} = require('../../utils/console')
 
 const moduleK = {
   label: 'KithEU'
