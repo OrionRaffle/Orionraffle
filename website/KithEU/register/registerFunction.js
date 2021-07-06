@@ -17,7 +17,7 @@ const { notifyDiscordAccountCreation } = require(path.join(__dirname, '../../../
 const { sleep, handleProxyError } = require(path.join(__dirname, '../../../utils/utils'));
 
 const moduleK = {
-    label: 'Kieth EU'
+    label: 'Kith EU'
 }
 
 const DEV = false;
@@ -152,7 +152,7 @@ async function registerUser(user, proxies) {
     }
 }
 function getAnotherProxy(proxies) {
-    if (proxies.length === 0) throw 'No more proxies';
+    if (proxies.length === 0) throw 'No more proxies.';
     const proxy = proxies.shift();
     return `http://${proxy.user}:${proxy.password}@${proxy.ip}:${proxy.port}`;
 }
