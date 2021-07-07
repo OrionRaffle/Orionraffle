@@ -67,7 +67,7 @@ async function getSessionId(proxyConfig, user) {
             return null;
         }
     } catch (err) {
-        //console.log(err)
+        console.log(err)
         return handleProxyError(err);
     }
 }
@@ -569,7 +569,7 @@ async function getAnotherProxy(proxies) {
     };
 }
 
-async function raffleKith() {
+async function getDataRaffle() {
     const user = {
         'email': 'clementTest@gmail.com',
         'password': 'POKEMON1'
@@ -578,5 +578,5 @@ async function raffleKith() {
     return raffleData;
 }
 module.exports = {
-    raffleKith
+    getDataRaffle
 }

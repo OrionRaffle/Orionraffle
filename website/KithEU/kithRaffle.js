@@ -1,5 +1,6 @@
 // const { login } = require('./login/loginFunction')
-const { raffleKith } = require('./stockChecker/stockChecker')
+const { raffleKith } = require('./raffle/raffleFunction')
+const { getDataRaffle } = require('./stockChecker/stockChecker')
 const { register } = require('./register/registerFunction')
 const path = require('path');
 const {
@@ -58,11 +59,11 @@ async function generator() {
 }
 
 async function raffle() {
-
+  await raffleKith()
 }
 
 async function stockChecker(raffleTab) {
-  if (raffleTab === undefined) raffleTab = await raffleKith();
+  if (raffleTab === undefined) raffleTab = await getDataRaffle();
   displayModule(moduleK.label);
   var choice = await displayKithRaffle(raffleTab);
   while (choice < 0 || choice > raffleTab.length) {

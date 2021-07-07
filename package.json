@@ -8,6 +8,7 @@
   "bin": "./index.js",
   "dependencies": {
     "2captcha": "^2.1.5-3",
+    "2captcha-node": "^2.2.1",
     "address": "^1.1.2",
     "amazon-user-pool-srp-client": "^1.0.4",
     "auto-updater": "^1.0.2",
