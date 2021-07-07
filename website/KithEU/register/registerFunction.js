@@ -3,10 +3,11 @@ const request = require('request-promise').defaults({
     jar: true
 });
 var faker = require('faker/locale/fr');;
-const path = require('path');
-const { csvReadProxy, csvRegisterKith } = require('../../../utils/csvReader')
+const { csvReadProxy, csvRegisterKith } = require('../../../utils/csvReader');
+const { solveReCaptcha } = require('../../../utils/2captcha');
 const {
     percent,
+    displayCaptchaChoice,
     displayProxyTimeChoice,
     displayModule,
     logError,
@@ -15,18 +16,13 @@ const {
     pressToQuit
 } = require('../../../utils/console');
 const { notifyDiscordAccountCreation } = require('../../../utils/discord');
-const { sleep, handleProxyError,reinitProgram } = require('../../../utils/utils');
-
-const moduleK = {
-    label: 'KithEU'
-}
-
-const DEV = false;
+const { sleep, handleProxyError, reinitProgram } = require('../../../utils/utils');
+const { DEV, siteKey, moduleK } = require('../kithEUConst');
 
 //Create Account Function
-const createAccount = async (proxyConfig, user) => {
+async function createAccount(proxyConfig, user) {
     try {
-        const response = await request({
+        response = await request({
             headers: {
                 'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
                 "Connection": "keep-alive",
@@ -50,19 +46,73 @@ const createAccount = async (proxyConfig, user) => {
             })
         })
         //Trigger le challenge, donc il faut switch de proxy (flem de faire le captcha)
-        if (response.body.includes('eu.kith.com/challenge')) return 'PROXY';
+        if (response.body.includes('eu.kith.com/challenge')) {
+
+            require('fs').writeFileSync('./data.txt', JSON.stringify(response))
+
+            const authString = 'authenticity_token" value="';
+            var authenticity_token = response.body.substring(response.body.indexOf(authString) + authString.length);
+            authenticity_token = authenticity_token.substring(0, authenticity_token.indexOf('"'));
+            return {
+                code: 'CHALLENGE',
+                data: {
+                    authenticity_token: authenticity_token,
+                    ssid: response.request.headers['cookie'].split(';')[0].split('=')[1]
+                }
+            };
+        }
         // il y a une redirection /register (compte existe déjà)
-        if (response.body.includes('eu.kith.com/account/register')) return 'ACCOUNT';
+        if (response.body.includes('eu.kith.com/account/register')) return { code: 'ACCOUNT', data: undefined };
         //Check si l'on est bien sur eu.kith.com cela signifie qu'on est bien connecté / Récupération du sessionId pour accéder aux autres pages
         if (response.body.includes('eu.kith.com/"')) {
             user.sessionId = response.request.headers['cookie'].split(';')[0].split('=')[1]
-            return 'SUCCESS';
+            return { code: 'SUCCESS', data: undefined };
+        }
+    } catch (err) {
+        console.log(err)
+        if (DEV) console.log(err);
+        if (handleProxyError(err) === null) logError('An unexpected error occured.', true);
+        return { code: 'PROXY', data: undefined };
+    }
+}
+async function createAccountAfterCaptcha(proxyConfig, sessionId, solvedCaptcha, authenticityToken) {
+    console.log()
+    proxyconfig = {
+        host: '127.0.0.1',
+        port: '8888'
+    }
+    try {
+        response = await request({
+            headers: {
+                'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
+                "Connection": "keep-alive",
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Cookie': `_secure_session_id=${sessionId}`
+            },
+            proxy: proxyConfig,
+            resolveWithFullResponse: true,
+            maxRedirects: 1,
+            followAllRedirects: true,
+            withCredentials: true,
+            timeout: 3500,
+            method: 'POST',
+            uri: `https://eu.kith.com/account`,
+            body: qs.stringify({
+                'authenticity_token': authenticityToken,
+                'g-recaptcha-response': solvedCaptcha,
+            })
+        })
+        // il y a une redirection /register (compte existe déjà)
+        if (response.body.includes('eu.kith.com/account/register')) return { code: 'ACCOUNT', data: undefined };
+        //Check si l'on est bien sur eu.kith.com cela signifie qu'on est bien connecté / Récupération du sessionId pour accéder aux autres pages
+        if (response.body.includes('eu.kith.com/"')) {
+            user.sessionId = response.request.headers['cookie'].split(';')[0].split('=')[1]
+            return { code: 'SUCCESS', data: undefined };
         }
     } catch (err) {
         if (DEV) console.log(err);
-        if (handleProxyError(err) === null) logError('An unexpected error occured.', true);
-        return 'PROXY';
     }
+    return { code: 'PROXY', data: undefined };
 }
 //Update ACCOUNT
 const update = async (proxyConfig, user) => {
@@ -117,6 +167,8 @@ async function register() {
 
         displayModule(moduleK.label);
         const proxyTimes = await getProxyTimes();
+        displayModule(moduleK.label);
+        const twoCaptchaEnabled = await displayCaptchaChoice();
 
         displayModule(moduleK.label);
         var successCount = 0;
@@ -124,9 +176,9 @@ async function register() {
         await percent(0, csvLines, successCount);
         for (let i = 0; i < csvLines; i++) {
 
-            var res = await registerUser(registerData[i], proxies);
+            var res = await registerUser(registerData[i], proxies, twoCaptchaEnabled);
             if (res === 'SUCCESS') successCount++;
-          
+
             await sleep((Math.floor(Math.random() * (proxyTimes.to - proxyTimes.from)) + proxyTimes.from) * 1000);
             await percent(i, csvLines, successCount);
         }
@@ -136,32 +188,47 @@ async function register() {
     }
 }
 
-async function registerUser(user, proxies) {
+async function registerUser(user, proxies, twoCaptchaEnabled) {
     logInfo(`User about to be created : ${user.Email}`, true);
-    user = await checkKithCSV(user)
-    if (user == 'ERROR') return 
+    user = await checkKithCSV(user);
+    if (user == 'ERROR') return
+
+    async function handleCreationResult(result) {
+        switch (result.code) {
+            case 'SUCCESS':
+                logSuccess(`[${user.Email}]` + ` | Account successfully created.`, true);
+                const uRes = await update(proxyConfig, user);
+                if (uRes === 'ERROR') logError(`[${user.Email}]` + ` | Address update failed.`);
+                logSuccess(`[${user.Email}]` + ` | Account successfully updated.`, true);
+                notifyDiscordAccountCreation(proxyConfig, 'SUCCESS', user.Email, user.Password, moduleK.label);
+                return 'SUCCESS';
+            case 'CHALLENGE':
+                if (twoCaptchaEnabled) {
+                    logInfo(`[${user.Email}]` + " | Challenge trigerred, solving request sent to 2Captcha.", true);
+                    await solveReCaptcha(siteKey, 'https://eu.kith.com/challenge', onCaptchaSolved);
+                    async function onCaptchaSolved(solvedCaptcha) {
+                        logInfo(`[${user.Email}]` + " | Challenge solved.", true);
+                        result = await createAccountAfterCaptcha(proxyConfig, result.data.ssid, solvedCaptcha, result.data.authenticity_token);
+                        return await handleCreationResult(result);
+                    }
+                    break;
+                }
+            case 'PROXY':
+                logError(`[${user.Email}]` + " | Bad proxy : challenge triggered, rotating proxy..", true);
+                await registerUser(user, proxies);
+                break;
+            case 'ACCOUNT':
+                logError(`[${user.Email}]` + " | Account already exist.", true);
+                notifyDiscordAccountCreation(proxyConfig, 'ERROR', user.Email, user.Password, moduleK.label);
+                break;
+            default:
+                break;
+        }
+    }
     var proxyConfig = getAnotherProxy(proxies);
 
-    const result = await createAccount(proxyConfig, user);
-    switch (result) {
-        case 'SUCCESS':
-            logSuccess(`Account ${user.Email} successfully created.`, true);
-            const uRes = await update(proxyConfig, user);
-            if (uRes === 'ERROR') logError(`Address update failed on ${user.Email}`);
-            logSuccess(`Account ${user.Email} successfully updated.`, true);
-            notifyDiscordAccountCreation(proxyConfig, 'SUCCESS', user.Email, user.Password, moduleK.label);
-            return 'SUCCESS';
-        case 'PROXY':
-            logError("Bad proxy : challenge triggered, rotating proxy..", true);
-            await registerUser(user, proxies);
-            break;
-        case 'ACCOUNT':
-            logError("Account " + user.Email + " already exist", true);
-            notifyDiscordAccountCreation(proxyConfig, 'ERROR', user.Email, user.Password, moduleK.label);
-            break;
-        default:
-            break;
-    }
+    var result = await createAccount(proxyConfig, user);
+    await handleCreationResult(result);
 }
 function getAnotherProxy(proxies) {
     if (proxies.length === 0) throw 'No more proxies.';
@@ -178,8 +245,6 @@ async function getProxyTimes() {
 }
 
 async function checkKithCSV(registerData) {
-
-
     if (registerData.FirstName === '' || registerData.LastName === '' || registerData.Country === '' || registerData.Email === '' || registerData.Password === '' || registerData.Address === '' || registerData.PostalCode === '' || registerData.City === '') {
         logError("Missing fields for this line.")
         return 'ERROR'
@@ -195,7 +260,7 @@ async function checkKithCSV(registerData) {
     }
     if (registerData.PostalCode.toLowerCase() == 'random') {
         registerData.PostalCode = faker.address.zipCode()
-      
+
     }
     if (registerData.City.toLowerCase() == 'random') {
         registerData.City = faker.address.city()
@@ -205,5 +270,7 @@ async function checkKithCSV(registerData) {
 module.exports = {
     register
 }
+
+register()
 
 

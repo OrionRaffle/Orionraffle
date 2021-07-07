@@ -404,10 +404,6 @@ const confirmation = async (userid, idToken, proxyconfig) => {
   }
 }
 const getInfo = async (userid, idToken, proxyconfig) => {
-
-
-
-
   try {
     const resp = await axios({
       host: 'lg3wc3fu5e.execute-api.us-east-1.amazonaws.com',

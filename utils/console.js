@@ -8,6 +8,7 @@ const cliProgress = require('cli-progress');
 const fs = require('fs');
 //Get package.json data
 var pjson = require('../package.json');
+const { text } = require('figlet');
 
 const version = pjson.version;
 var progressBar = null;
@@ -114,10 +115,10 @@ function logSuccess(message, displayDate = false) {
 * @param    {String}      result      Result
 * @param    {Boolean}     isSame      If the result is supposed to be exactly like expectation
 */
-function logUnitTest(file, func, line, message, expectation='', result='', isSame = false) {
+function logUnitTest(file, func, line, message, expectation = '', result = '', isSame = false) {
   message = `${getDate()} - (${file}, ${func}(), line ${line}) \n ${message}`;
-  if(expectation!=='' || result!=='') message = `${message}\nExpectation: ${expectation}\nResult: ${result}`;
-  if(expectation===result || !isSame) console.log(colors.blue(`[VALIDATED]\t: ${message}`));
+  if (expectation !== '' || result !== '') message = `${message}\nExpectation: ${expectation}\nResult: ${result}`;
+  if (expectation === result || !isSame) console.log(colors.blue(`[VALIDATED]\t: ${message}`));
   else console.log(colors.orange(`[UNVALIDATED]\t: ${message}`));
 }
 /** Display a Courir raffle from data
@@ -232,6 +233,22 @@ async function displayProxyTimeChoice() {
 
   return { 'from': from, 'to': to };
 }
+/** Display recaptcha choice
+* @author   Lux
+*/
+async function displayCaptchaChoice() {
+  console.log('Enable bypass captcha? (yes/no)');
+  var text = inputReader.readLine();
+  return (text !== 'yes');
+}
+/** Display multitasking choice
+* @author   Lux
+*/
+async function displayMultitaskingChoice() {
+  console.log('How many tasks do you want to perform in parallel? (ex: 10)');
+  var number = inputReader.readInteger();
+  return number;
+}
 /** Display the differents courir modes
 * @author   bstn
 */
@@ -268,7 +285,9 @@ async function displayLydiaAppCode() {
 }
 
 async function logInFile(message) {
-  fs.appendFile('logs.txt', message+'\n');
+  fs.appendFile('logs.txt', message + '\n', function (err) {
+    if (err) throw err;
+  });
 }
 
 module.exports = {
@@ -285,6 +304,8 @@ module.exports = {
   //CHOICE
   displaySizeChoice,
   displayProxyTimeChoice,
+  displayCaptchaChoice,
+  displayMultitaskingChoice,
   //LYDIA
   displayLydiaMode,
   displayLydiaSMSCode,
