@@ -75,7 +75,7 @@ async function createAccount(proxyConfig, user) {
         return { code: 'PROXY', data: undefined };
     }
 }
-async function createAccountAfterCaptcha(proxyConfig, sessionId, solvedCaptcha, authenticityToken) {
+async function createAccountAfterCaptcha(proxyConfig, user, sessionId, solvedCaptcha, authenticityToken) {
     console.log()
     proxyconfig = {
         host: '127.0.0.1',
@@ -208,7 +208,7 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
                     await solveReCaptcha(siteKey, 'https://eu.kith.com/challenge', onCaptchaSolved);
                     async function onCaptchaSolved(solvedCaptcha) {
                         logInfo(`[${user.Email}]` + " | Challenge solved.", true);
-                        result = await createAccountAfterCaptcha(proxyConfig, result.data.ssid, solvedCaptcha, result.data.authenticity_token);
+                        result = await createAccountAfterCaptcha(proxyConfig, user, result.data.ssid, solvedCaptcha, result.data.authenticity_token);
                         return await handleCreationResult(result);
                     }
                     break;
