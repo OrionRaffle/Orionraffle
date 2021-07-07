@@ -229,7 +229,7 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
     var proxyConfig = getAnotherProxy(proxies);
 
     var result = await createAccount(proxyConfig, user);
-    await handleCreationResult(result);
+    return await handleCreationResult(result);
 }
 function getAnotherProxy(proxies) {
     if (proxies.length === 0) throw 'No more proxies.';
