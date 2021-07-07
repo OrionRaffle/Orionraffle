@@ -101,7 +101,8 @@ async function createAccountAfterCaptcha(proxyConfig, user, sessionId, solvedCap
         if (response.body.includes('eu.kith.com/account/register')) return { code: 'ACCOUNT', data: undefined };
         //Check si l'on est bien sur eu.kith.com cela signifie qu'on est bien connecté / Récupération du sessionId pour accéder aux autres pages
         if (response.body.includes('eu.kith.com/"')) {
-            user.sessionId = response.request.headers['cookie'].split(';')[0].split('=')[1]
+            
+            user.sessionId = sessionId
             return { code: 'SUCCESS', data: undefined };
         }
     } catch (err) {
