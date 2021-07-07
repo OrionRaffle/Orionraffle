@@ -102,8 +102,8 @@ function logInfo(message, displayDate = false) {
 */
 function logSuccess(message, displayDate = false) {
   if (displayDate) message = `${getDate()} - ${message}`;
-  console.log(colors.green(`[Success]\t: ${message}`));
-  logInFile(`[Success]\t: ${message}`);
+  console.log(colors.green(`[Success]: ${message}`));
+  logInFile(`[Success]: ${message}`);
 }
 /** Log a unit test
 * @author   Lux
