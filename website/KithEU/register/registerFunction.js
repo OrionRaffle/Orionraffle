@@ -76,11 +76,6 @@ async function createAccount(proxyConfig, user) {
     }
 }
 async function createAccountAfterCaptcha(proxyConfig, user, sessionId, solvedCaptcha, authenticityToken) {
-    console.log()
-    proxyconfig = {
-        host: '127.0.0.1',
-        port: '8888'
-    }
     try {
         response = await request({
             headers: {
@@ -112,7 +107,7 @@ async function createAccountAfterCaptcha(proxyConfig, user, sessionId, solvedCap
     } catch (err) {
         if (DEV) console.log(err);
     }
-    return { code: 'PROXY', data: undefined };
+    return { code: 'RETRY', data: undefined };
 }
 //Update ACCOUNT
 const update = async (proxyConfig, user) => {
@@ -183,7 +178,7 @@ async function register() {
             await percent(i, csvLines, successCount);
         }
         logInfo('All CSV lines was read.', true);
-        logSuccess(`Recap:\n\t\t\tAttemps: ${csvLines}\n\t\t\tFails: ${csvLines - successCount}\n\t\t\tSuccess: ${successCount}`, true);
+        logSuccess(`Recap:\n\t\t\tTask: ${csvLines}\n\t\t\tFails: ${csvLines - successCount}\n\t\t\tSuccess: ${successCount}`, true);
         await pressToQuit();
     }
 }
@@ -221,6 +216,9 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
                 logError(`[${user.Email}]` + " | Account already exist.", true);
                 notifyDiscordAccountCreation(proxyConfig, 'ERROR', user.Email, user.Password, moduleK.label);
                 break;
+            case 'RETRY':
+                result = await createAccountAfterCaptcha(getAnotherProxy(proxies), user, result.data.ssid, solvedCaptcha, result.data.authenticity_token);
+                return await handleCreationResult(result);
             default:
                 break;
         }
