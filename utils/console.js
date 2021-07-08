@@ -245,8 +245,10 @@ async function displayCaptchaChoice() {
 * @author   Lux
 */
 async function displayMultitaskingChoice() {
-  console.log('How many tasks do you want to perform in parallel? (ex: 10)');
+  console.log('How many tasks do you want to perform in parallel? (Enter 1 if you want to stay in classic mode) (Max: 20)');
   var number = inputReader.readInteger();
+  if (number <= 0) number = 1;
+  if (number > 20) number = 20;
   return number;
 }
 /** Display the differents courir modes

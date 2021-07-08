@@ -8,7 +8,7 @@ const { solveReCaptcha } = require('../../../utils/2captcha');
 const {
     percent,
     displayCaptchaChoice,
-    displayProxyTimeChoice,
+    displayMultitaskingChoice,
     displayModule,
     logError,
     logInfo,
@@ -47,9 +47,6 @@ async function createAccount(proxyConfig, user) {
         })
         //Trigger le challenge, donc il faut switch de proxy (flem de faire le captcha)
         if (response.body.includes('eu.kith.com/challenge')) {
-
-            require('fs').writeFileSync('./data.txt', JSON.stringify(response))
-
             const authString = 'authenticity_token" value="';
             var authenticity_token = response.body.substring(response.body.indexOf(authString) + authString.length);
             authenticity_token = authenticity_token.substring(0, authenticity_token.indexOf('"'));
@@ -161,20 +158,19 @@ async function register() {
         });
 
         displayModule(moduleK.label);
-        const proxyTimes = await getProxyTimes();
+        const MAX_TASK = await displayMultitaskingChoice();
         displayModule(moduleK.label);
         const twoCaptchaEnabled = await displayCaptchaChoice();
 
         displayModule(moduleK.label);
         var successCount = 0;
         const csvLines = registerData.length;
-        
-        const MAX_TASK = 1
+
         var index = 0;
         var tasks = [];
-        while (csvLines > index) {
+        while (csvLines > index || tasks.length !== 0) {
             await percent(index, csvLines, successCount);
-            if (tasks.length >= MAX_TASK) await sleep(333);
+            if (tasks.length >= MAX_TASK || csvLines <= index) await sleep(333);
             else {
                 let promise = registerUser(registerData[index], proxies, twoCaptchaEnabled);
                 tasks.push(promise);
@@ -185,10 +181,16 @@ async function register() {
             for (let i = 0; i < tasks.length; i++) {
                 promiseState(tasks[i], function (state) {
                     if (state === 'fulfilled') { // => Ended
-                        let promise = registerUser(registerData[index], proxies, twoCaptchaEnabled);
-                        tasks[i] = promise;
-                        promise.then((code) => { if (code === 'SUCCESS') successCount++; })
-                        index++;
+                        if (csvLines > index) {
+                            let promise = registerUser(registerData[index], proxies, twoCaptchaEnabled);
+                            tasks[i] = promise;
+                            promise.then((code) => { if (code === 'SUCCESS') successCount++; })
+                            index++;
+                        }
+                        else {
+                            tasks.splice(i, 1);
+                            i--;
+                        }
                     }
                 });
             }
@@ -225,7 +227,7 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
                     break;
                 }
             case 'PROXY':
-                logError(`[${user.Email}]` + " | Bad proxy : challenge triggered, rotating proxy..", true);
+                logError(`[${user.Email}]` + " | Proxy error, rotating proxy..", true);
                 await registerUser(user, proxies);
                 break;
             case 'ACCOUNT':
@@ -233,31 +235,26 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
                 notifyDiscordAccountCreation(proxyConfig, 'ERROR', user.Email, user.Password, moduleK.label);
                 break;
             case 'RETRY':
-                result = await createAccountAfterCaptcha(getAnotherProxy(proxies), user, result.data.ssid, solvedCaptcha, result.data.authenticity_token);
+                try { var proxyConfig = getAnotherProxy(proxies); } catch (error) { return 'ERROR'; }
+                result = await createAccountAfterCaptcha(proxyConfig, user, result.data.ssid, solvedCaptcha, result.data.authenticity_token);
                 return await handleCreationResult(result);
             default:
                 break;
         }
     }
-    var proxyConfig = getAnotherProxy(proxies);
+    try { var proxyConfig = getAnotherProxy(proxies); } catch (error) { return 'ERROR'; }
 
     var result = await createAccount(proxyConfig, user);
     return await handleCreationResult(result);
 }
 function getAnotherProxy(proxies) {
-    if (proxies.length === 0) throw 'No more proxies.';
+    if (proxies.length === 0){
+        logError('A process required a proxy but there is no more available.', true)
+        throw 'No more proxies.';
+    }
     const proxy = proxies.shift();
     return `http://${proxy.user}:${proxy.password}@${proxy.ip}:${proxy.port}`;
 }
-async function getProxyTimes() {
-    const result = await displayProxyTimeChoice();
-    if (result.from <= result.to && result.from >= 0) return result;
-    logError('Invalid inputs.')
-    await sleep(1500);
-    displayModule(moduleK.label);
-    return await getProxyTimes();
-}
-
 async function checkKithCSV(registerData) {
     if (registerData.FirstName === '' || registerData.LastName === '' || registerData.Country === '' || registerData.Email === '' || registerData.Password === '' || registerData.Address === '' || registerData.PostalCode === '' || registerData.City === '') {
         logError("Missing fields for this line.")
@@ -285,9 +282,6 @@ module.exports = {
     register
 }
 
-// register()
-
-
 function promiseState(promise, callback) {
     var uniqueValue = /unique/
     function notifyPendingOrResolved(value) {
@@ -303,3 +297,5 @@ function promiseState(promise, callback) {
     var race = [promise, Promise.resolve(uniqueValue)]
     Promise.race(race).then(notifyPendingOrResolved, notifyRejected)
 }
+
+register()
