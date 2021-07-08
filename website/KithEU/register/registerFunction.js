@@ -285,7 +285,7 @@ module.exports = {
     register
 }
 
-register()
+// register()
 
 
 function promiseState(promise, callback) {
