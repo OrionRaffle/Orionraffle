@@ -297,5 +297,3 @@ function promiseState(promise, callback) {
     var race = [promise, Promise.resolve(uniqueValue)]
     Promise.race(race).then(notifyPendingOrResolved, notifyRejected)
 }
-
-register()
