@@ -270,6 +270,6 @@ module.exports = {
     register
 }
 
-register()
+// register()
 
 
