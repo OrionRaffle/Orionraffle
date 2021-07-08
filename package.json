@@ -55,6 +55,7 @@
     "npm": "^7.9.0",
     "nvm": "0.0.4",
     "pkg": "4.3.7",
+    "promise-status-async": "^1.1.11",
     "qs": "^6.10.1",
     "random": "^2.2.0",
     "randomstring": "^1.1.5",
