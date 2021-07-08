@@ -67,7 +67,6 @@ async function getSessionId(proxyConfig, user) {
             return null;
         }
     } catch (err) {
-        console.log(err)
         return handleProxyError(err);
     }
 }

@@ -169,6 +169,7 @@ async function register() {
         var index = 0;
         var tasks = [];
         while (csvLines > index || tasks.length !== 0) {
+            registerData[index].Index = index;
             await percent(index, csvLines, successCount);
             if (tasks.length >= MAX_TASK || csvLines <= index) await sleep(333);
             else {
@@ -202,36 +203,36 @@ async function register() {
 }
 
 async function registerUser(user, proxies, twoCaptchaEnabled) {
-    logInfo(`User about to be created : ${user.Email}`, true);
+    logInfo(`[${user.Index}] - User about to be created : ${user.Email}`, true);
     user = await checkKithCSV(user);
     if (user == 'ERROR') return
 
     async function handleCreationResult(result) {
         switch (result.code) {
             case 'SUCCESS':
-                logSuccess(`[${user.Email}]` + ` | Account successfully created.`, true);
+                logSuccess(`[${user.Index}][${user.Email}]` + ` | Account successfully created.`, true);
                 const uRes = await update(proxyConfig, user);
-                if (uRes === 'ERROR') logError(`[${user.Email}]` + ` | Address update failed.`);
-                logSuccess(`[${user.Email}]` + ` | Account successfully updated.`, true);
+                if (uRes === 'ERROR') logError(`[${user.Index}][${user.Email}]` + ` | Address update failed.`);
+                logSuccess(`[${user.Index}][${user.Email}]` + ` | Account successfully updated.`, true);
                 notifyDiscordAccountCreation(proxyConfig, 'SUCCESS', user.Email, user.Password, moduleK.label);
                 return 'SUCCESS';
             case 'CHALLENGE':
                 if (twoCaptchaEnabled) {
-                    logInfo(`[${user.Email}]` + " | Challenge trigerred, solving request sent to 2Captcha.", true);
+                    logInfo(`[${user.Index}][${user.Email}]` + " | Challenge trigerred, solving request sent to 2Captcha.", true);
                     await solveReCaptcha(siteKey, 'https://eu.kith.com/challenge', onCaptchaSolved);
                     async function onCaptchaSolved(solvedCaptcha) {
-                        logInfo(`[${user.Email}]` + " | Challenge solved.", true);
+                        logInfo(`[${user.Index}][${user.Email}]` + " | Challenge solved.", true);
                         result = await createAccountAfterCaptcha(proxyConfig, user, result.data.ssid, solvedCaptcha, result.data.authenticity_token);
                         return await handleCreationResult(result);
                     }
                     break;
                 }
             case 'PROXY':
-                logError(`[${user.Email}]` + " | Proxy error, rotating proxy..", true);
+                logError(`[${user.Index}][${user.Email}]` + " | Proxy error, rotating proxy..", true);
                 await registerUser(user, proxies);
                 break;
             case 'ACCOUNT':
-                logError(`[${user.Email}]` + " | Account already exist.", true);
+                logError(`[${user.Index}][${user.Email}]` + " | Account already exist.", true);
                 notifyDiscordAccountCreation(proxyConfig, 'ERROR', user.Email, user.Password, moduleK.label);
                 break;
             case 'RETRY':
