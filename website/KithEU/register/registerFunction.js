@@ -69,7 +69,6 @@ async function createAccount(proxyConfig, user) {
             return { code: 'SUCCESS', data: undefined };
         }
     } catch (err) {
-        console.log(err)
         if (DEV) console.log(err);
         if (handleProxyError(err) === null) logError('An unexpected error occured.', true);
         return { code: 'PROXY', data: undefined };
@@ -101,7 +100,7 @@ async function createAccountAfterCaptcha(proxyConfig, user, sessionId, solvedCap
         if (response.body.includes('eu.kith.com/account/register')) return { code: 'ACCOUNT', data: undefined };
         //Check si l'on est bien sur eu.kith.com cela signifie qu'on est bien connecté / Récupération du sessionId pour accéder aux autres pages
         if (response.body.includes('eu.kith.com/"')) {
-            
+
             user.sessionId = sessionId
             return { code: 'SUCCESS', data: undefined };
         }
@@ -169,14 +168,30 @@ async function register() {
         displayModule(moduleK.label);
         var successCount = 0;
         const csvLines = registerData.length;
-        await percent(0, csvLines, successCount);
-        for (let i = 0; i < csvLines; i++) {
-
-            var res = await registerUser(registerData[i], proxies, twoCaptchaEnabled);
-            if (res === 'SUCCESS') successCount++;
-
-            await sleep((Math.floor(Math.random() * (proxyTimes.to - proxyTimes.from)) + proxyTimes.from) * 1000);
-            await percent(i, csvLines, successCount);
+        
+        const MAX_TASK = 1
+        var index = 0;
+        var tasks = [];
+        while (csvLines > index) {
+            await percent(index, csvLines, successCount);
+            if (tasks.length >= MAX_TASK) await sleep(333);
+            else {
+                let promise = registerUser(registerData[index], proxies, twoCaptchaEnabled);
+                tasks.push(promise);
+                promise.then((code) => { if (code === 'SUCCESS') successCount++; })
+                index++;
+            }
+            //Test if a promise ended
+            for (let i = 0; i < tasks.length; i++) {
+                promiseState(tasks[i], function (state) {
+                    if (state === 'fulfilled') { // => Ended
+                        let promise = registerUser(registerData[index], proxies, twoCaptchaEnabled);
+                        tasks[i] = promise;
+                        promise.then((code) => { if (code === 'SUCCESS') successCount++; })
+                        index++;
+                    }
+                });
+            }
         }
         logInfo('All CSV lines was read.', true);
         logSuccess(`Recap:\n\t\t\tTask: ${csvLines}\n\t\t\tFails: ${csvLines - successCount}\n\t\t\tSuccess: ${successCount}`, true);
@@ -273,3 +288,18 @@ module.exports = {
 // register()
 
 
+function promiseState(promise, callback) {
+    var uniqueValue = /unique/
+    function notifyPendingOrResolved(value) {
+        if (value === uniqueValue) {
+            return callback('pending')
+        } else {
+            return callback('fulfilled')
+        }
+    }
+    function notifyRejected(reason) {
+        return callback('rejected')
+    }
+    var race = [promise, Promise.resolve(uniqueValue)]
+    Promise.race(race).then(notifyPendingOrResolved, notifyRejected)
+}
