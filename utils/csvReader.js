@@ -233,6 +233,18 @@ async function checkKithCSV(registerData) {
     return registerData;
 }
 
+async function csvRegisterXhibition() {
+    var dataTab = [];
+    await new Promise(function (resolve) {
+        fs.createReadStream('./Xhibition/register.csv')
+            .pipe(csv())
+            .on('data', (data) => { if (data.Email !== undefined && data.Email != '') dataTab.push(data); })
+            .on('end', async () => { resolve(); });
+    })
+   
+    return dataTab;
+}
+
 async function csvloginreaderCourir() {
     const logincsv = []
 
@@ -322,5 +334,7 @@ module.exports = {
     csvrafflereaderCourirInstore,
     csvCourirInstoreLog,
 
-    csvRegisterKith//
+    csvRegisterKith,//
+
+    csvRegisterXhibition
 }

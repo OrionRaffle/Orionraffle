@@ -94,6 +94,35 @@ try {
     }
 } catch (err) {}
 try {
+    if (!fs.existsSync('Xhibition')) {
+        fs.mkdirSync('Xhibition');
+    }
+} catch (err) {}
+try {
+    if (!fs.existsSync('./Xhibition/register.csv')) {
+        fs.writeFileSync(
+            './Xhibition/register.csv',
+            'Email,Password,FirstName,LastName'
+        )
+    }
+} catch (err) {}
+try {
+    if (!fs.existsSync('./Xhibition/createdAccount.csv')) {
+        fs.writeFileSync(
+            './Xhibition/createdAccount.csv',
+            'Email,Password'
+        )
+    }
+} catch (err) {}
+try {
+    if (!fs.existsSync('./Xhibition/failedAccount.csv')) {
+        fs.writeFileSync(
+            './Xhibition/failedAccount.csv',
+            'Email,Password'
+        )
+    }
+} catch (err) {}
+try {
     if (!fs.existsSync('./Footshop/raffle.csv')) {
         fs.writeFileSync(
             './Footshop/raffle.csv',

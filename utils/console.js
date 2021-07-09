@@ -152,6 +152,16 @@ async function displayKithMode() {
 
   return input;
 }
+
+async function displayXhibitionMode() {
+  console.log("1. Account generator");
+  console.log("2. Raffle mode (closed)");
+
+  console.log("0. Back");
+  var input = inputReader.readInteger();
+
+  return input;
+}
 async function displayKithRaffle(rafflesData) {
   let index = 0;
   rafflesData.forEach(raffle => {
@@ -312,7 +322,9 @@ module.exports = {
   displayLydiaMode,
   displayLydiaSMSCode,
   displayLydiaAppCode,
-
+  //XHibition
+  displayXhibitionMode,
+  
   displayRecap,
   percent,
   initProgressBar,
