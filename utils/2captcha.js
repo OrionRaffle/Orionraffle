@@ -8,8 +8,8 @@ async function solveReCaptcha(siteKey, url, callback) {
     
             solver.recaptcha(siteKey, url)
                 .then(async (res) => {
-                    await callback(res.data); 
-                    resolve(); 
+                    res = await callback(res.data); 
+                    resolve(res); 
                 });
         });
     })

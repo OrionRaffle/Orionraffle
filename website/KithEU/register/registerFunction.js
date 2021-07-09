@@ -97,7 +97,6 @@ async function createAccountAfterCaptcha(proxyConfig, user, sessionId, solvedCap
         if (response.body.includes('eu.kith.com/account/register')) return { code: 'ACCOUNT', data: undefined };
         //Check si l'on est bien sur eu.kith.com cela signifie qu'on est bien connecté / Récupération du sessionId pour accéder aux autres pages
         if (response.body.includes('eu.kith.com/"')) {
-
             user.sessionId = sessionId
             return { code: 'SUCCESS', data: undefined };
         }
@@ -226,13 +225,12 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
             case 'CHALLENGE':
                 if (twoCaptchaEnabled) {
                     logInfo(`[${user.Index}][${user.Email}]` + " | Challenge trigerred, solving request sent to 2Captcha.", true);
-                    await solveReCaptcha(siteKey, 'https://eu.kith.com/challenge', onCaptchaSolved);
+                    return await solveReCaptcha(siteKey, 'https://eu.kith.com/challenge', onCaptchaSolved);
                     async function onCaptchaSolved(solvedCaptcha) {
                         logInfo(`[${user.Index}][${user.Email}]` + " | Challenge solved.", true);
                         result = await createAccountAfterCaptcha(proxyConfig, user, result.data.ssid, solvedCaptcha, result.data.authenticity_token);
                         return await handleCreationResult(result);
                     }
-                    break;
                 }
             case 'PROXY':
                 logError(`[${user.Index}][${user.Email}]` + " | Proxy error, rotating proxy..", true);

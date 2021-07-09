@@ -212,7 +212,7 @@ async function csvRegisterKith() {
     await new Promise(function (resolve) {
         fs.createReadStream('./KithEU/register.csv')
             .pipe(csv())
-            .on('data', (data) => { if (data.Email !== undefined) dataTab.push(data); })
+            .on('data', (data) => { if (data.Email !== undefined && data.Email != '') dataTab.push(data); })
             .on('end', async () => { resolve(); });
     })
     return dataTab;
