@@ -302,7 +302,7 @@ const kithEntry2 = async (proxyConfig, user,raffle) => {
                                     "stringValue": user.Address_Count
                                   },
                                   "email": {
-                                    "stringValue": user.email
+                                    "stringValue": user.Email
                                   },
                                   "first_name": {
                                     "stringValue": "Bastien"
@@ -471,7 +471,7 @@ async function raffleXhibition() {
 
 }
 
-raffleXhibition()
+// raffleXhibition()
 
 module.exports = {
     raffleXhibition

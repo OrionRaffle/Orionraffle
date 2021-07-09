@@ -1,13 +1,13 @@
 // const { login } = require('./login/loginFunction')
 const { raffleXhibition } = require('./raffle/raffleFunction')
 const { getDataRaffle } = require('./stockChecker/stockChecker')
-// const { register } = require('./register/registerFunction')
+const { register } = require('./register/registerFunction')
 const path = require('path');
 const {
   menu,
   displayKithRaffle,
   displayKithRaffleStock,
-  displayKithMode,
+  displayXhibitionMode,
   displayModule,
   logError,
   logInfo,
@@ -28,13 +28,13 @@ function getRandomIntInclusive(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-async function xhibition() {
+async function Xhibition() {
   displayModule(moduleK.label)
-  var choice = await displayKithMode();
+  var choice = await displayXhibitionMode();
   while (choice < 0 || choice > 3) {
     logError('Invalid input');
     await sleep(1000);
-    choice = await displayKithMode();
+    choice = await displayXhibitionMode();
   }
   switch (choice) {
     case 0:
@@ -49,18 +49,17 @@ async function xhibition() {
     default:
       break;
   }
-  await kith();
+  await Xhibition();
 }
 
 async function generator() {
-  // await register();
+  await register();
 }
 
 async function raffle() {
-  
   await raffleXhibition()
 }
 
 module.exports = {
-  xhibition
+  Xhibition
 }

@@ -553,7 +553,7 @@ async function getDataRaffle() {
 
     return raffleData;
 }
-getDataRaffle()
+// getDataRaffle()
 module.exports = {
     getDataRaffle
 }

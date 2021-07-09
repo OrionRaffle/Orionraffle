@@ -3,8 +3,8 @@ const fs = require('fs')
 const request = require('request-promise').defaults({
     jar: true
 });
-var faker = require('faker/locale/fr');;
-const { csvReadProxy, csvRegisterKith } = require('../../../utils/csvReader');
+var faker = require('faker/locale/en_US');;
+const { csvReadProxy, csvRegisterXhibition } = require('../../../utils/csvReader');
 const { solveReCaptcha } = require('../../../utils/2captcha');
 const {
     percent,
@@ -18,11 +18,15 @@ const {
 } = require('../../../utils/console');
 const { notifyDiscordAccountCreation } = require('../../../utils/discord');
 const { sleep, handleProxyError, reinitProgram } = require('../../../utils/utils');
-const { DEV, siteKey, moduleK } = require('../kithEUConst');
+const { DEV, siteKey, moduleK } = require('../XhibitionConst');
+
+
+const CountryUS =  ['Alabama','Alaska','American Samoa','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','District of Columbia','Federated States of Micronesia','Florida','Georgia','Guam','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Marshall Islands','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Northern Mariana Islands','Ohio','Oklahoma','Oregon','Palau','Pennsylvania','Puerto Rico','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virgin Island','Virginia','Washington','West Virginia','Wisconsin','Wyoming']
 
 
 //Create Account Function
 async function createAccount(proxyConfig, user) {
+    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     try {
         response = await request({
             headers: {
@@ -30,14 +34,14 @@ async function createAccount(proxyConfig, user) {
                 "Connection": "keep-alive",
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
-            proxy: proxyConfig,
-            resolveWithFullResponse: true,
-            maxRedirects: 1,
+            proxy: 'http://127.0.0.1:8888',
+            // resolveWithFullResponse: true,
+            // maxRedirects: 1,
             followAllRedirects: true,
             withCredentials: true,
             timeout: 3500,
             method: 'POST',
-            uri: `https://eu.kith.com/account`,
+            uri: `https://www.xhibition.co/account`,
             body: qs.stringify({
                 'form_type': 'create_customer',
                 'utf8': '✓',
@@ -48,7 +52,7 @@ async function createAccount(proxyConfig, user) {
             })
         })
         //Trigger le challenge, donc il faut switch de proxy (flem de faire le captcha)
-        if (response.body.includes('eu.kith.com/challenge')) {
+        if (response.body.includes('xhibition.co/challenge')) {
             const authString = 'authenticity_token" value="';
             var authenticity_token = response.body.substring(response.body.indexOf(authString) + authString.length);
             authenticity_token = authenticity_token.substring(0, authenticity_token.indexOf('"'));
@@ -61,47 +65,53 @@ async function createAccount(proxyConfig, user) {
             };
         }
         // il y a une redirection /register (compte existe déjà)
-        if (response.body.includes('eu.kith.com/account/register')) return { code: 'ACCOUNT', data: undefined };
+        if (response.body.includes('xhibition.co/account/registerr')) return { code: 'ACCOUNT', data: undefined };
         //Check si l'on est bien sur eu.kith.com cela signifie qu'on est bien connecté / Récupération du sessionId pour accéder aux autres pages
-        if (response.body.includes('eu.kith.com/"')) {
+        if (response.body.includes('xhibition.co"')) {
             user.sessionId = response.request.headers['cookie'].split(';')[0].split('=')[1]
             return { code: 'SUCCESS', data: undefined };
         }
     } catch (err) {
-        if (DEV) console.log(err);
+        if (DEV) console.log(err.response);
         if (handleProxyError(err) === null) logError('An unexpected error occured.', true);
         return { code: 'PROXY', data: undefined };
     }
 }
 async function createAccountAfterCaptcha(proxyConfig, user, sessionId, solvedCaptcha, authenticityToken) {
-    //process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     try {
         response = await request({
             headers: {
                 'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
                 "Connection": "keep-alive",
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'Cookie': `_secure_session_id=${sessionId}`
+              
             },
-            proxy: proxyConfig,//'http://127.0.0.1:8888',
-            resolveWithFullResponse: true,
+            proxy: 'http://127.0.0.1:8888',
+            // resolveWithFullResponse: true,
             maxRedirects: 1,
             followAllRedirects: true,
             withCredentials: true,
-            timeout: 3500,
+            // timeout: 2000,
             method: 'POST',
-            uri: `https://eu.kith.com/account`,
+            uri: `https://www.xhibition.co/account`,
             body: qs.stringify({
                 'authenticity_token': authenticityToken,
                 'g-recaptcha-response': solvedCaptcha,
             })
         })
-        if (response.body.includes('eu.kith.com/"')) {
-            user.sessionId = sessionId
+        
+        if (response.body.includes('xhibition.co/')) {
+            // console.log(response.request.headers)
+
+            // console.log(response.request.headers['cookie'])
+            user.sessionId = response.request.headers['cookie'].split('=')[1].split(';')[0]
+            
             return { code: 'SUCCESS', data: undefined };
         }
         // il y a une redirection /register (compte existe déjà)
-        else if (response.body.includes('eu.kith.com/account/register')) return { code: 'ACCOUNT', data: undefined };
+        else if (response.body.includes('xhibition.co/challenge')) return { code: 'RETRY', data: undefined };
+        else if (response.body.includes('xhibition.co/account/register')) return { code: 'ACCOUNT', data: undefined };
         else {
             return {
                 code: 'ERROR',
@@ -136,12 +146,15 @@ async function createAccountAfterCaptcha(proxyConfig, user, sessionId, solvedCap
         }
         */
     } catch (err) {
+       
+        
         if (DEV) console.log(err);
     }
 
 }
 //Update ACCOUNT
 const update = async (proxyConfig, user) => {
+    
     try {
         await request({
             headers: {
@@ -150,12 +163,13 @@ const update = async (proxyConfig, user) => {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'cookie': '_secure_session_id=' + user.sessionId
             },
-            proxy: proxyConfig,
-            resolveWithFullResponse: true,
+            proxy: 'http://127.0.0.1:8888',
+            // resolveWithFullResponse: true,
             followAllRedirects: false,
+            withCredentials: true,
             timeout: 3500,
             method: 'POST',
-            uri: `https://eu.kith.com/account/addresses`,
+            uri: `https://www.xhibition.co/account/addresses`,
             body: qs.stringify({
                 'form_type': 'customer_address',
                 'utf8': '✓',
@@ -164,10 +178,11 @@ const update = async (proxyConfig, user) => {
                 'address[company]': '',
                 'address[address1]': user.Address,
                 'address[address2]': '',
-                'address[country]': user.Country,
                 'address[city]': user.City,
+                'address[country]': user.Country,
+                'address[province]': user.Province,
                 'address[zip]': user.PostalCode,
-                'address[phone]': "06" + Math.floor((Math.random() * 90000000) + 10000000),
+                'address[phone]': user.Phone,
                 'address[default]': '1'
             })
         })
@@ -187,7 +202,7 @@ async function register() {
         var registerData = [];
 
         await new Promise(async function (resolve) {
-            registerData = await csvRegisterKith();
+            registerData = await csvRegisterXhibition();
             resolve();
         });
 
@@ -202,6 +217,7 @@ async function register() {
 
         var index = 0;
         var tasks = [];
+       
         while (csvLines > index || tasks.length !== 0) {
             var user = registerData[index];
             if (registerData[index] !== undefined) registerData[index].Index = index + 1;
@@ -214,7 +230,7 @@ async function register() {
                 promise.then((code) => {
                     if (code === 'SUCCESS') {
                         successCount++;
-                        fs.appendFileSync('./KithEU/createdAccount.csv', `\n${user.Email},${user.Password}`);
+                        fs.appendFileSync('./Xhibition/createdAccount.csv', `\n${user.Email},${user.Password}`);
                     }
                 })
                 index++;
@@ -229,10 +245,10 @@ async function register() {
                             promise.then((code) => {
                                 if (code === 'SUCCESS') {
                                     successCount++;
-                                    fs.appendFileSync('./KithEU/createdAccount.csv', `\n${user.Email},${user.Password}`);
+                                    fs.appendFileSync('./Xhibition/createdAccount.csv', `\n${user.Email},${user.Password}`);
                                 }
                                 else {
-                                    fs.appendFileSync('./KithEU/failedAccount.csv', `\n${user.Email},${user.Password}`);
+                                    fs.appendFileSync('./Xhibition/failedAccount.csv', `\n${user.Email},${user.Password}`);
                                 }
                             })
                             index++;
@@ -253,10 +269,11 @@ async function register() {
 
 async function registerUser(user, proxies, twoCaptchaEnabled) {
     logInfo(`[${user.Index}] - User about to be created : ${user.Email}`, true);
-    user = await checkKithCSV(user);
+    user = await checkXhibitionCSV(user);
     if (user === 'ERROR') return 'ERROR';
 
     async function handleCreationResult(result) {
+     
         if (result === undefined) {
             logError(`[${user.Index}][${user.Email}]` + " | Too much fails accont won't be created", true);
             return 'ERROR';
@@ -272,7 +289,7 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
             case 'CHALLENGE':
                 if (twoCaptchaEnabled) {
                     logInfo(`[${user.Index}][${user.Email}]` + " | Challenge trigerred, solving request sent to 2Captcha.", true);
-                    return await solveReCaptcha(siteKey, 'https://eu.kith.com/challenge', onCaptchaSolved);
+                    return await solveReCaptcha(siteKey, 'https://xhibition.co/challenge', onCaptchaSolved);
                     async function onCaptchaSolved(solvedCaptcha) {
                         logInfo(`[${user.Index}][${user.Email}]` + " | Challenge solved.", true);
                         result = await createAccountAfterCaptcha(proxyConfig, user, result.data.ssid, solvedCaptcha, result.data.authenticity_token);
@@ -293,14 +310,14 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
                 return await handleCreationResult(result);
             case 'CHALLENGE_TOO_LONG':
                 logInfo(`[${user.Index}][${user.Email}]` + " | Challenge solve came too late.", true);
-                return await solveReCaptcha(siteKey, 'https://eu.kith.com/challenge', onCaptchaSolved);
+                return await solveReCaptcha(siteKey, 'https://www.xhibition.co/challenge', onCaptchaSolved);
                 async function onCaptchaSolved(solvedCaptcha) {
                     logInfo(`[${user.Index}][${user.Email}]` + " | Challenge solved.", true);
                     result = await createAccountAfterCaptcha(proxyConfig, user, result.data.ssid, solvedCaptcha, result.data.authenticity_token);
                     return await handleCreationResult(result);
                 }
             case 'ERROR':
-                logInfo(`[${user.Index}][${user.Email}]` + " | A rare error happened, we will try to fix them for the next Orion version.", true);
+                logInfo(`[${user.Index}][${user.Email}]` + " | A rare error happened, we will try to fix them for the next Orion version. Open a ticket", true);
                 return 'ERROR'
             default:
                 break;
@@ -319,12 +336,13 @@ function getAnotherProxy(proxies) {
     const proxy = proxies.shift();
     return `http://${proxy.user}:${proxy.password}@${proxy.ip}:${proxy.port}`;
 }
-async function checkKithCSV(registerData) {
+async function checkXhibitionCSV(registerData) {
     if (registerData.FirstName === '' || registerData.LastName === '' || registerData.Country === '' || registerData.Email === '' || registerData.Password === '' || registerData.Address === '' || registerData.PostalCode === '' || registerData.City === '') {
         logError("Missing fields for this line.")
         return 'ERROR';
     }
 
+   
    
     if (registerData.FirstName.toLowerCase() == 'random') {   
         registerData.FirstName = faker.name.firstName()
@@ -332,17 +350,14 @@ async function checkKithCSV(registerData) {
     if (registerData.LastName.toLowerCase() == 'random') {
         registerData.LastName = faker.name.lastName()
     }
-    if (registerData.Address.toLowerCase() == 'random') {
+    
         registerData.Address = faker.address.streetAddress()
-    }
-    if (registerData.PostalCode.toLowerCase() == 'random') {
         registerData.PostalCode = faker.address.zipCode()
-
-    }
-    if (registerData.City.toLowerCase() == 'random') {
+        registerData.Country = 'United States'
+        registerData.Province = CountryUS[Math.floor(Math.random() * CountryUS.length)]
         registerData.City = faker.address.city()
-    }
-    await sleep(100)
+        registerData.Phone = faker.phone.phoneNumberFormat()
+   
     return registerData
 }
 module.exports = {
