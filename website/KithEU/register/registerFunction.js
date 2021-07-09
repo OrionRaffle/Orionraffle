@@ -185,7 +185,7 @@ async function register() {
         var index = 0;
         var tasks = [];
         while (csvLines > index || tasks.length !== 0) {
-            if (registerData[index] !== undefined) registerData[index].Index = index++;
+            if (registerData[index] !== undefined) registerData[index].Index = index + 1;
             await percent(index, csvLines, successCount);
 
             if (tasks.length >= MAX_TASK || csvLines <= index) await sleep(333);
@@ -197,7 +197,6 @@ async function register() {
                         successCount++;
                         fs.appendFileSync('../../../KithEU/createdAccount.csv', `${registerData[index].Email},${registerData[index].Password}\n`);
                     }
-
                 })
                 index++;
             }
