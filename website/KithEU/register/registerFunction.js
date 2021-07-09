@@ -73,6 +73,7 @@ async function createAccount(proxyConfig, user) {
     }
 }
 async function createAccountAfterCaptcha(proxyConfig, user, sessionId, solvedCaptcha, authenticityToken) {
+    //process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     try {
         response = await request({
             headers: {
@@ -81,7 +82,7 @@ async function createAccountAfterCaptcha(proxyConfig, user, sessionId, solvedCap
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Cookie': `_secure_session_id=${sessionId}`
             },
-            proxy: proxyConfig,
+            proxy: proxyConfig,//'http://127.0.0.1:8888',
             resolveWithFullResponse: true,
             maxRedirects: 1,
             followAllRedirects: true,
@@ -94,33 +95,49 @@ async function createAccountAfterCaptcha(proxyConfig, user, sessionId, solvedCap
                 'g-recaptcha-response': solvedCaptcha,
             })
         })
-        if (response.body.includes('eu.kith.com/challenge')) {
-            return {
-                code: 'CHALLENGE_TOO_LONG',
-                data: {
-                    authenticity_token: authenticityToken,
-                    ssid: sessionId,
-                }
-            };
-        }
-        // il y a une redirection /register (compte existe déjà)
-        if (response.body.includes('eu.kith.com/account/register')) return { code: 'ACCOUNT', data: undefined };
-        //Check si l'on est bien sur eu.kith.com cela signifie qu'on est bien connecté / Récupération du sessionId pour accéder aux autres pages
         if (response.body.includes('eu.kith.com/"')) {
             user.sessionId = sessionId
             return { code: 'SUCCESS', data: undefined };
         }
+        // il y a une redirection /register (compte existe déjà)
+        else if (response.body.includes('eu.kith.com/account/register')) return { code: 'ACCOUNT', data: undefined };
+        else {
+            return {
+                code: 'ERROR',
+                data: undefined
+            };
+        }
+        /*
+        else if (response.body.includes('eu.kith.com/challenge')) {
+            console.log('CHALLENGE_TOO_LONG')
+            const authString = 'authenticity_token" value="';
+            var authenticity_token = response.body.substring(response.body.indexOf(authString) + authString.length);
+            authenticity_token = authenticity_token.substring(0, authenticity_token.indexOf('"'));
+            return {
+                code: 'CHALLENGE_TOO_LONG',
+                data: {
+                    authenticity_token: authenticity_token,
+                    ssid: response.request.headers['cookie'].split(';')[0].split('=')[1],
+                }
+            };
+        }
+        
+        //Check si l'on est bien sur eu.kith.com cela signifie qu'on est bien connecté / Récupération du sessionId pour accéder aux autres pages
+        else {
+            return {
+                code: 'RETRY',
+                data: {
+                    authenticity_token: authenticityToken,
+                    ssid: sessionId,
+                    solvedCaptcha: solvedCaptcha
+                }
+            };
+        }
+        */
     } catch (err) {
         if (DEV) console.log(err);
     }
-    return {
-        code: 'RETRY',
-        data: {
-            authenticity_token: authenticityToken,
-            ssid: sessionId,
-            solvedCaptcha: solvedCaptcha
-        }
-    };
+
 }
 //Update ACCOUNT
 const update = async (proxyConfig, user) => {
@@ -185,17 +202,18 @@ async function register() {
         var index = 0;
         var tasks = [];
         while (csvLines > index || tasks.length !== 0) {
+            var user = registerData[index];
             if (registerData[index] !== undefined) registerData[index].Index = index + 1;
             await percent(index, csvLines, successCount);
 
             if (tasks.length >= MAX_TASK || csvLines <= index) await sleep(333);
             else {
-                let promise = registerUser(registerData[index], proxies, twoCaptchaEnabled);
+                let promise = registerUser(user, proxies, twoCaptchaEnabled);
                 tasks.push(promise);
                 promise.then((code) => {
                     if (code === 'SUCCESS') {
                         successCount++;
-                        fs.appendFileSync('../../../KithEU/createdAccount.csv', `${registerData[index].Email},${registerData[index].Password}\n`);
+                        fs.appendFileSync('./KithEU/createdAccount.csv', `${user.Email},${user.Password}\n`);
                     }
                 })
                 index++;
@@ -205,12 +223,15 @@ async function register() {
                 promiseState(tasks[i], function (state) {
                     if (state === 'fulfilled') { // => Ended
                         if (csvLines > index) {
-                            let promise = registerUser(registerData[index], proxies, twoCaptchaEnabled);
+                            let promise = registerUser(user, proxies, twoCaptchaEnabled);
                             tasks[i] = promise;
                             promise.then((code) => {
                                 if (code === 'SUCCESS') {
                                     successCount++;
-                                    fs.appendFileSync('../../../KithEU/createdAccount.csv', `${registerData[index].Email},${registerData[index].Password}\n`);
+                                    fs.appendFileSync('./KithEU/createdAccount.csv', `${user.Email},${user.Password}\n`);
+                                }
+                                else {
+                                    fs.appendFileSync('./KithEU/failedAccount.csv', `${user.Email},${user.Password}\n`);
                                 }
                             })
                             index++;
@@ -235,6 +256,10 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
     if (user === 'ERROR') return 'ERROR';
 
     async function handleCreationResult(result) {
+        if (result === undefined) {
+            logError(`[${user.Index}][${user.Email}]` + " | Too much fails accont won't be created", true);
+            return 'ERROR';
+        }
         switch (result.code) {
             case 'SUCCESS':
                 logSuccess(`[${user.Index}][${user.Email}]` + ` | Account successfully created.`, true);
@@ -273,6 +298,9 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
                     result = await createAccountAfterCaptcha(proxyConfig, user, result.data.ssid, solvedCaptcha, result.data.authenticity_token);
                     return await handleCreationResult(result);
                 }
+            case 'ERROR':
+                logInfo(`[${user.Index}][${user.Email}]` + " | A rare error happened, we will try to fix them for the next Orion version.", true);
+                return 'ERROR'
             default:
                 break;
         }

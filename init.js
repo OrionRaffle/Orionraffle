@@ -86,6 +86,14 @@ try {
     }
 } catch (err) {}
 try {
+    if (!fs.existsSync('./KithEU/failedAccount.csv')) {
+        fs.writeFileSync(
+            './KithEU/failedAccount.csv',
+            'Email,Password'
+        )
+    }
+} catch (err) {}
+try {
     if (!fs.existsSync('./Footshop/raffle.csv')) {
         fs.writeFileSync(
             './Footshop/raffle.csv',
