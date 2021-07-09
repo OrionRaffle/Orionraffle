@@ -195,7 +195,7 @@ async function register() {
                 promise.then((code) => {
                     if (code === 'SUCCESS') {
                         successCount++;
-                        fs.appendFileSync('../../../KithEU/createdAccount.csv', `${registerData[index].Email},${registerData[index].Password}\n`);
+                        fs.appendFileSync('../../../KithEU/createdAccount.csv', `\n${registerData[index].Email},${registerData[index].Password}`);
                     }
 
                 })
@@ -211,7 +211,7 @@ async function register() {
                             promise.then((code) => {
                                 if (code === 'SUCCESS') {
                                     successCount++;
-                                    fs.appendFileSync('../../../KithEU/createdAccount.csv', `${registerData[index].Email},${registerData[index].Password}\n`);
+                                    fs.appendFileSync('../../../KithEU/createdAccount.csv', `\n${registerData[index].Email},${registerData[index].Password}`);
                                 }
                             })
                             index++;
