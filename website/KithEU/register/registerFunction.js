@@ -1,4 +1,5 @@
 const qs = require('qs')
+const fs = require('fs')
 const request = require('request-promise').defaults({
     jar: true
 });
@@ -184,14 +185,17 @@ async function register() {
         var index = 0;
         var tasks = [];
         while (csvLines > index || tasks.length !== 0) {
-            if (registerData[index] !== undefined) registerData[index].Index = index;
+            if (registerData[index] !== undefined) registerData[index].Index = index + 1;
             await percent(index, csvLines, successCount);
 
             if (tasks.length >= MAX_TASK || csvLines <= index) await sleep(333);
             else {
                 let promise = registerUser(registerData[index], proxies, twoCaptchaEnabled);
                 tasks.push(promise);
-                promise.then((code) => { if (code === 'SUCCESS') successCount++; })
+                promise.then((code) => {
+                    if (code === 'SUCCESS') successCount++;
+
+                })
                 index++;
             }
             //Test if a promise ended
@@ -202,15 +206,16 @@ async function register() {
                             let promise = registerUser(registerData[index], proxies, twoCaptchaEnabled);
                             tasks[i] = promise;
                             promise.then((code) => {
-                                if (code === 'SUCCESS') successCount++;
-                            })
-                            index++;
-                        }
-                        else {
-                            tasks.splice(i, 1);
-                            i--;
-                        }
-                    }
+                                if (code === 'SUCCESS') {
+                                    successCount++;
+                                    fs.appendFileSync('../../../KithEU/createdAccount.csv', `${registerData[index].Email},${registerData[index].Password}\n`);
+                                    index++;
+                                }
+                                else {
+                                    tasks.splice(i, 1);
+                                    i--;
+                                }
+                            }
                 });
             }
         }
