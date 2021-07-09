@@ -2,17 +2,18 @@ const Captcha = require("2captcha");
 const { csvReadClientAuth } = require("./csvReader");
 
 async function solveReCaptcha(siteKey, url, callback) {
-    await new Promise(async function(resolve) {
+    var result = await new Promise(async function(resolve) {
         await csvReadClientAuth(async function (data) {
             const solver = new Captcha.Solver(data.Key2Captcha)
     
             solver.recaptcha(siteKey, url)
                 .then(async (res) => {
-                    res = await callback(res.data); 
+                    var res = await callback(res.data); 
                     resolve(res); 
                 });
         });
     })
+    return result;
 }
 
 
