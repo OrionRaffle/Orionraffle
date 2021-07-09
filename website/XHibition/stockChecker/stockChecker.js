@@ -90,6 +90,7 @@ async function getCampaignId(raffle) {
             method: 'GET',
             url: raffle.link,
         });
+        raffle.currentDate = response.data.split("currentDate': '")[1].split("'")[0]
         raffle.campaignId = response.data.split("'campaignId': '")[1].split("'")[0];
     } catch (err) { console.log(err); }
 }
@@ -552,6 +553,7 @@ async function getDataRaffle() {
 
     return raffleData;
 }
+getDataRaffle()
 module.exports = {
     getDataRaffle
 }
