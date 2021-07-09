@@ -185,7 +185,7 @@ async function register() {
         var index = 0;
         var tasks = [];
         while (csvLines > index || tasks.length !== 0) {
-            if (registerData[index] !== undefined) registerData[index].Index = index + 1;
+            if (registerData[index] !== undefined) registerData[index].Index = index++;
             await percent(index, csvLines, successCount);
 
             if (tasks.length >= MAX_TASK || csvLines <= index) await sleep(333);
@@ -193,7 +193,10 @@ async function register() {
                 let promise = registerUser(registerData[index], proxies, twoCaptchaEnabled);
                 tasks.push(promise);
                 promise.then((code) => {
-                    if (code === 'SUCCESS') successCount++;
+                    if (code === 'SUCCESS') {
+                        successCount++;
+                        fs.appendFileSync('../../../KithEU/createdAccount.csv', `${registerData[index].Email},${registerData[index].Password}\n`);
+                    }
 
                 })
                 index++;
@@ -209,13 +212,15 @@ async function register() {
                                 if (code === 'SUCCESS') {
                                     successCount++;
                                     fs.appendFileSync('../../../KithEU/createdAccount.csv', `${registerData[index].Email},${registerData[index].Password}\n`);
-                                    index++;
                                 }
-                                else {
-                                    tasks.splice(i, 1);
-                                    i--;
-                                }
-                            }
+                            })
+                            index++;
+                        }
+                        else {
+                            tasks.splice(i, 1);
+                            i--;
+                        }
+                    }
                 });
             }
         }
