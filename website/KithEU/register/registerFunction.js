@@ -51,7 +51,7 @@ async function createAccount(proxyConfig, user) {
             var authenticity_token = response.body.substring(response.body.indexOf(authString) + authString.length);
             authenticity_token = authenticity_token.substring(0, authenticity_token.indexOf('"'));
             return {
-                code: 'CHALLENGE_TOO_LONG',
+                code: 'CHALLENGE',
                 data: {
                     authenticity_token: authenticity_token,
                     ssid: response.request.headers['cookie'].split(';')[0].split('=')[1]
@@ -95,7 +95,7 @@ async function createAccountAfterCaptcha(proxyConfig, user, sessionId, solvedCap
         })
         if (response.body.includes('eu.kith.com/challenge')) {
             return {
-                code: 'CHALLENGE',
+                code: 'CHALLENGE_TOO_LONG',
                 data: {
                     authenticity_token: authenticityToken,
                     ssid: sessionId,
