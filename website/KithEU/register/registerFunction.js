@@ -51,7 +51,7 @@ async function createAccount(proxyConfig, user) {
             var authenticity_token = response.body.substring(response.body.indexOf(authString) + authString.length);
             authenticity_token = authenticity_token.substring(0, authenticity_token.indexOf('"'));
             return {
-                code: 'CHALLENGE',
+                code: 'CHALLENGE_TOO_LONG',
                 data: {
                     authenticity_token: authenticity_token,
                     ssid: response.request.headers['cookie'].split(';')[0].split('=')[1]
@@ -72,6 +72,11 @@ async function createAccount(proxyConfig, user) {
     }
 }
 async function createAccountAfterCaptcha(proxyConfig, user, sessionId, solvedCaptcha, authenticityToken) {
+    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+    proxyConfig = {
+        host: '127.0.0.1',
+        port: '8888',
+    }
     try {
         response = await request({
             headers: {
@@ -93,6 +98,15 @@ async function createAccountAfterCaptcha(proxyConfig, user, sessionId, solvedCap
                 'g-recaptcha-response': solvedCaptcha,
             })
         })
+        if (response.body.includes('eu.kith.com/challenge')) {
+            return {
+                code: 'CHALLENGE',
+                data: {
+                    authenticity_token: authenticityToken,
+                    ssid: sessionId,
+                }
+            };
+        }
         // il y a une redirection /register (compte existe déjà)
         if (response.body.includes('eu.kith.com/account/register')) return { code: 'ACCOUNT', data: undefined };
         //Check si l'on est bien sur eu.kith.com cela signifie qu'on est bien connecté / Récupération du sessionId pour accéder aux autres pages
@@ -175,8 +189,9 @@ async function register() {
         var index = 0;
         var tasks = [];
         while (csvLines > index || tasks.length !== 0) {
-            registerData[index].Index = index;
+            if (registerData[index] !== undefined) registerData[index].Index = index;
             await percent(index, csvLines, successCount);
+
             if (tasks.length >= MAX_TASK || csvLines <= index) await sleep(333);
             else {
                 let promise = registerUser(registerData[index], proxies, twoCaptchaEnabled);
@@ -191,7 +206,10 @@ async function register() {
                         if (csvLines > index) {
                             let promise = registerUser(registerData[index], proxies, twoCaptchaEnabled);
                             tasks[i] = promise;
-                            promise.then((code) => { if (code === 'SUCCESS') successCount++; })
+                            promise.then((code) => {
+                                console.log(code)
+                                if (code === 'SUCCESS') successCount++;
+                            })
                             index++;
                         }
                         else {
@@ -211,7 +229,7 @@ async function register() {
 async function registerUser(user, proxies, twoCaptchaEnabled) {
     logInfo(`[${user.Index}] - User about to be created : ${user.Email}`, true);
     user = await checkKithCSV(user);
-    if (user == 'ERROR') return
+    if (user === 'ERROR') return 'ERROR';
 
     async function handleCreationResult(result) {
         switch (result.code) {
@@ -234,16 +252,23 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
                 }
             case 'PROXY':
                 logError(`[${user.Index}][${user.Email}]` + " | Proxy error, rotating proxy..", true);
-                await registerUser(user, proxies);
-                break;
+                return await registerUser(user, proxies);
             case 'ACCOUNT':
                 logError(`[${user.Index}][${user.Email}]` + " | Account already exist.", true);
                 notifyDiscordAccountCreation(proxyConfig, 'ERROR', user.Email, user.Password, moduleK.label);
-                break;
+                return 'ERRROR';
             case 'RETRY':
                 try { var proxyConfig = getAnotherProxy(proxies); } catch (error) { return 'ERROR'; }
                 result = await createAccountAfterCaptcha(proxyConfig, user, result.data.ssid, result.data.solvedCaptcha, result.data.authenticity_token);
                 return await handleCreationResult(result);
+            case 'CHALLENGE_TOO_LONG':
+                logInfo(`[${user.Index}][${user.Email}]` + " | Challenge solve came too late.", true);
+                return await solveReCaptcha(siteKey, 'https://eu.kith.com/challenge', onCaptchaSolved);
+                async function onCaptchaSolved(solvedCaptcha) {
+                    logInfo(`[${user.Index}][${user.Email}]` + " | Challenge solved.", true);
+                    result = await createAccountAfterCaptcha(proxyConfig, user, result.data.ssid, solvedCaptcha, result.data.authenticity_token);
+                    return await handleCreationResult(result);
+                }
             default:
                 break;
         }
@@ -255,7 +280,7 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
 }
 function getAnotherProxy(proxies) {
     if (proxies.length === 0) {
-        logError('A process required a proxy but there is no more available.', true)
+        logError('A process required a proxy but there is no more available.', true);
         throw 'No more proxies.';
     }
     const proxy = proxies.shift();
@@ -264,7 +289,7 @@ function getAnotherProxy(proxies) {
 async function checkKithCSV(registerData) {
     if (registerData.FirstName === '' || registerData.LastName === '' || registerData.Country === '' || registerData.Email === '' || registerData.Password === '' || registerData.Address === '' || registerData.PostalCode === '' || registerData.City === '') {
         logError("Missing fields for this line.")
-        return 'ERROR'
+        return 'ERROR';
     }
     if (registerData.FirstName.toLowerCase() == 'random') {
         registerData.FirstName = faker.name.firstName()
