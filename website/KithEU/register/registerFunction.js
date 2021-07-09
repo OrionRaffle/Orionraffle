@@ -252,7 +252,8 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
                 }
             case 'PROXY':
                 logError(`[${user.Index}][${user.Email}]` + " | Proxy error, rotating proxy..", true);
-                return await registerUser(user, proxies);
+                result = await registerUser(user, proxies);
+                return await handleCreationResult(result);
             case 'ACCOUNT':
                 logError(`[${user.Index}][${user.Email}]` + " | Account already exist.", true);
                 notifyDiscordAccountCreation(proxyConfig, 'ERROR', user.Email, user.Password, moduleK.label);
