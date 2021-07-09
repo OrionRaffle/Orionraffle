@@ -104,7 +104,14 @@ async function createAccountAfterCaptcha(proxyConfig, user, sessionId, solvedCap
     } catch (err) {
         if (DEV) console.log(err);
     }
-    return { code: 'RETRY', data: undefined };
+    return {
+        code: 'RETRY',
+        data: {
+            authenticity_token: authenticityToken,
+            ssid: sessionId,
+            solvedCaptcha: solvedCaptcha
+        }
+    };
 }
 //Update ACCOUNT
 const update = async (proxyConfig, user) => {
@@ -237,7 +244,7 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
                 break;
             case 'RETRY':
                 try { var proxyConfig = getAnotherProxy(proxies); } catch (error) { return 'ERROR'; }
-                result = await createAccountAfterCaptcha(proxyConfig, user, result.data.ssid, solvedCaptcha, result.data.authenticity_token);
+                result = await createAccountAfterCaptcha(proxyConfig, user, result.data.ssid, result.data.solvedCaptcha, result.data.authenticity_token);
                 return await handleCreationResult(result);
             default:
                 break;
@@ -249,7 +256,7 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
     return await handleCreationResult(result);
 }
 function getAnotherProxy(proxies) {
-    if (proxies.length === 0){
+    if (proxies.length === 0) {
         logError('A process required a proxy but there is no more available.', true)
         throw 'No more proxies.';
     }
