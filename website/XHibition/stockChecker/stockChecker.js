@@ -556,4 +556,3 @@ module.exports = {
     getDataRaffle
 }
 
-console.log(getDataRaffle())

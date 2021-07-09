@@ -1,5 +1,5 @@
 // const { login } = require('./login/loginFunction')
-const { raffleKith } = require('./raffle/raffleFunction')
+const { raffleXhibition } = require('./raffle/raffleFunction')
 const { getDataRaffle } = require('./stockChecker/stockChecker')
 // const { register } = require('./register/registerFunction')
 const path = require('path');
@@ -15,7 +15,7 @@ const {
 } = require('../../utils/console')
 
 const moduleK = {
-  label: 'KithEU'
+  label: 'Xhibition'
 }
 
 function sleep(ms) {
@@ -28,7 +28,7 @@ function getRandomIntInclusive(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-async function kith() {
+async function xhibition() {
   displayModule(moduleK.label)
   var choice = await displayKithMode();
   while (choice < 0 || choice > 3) {
@@ -45,9 +45,7 @@ async function kith() {
     case 2:
       await raffle();
       break;
-    case 3:
-      await stockChecker();
-      break;
+
     default:
       break;
   }
@@ -55,32 +53,14 @@ async function kith() {
 }
 
 async function generator() {
-  await register();
+  // await register();
 }
 
 async function raffle() {
-  await raffleKith()
-}
-
-async function stockChecker(raffleTab) {
-  if (raffleTab === undefined) raffleTab = await getDataRaffle();
-  displayModule(moduleK.label);
-  var choice = await displayKithRaffle(raffleTab);
-  while (choice < 0 || choice > raffleTab.length) {
-    logError('Invalid input.');
-    displayModule(moduleK.label);
-    choice = await displayKithRaffle(raffleTab);
-  }
-  displayModule(moduleK.label);
-  if (choice === '0') return;
-  if (raffleTab[choice - 1].type === 'Instore') {
-    logInfo('Stock are not available for Instore raffles.');
-    await sleep(2000);
-  }
-  else await displayKithRaffleStock(raffleTab[choice - 1]);
-  await stockChecker(raffleTab);
+  
+  await raffleXhibition()
 }
 
 module.exports = {
-  kith
+  xhibition
 }

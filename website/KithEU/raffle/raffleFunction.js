@@ -105,32 +105,7 @@ async function getCountry() {
 
 
 //Récupération
-async function getAllRaffle(proxyConfig, user) {
-    logInfo('Orion is getting raffle data..');
 
-    const sessionId = await getSessionId(proxyConfig, user);
-    if (sessionId === null) return;
-
-    var raffleTab = await getRaffleName(proxyConfig);
-    if (raffleTab === null) return;
-    //logInfo(`There is ${raffleTab.length} raffl`);
-
-    for (i in raffleTab) {
-        console.log("i : " + i)
-
-        await getCampaignId(proxyConfig, raffleTab[i], sessionId)
-        await getSessionFireBase(proxyConfig, raffleTab[i])
-        // getRaffleInfo(proxyConfig, raffleTab[i])
-        await getRaffleStatus(proxyConfig, raffleTab[i])
-        await getRaffleStatus2(proxyConfig, raffleTab[i])
-        // await getRaffleStatus3(proxyConfig, raffleTab[i])
-        await getRaffleInfo(proxyConfig, raffleTab[i])
-
-
-    }
-
-    console.log(raffleTab)
-}
 
 //Login Obligatoire
 async function getInformation(proxyConfig, user, sessionId) {
