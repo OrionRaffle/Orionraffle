@@ -81,7 +81,7 @@ try {
     if (!fs.existsSync('./KithEU/createdAccount.csv')) {
         fs.writeFileSync(
             './KithEU/createdAccount.csv',
-            'Email,Password'
+            'Email,Password\n'
         )
     }
 } catch (err) {}
