@@ -90,10 +90,12 @@ async function getInformation(proxyConfig, user, sessionId) {
                 return
             }
             user.City = data.split('address[city]')[1].split('value="')[1].split('"')[0]
+            user.IdProvince = data.split(`<br>${user.City} `)[1].split(' ')[0]
             user.Province = data.split('address[province]')[1].split('data-default="')[1].split('"')[0]
             user.PostalCode = data.split('address[zip]')[1].split('value="')[1].split('"')[0]
             user.Phone = data.split('address[phone]')[1].split('value="')[1].split('"')[0]
-
+            user.IdAddress = data.split('data-form-id="')[1].split('"')[0]
+            user.Address_Count = String(data.split('address[first_name]').length - 1)
 
         } else {
             console.log('No Address')
@@ -103,7 +105,6 @@ async function getInformation(proxyConfig, user, sessionId) {
         console.log(err)
     }
 }
-
 
 const xhibitionEntry1 = async (proxyConfig, user) => {
 
@@ -235,10 +236,10 @@ const kithEntry2 = async (proxyConfig, user,raffle) => {
                               "mapValue": {
                                 "fields": {
                                   "currentDate": {
-                                    "stringValue": "2021-07-09T07:30:00.000-05:00"
+                                    "stringValue": raffle.currentDate
                                   },
                                   "campaignId": {
-                                    "stringValue": "5I9HqC8KfsE4POCyw28z"
+                                    "stringValue": raffle.campaignId
                                   },
                                   "accepts_marketing": {
                                     "stringValue": "true"
@@ -250,13 +251,13 @@ const kithEntry2 = async (proxyConfig, user,raffle) => {
                                           "mapValue": {
                                             "fields": {
                                               "address1": {
-                                                "stringValue": "92  rue Pierre Motte"
+                                                "stringValue": user.Address
                                               },
                                               "address2": {
                                                 "stringValue": ""
                                               },
                                               "city": {
-                                                "stringValue": "SAINT-DENIS"
+                                                "stringValue": user.City
                                               },
                                               "company": {
                                                 "stringValue": ""
@@ -268,28 +269,28 @@ const kithEntry2 = async (proxyConfig, user,raffle) => {
                                                 "stringValue": "US"
                                               },
                                               "first_name": {
-                                                "stringValue": "Jade"
+                                                "stringValue": user.FirstName
                                               },
                                               "id": {
-                                                "stringValue": "6530341666888"
+                                                "stringValue": user.IdAddress
                                               },
                                               "last_name": {
-                                                "stringValue": "Peirera"
+                                                "stringValue": user.LastName
                                               },
                                               "phone": {
-                                                "stringValue": "+33614145679"
+                                                "stringValue": user.Phone
                                               },
                                               "province": {
-                                                "stringValue": "American Samoa"
+                                                "stringValue": user.Province
                                               },
                                               "province_code": {
-                                                "stringValue": "AS"
+                                                "stringValue": user.IdProvince
                                               },
                                               "street": {
-                                                "stringValue": "92  rue Pierre Motte"
+                                                "stringValue": user.Address
                                               },
                                               "zip": {
-                                                "stringValue": "97400"
+                                                "stringValue": user.PostalCode
                                               }
                                             }
                                           }
@@ -298,10 +299,10 @@ const kithEntry2 = async (proxyConfig, user,raffle) => {
                                     }
                                   },
                                   "addresses_count": {
-                                    "stringValue": "1"
+                                    "stringValue": user.Address_Count
                                   },
                                   "email": {
-                                    "stringValue": "bastien-bouge@hotmail.fr"
+                                    "stringValue": user.email
                                   },
                                   "first_name": {
                                     "stringValue": "Bastien"
@@ -464,8 +465,8 @@ async function raffleXhibition() {
     // console.log('\nENTRY')
     console.log('\nFunction 1')
 
-    await xhibitionEntry1(proxyConfig, user)
-    await xhibitionEntry2(proxyConfig, user)
+    // await xhibitionEntry1(proxyConfig, user)
+    // await xhibitionEntry2(proxyConfig, user)
     await sleep(500000)
 
 }
