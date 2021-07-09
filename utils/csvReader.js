@@ -4,7 +4,7 @@ const fs = require('fs')
 const figlet = require('figlet')
 const chalk = require('chalk')
 const clear = require('console-clear')
-const readline = require('readline')
+var faker = require('faker/locale/fr');
 
 function pad(num) {
     return ("0" + num).slice(-2);
@@ -212,10 +212,25 @@ async function csvRegisterKith() {
     await new Promise(function (resolve) {
         fs.createReadStream('./KithEU/register.csv')
             .pipe(csv())
-            .on('data', (data) => { if (data.Email !== undefined && data.Email != '') dataTab.push(data); })
+            .on('data', async (data) => {
+                data = await checkKithCSV(data);
+                if (data !== undefined) dataTab.push(data);
+            }
+            )
             .on('end', async () => { resolve(); });
     })
     return dataTab;
+}
+async function checkKithCSV(registerData) {
+    if (registerData.FirstName === '' || registerData.LastName === '' || registerData.Country === '' || registerData.Email === '' || registerData.Password === '' || registerData.Address === '' || registerData.PostalCode === '' || registerData.City === '') {
+        return undefined;
+    }
+    if (registerData.FirstName.toLowerCase() === 'random') registerData.FirstName = faker.name.firstName()
+    if (registerData.LastName.toLowerCase() === 'random') registerData.LastName = faker.name.lastName()
+    if (registerData.Address.toLowerCase() === 'random') registerData.Address = faker.address.streetAddress()
+    if (registerData.PostalCode.toLowerCase() === 'random') registerData.PostalCode = faker.address.zipCode()
+    if (registerData.City.toLowerCase() === 'random') registerData.City = faker.address.city()
+    return registerData;
 }
 
 async function csvloginreaderCourir() {
