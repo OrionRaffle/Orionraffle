@@ -72,11 +72,6 @@ async function createAccount(proxyConfig, user) {
     }
 }
 async function createAccountAfterCaptcha(proxyConfig, user, sessionId, solvedCaptcha, authenticityToken) {
-    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
-    proxyConfig = {
-        host: '127.0.0.1',
-        port: '8888',
-    }
     try {
         response = await request({
             headers: {
@@ -207,7 +202,6 @@ async function register() {
                             let promise = registerUser(registerData[index], proxies, twoCaptchaEnabled);
                             tasks[i] = promise;
                             promise.then((code) => {
-                                console.log(code)
                                 if (code === 'SUCCESS') successCount++;
                             })
                             index++;
