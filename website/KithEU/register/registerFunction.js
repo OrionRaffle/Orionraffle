@@ -3,6 +3,9 @@ const fs = require('fs')
 const request = require('request-promise').defaults({
     jar: true
 });
+const axios = require('axios-https-proxy-fix')
+var faker = require('faker/locale/fr');;
+
 const { csvReadProxy, csvRegisterKith } = require('../../../utils/csvReader');
 const { solveReCaptcha } = require('../../../utils/2captcha');
 const {
@@ -22,24 +25,40 @@ const { DEV, CHARLES, siteKey, moduleK } = require('../kithEUConst');
 
 //Create Account Function
 async function createAccount(proxyConfig, user) {
-    if(CHARLES) process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+
+    
+    proxyConfig = {
+        host: proxyConfig.split('@')[1].split(':')[0],
+        port: proxyConfig.split('@')[1].split(':')[1],
+        auth: {
+            username: proxyConfig.split('//')[1].split(':')[0],
+            password: proxyConfig.split('//')[1].split(':')[1].split('@')[0].replace(/\n|\r/g, ""),
+        },
+
+    }
+
+    
+    if (CHARLES) process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     if (DEV) console.log(`Create account (${user.Index})`);
     try {
-        response = await request({
+        response = await axios({
             headers: {
                 'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
                 "Connection": "keep-alive",
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
-            proxy: (CHARLES?'http://127.0.0.1:8888':proxyConfig),
+            proxy: (CHARLES ? {
+                host: '127.0.0.1',
+                port: '8888',
+            } : proxyConfig),
             resolveWithFullResponse: true,
-            maxRedirects: 1,
-            followAllRedirects: true,
-            withCredentials: true,
-            timeout: 3500,
+            maxRedirects: 0,
+            followRedirects: false,
+            // withCredentials: true,
+            timeout: 6000,
             method: 'POST',
-            uri: `https://eu.kith.com/account`,
-            body: qs.stringify({
+            url: `https://eu.kith.com/account`,
+            data: qs.stringify({
                 'form_type': 'create_customer',
                 'utf8': '✓',
                 'customer[first_name]': user.FirstName,
@@ -49,83 +68,168 @@ async function createAccount(proxyConfig, user) {
             })
         })
         //Trigger le challenge, donc il faut switch de proxy (flem de faire le captcha)
-        if (response.body.includes('eu.kith.com/challenge')) {
-            if (DEV) console.log(`Challenge triggered (${user.Index})`);
-            const authString = 'authenticity_token" value="';
-            var authenticity_token = response.body.substring(response.body.indexOf(authString) + authString.length);
-            authenticity_token = authenticity_token.substring(0, authenticity_token.indexOf('"'));
-            const ssid = response.request.headers['cookie'].split(';')[0].split('=')[1];
-            if (DEV) console.log(`(${user.Index}) AuthToken:${authenticity_token}\nSSID:${ssid}`);
-            return {
-                code: 'CHALLENGE',
-                data: {
-                    authenticity_token: authenticity_token,
-                    ssid: ssid
-                }
-            };
-        }
-        // il y a une redirection /register (compte existe déjà)
-        if (response.body.includes('eu.kith.com/account/register')) {
-            if (DEV) console.log(`(${user.Index}) Auccount already created`);
-            return { code: 'ACCOUNT', data: undefined };
-        }
-        //Check si l'on est bien sur eu.kith.com cela signifie qu'on est bien connecté / Récupération du sessionId pour accéder aux autres pages
-        if (response.body.includes('eu.kith.com/"')) {
-            if (DEV) console.log(`(${user.Index}) Auccount created success`);
-            user.sessionId = response.request.headers['cookie'].split(';')[0].split('=')[1]
-            return { code: 'SUCCESS', data: undefined };
-        }
+        // if (response.body.includes('eu.kith.com/challenge')) {
+        //     if (DEV) console.log(`Challenge triggered (${user.Index})`);
+        //     const authString = 'authenticity_token" value="';
+        //     var authenticity_token = response.body.substring(response.body.indexOf(authString) + authString.length);
+        //     authenticity_token = authenticity_token.substring(0, authenticity_token.indexOf('"'));
+        //     const ssid = response.request.headers['cookie'].split(';')[0].split('=')[1];
+        //     if (DEV) console.log(`(${user.Index}) AuthToken:${authenticity_token}\nSSID:${ssid}`);
+        //     return {
+        //         code: 'CHALLENGE',
+        //         data: {
+        //             authenticity_token: authenticity_token,
+        //             ssid: ssid
+        //         }
+        //     };
+        // }
+        // // il y a une redirection /register (compte existe déjà)
+        // if (response.body.includes('eu.kith.com/account/register')) {
+        //     if (DEV) console.log(`(${user.Index}) Auccount already created`);
+        //     return { code: 'ACCOUNT', data: undefined };
+        // }
+        // //Check si l'on est bien sur eu.kith.com cela signifie qu'on est bien connecté / Récupération du sessionId pour accéder aux autres pages
+        // if (response.body.includes('eu.kith.com/"')) {
+        //     if (DEV) console.log(`(${user.Index}) Auccount created success`);
+        //     user.sessionId = response.request.headers['cookie'].split(';')[0].split('=')[1]
+        //     return { code: 'SUCCESS', data: undefined };
+        // }
     } catch (err) {
+        // console.log(err)
+        try {
+            if (err.code == 'ECONNABORTED') return { code: 'PROXY', data: undefined }
+        } catch (e) {
+
+        }
+        // console.log(err.response.request.res)
+        try {
+            
+            if (err.response.data.includes('eu.kith.com/challenge')) {
+                let ssid = err.response.request.res.headers['set-cookie'][0].split('secure_session_id=')[1].split(';')[0]
+                if (ssid == { code: 'PROXY', data: undefined }) return ssid
+                auth = await challenge(ssid, proxyConfig)
+                if(auth == { code: 'PROXY', data: undefined }) return auth
+                // console.log(auth)
+                return {
+                    code: 'CHALLENGE',
+                    data: {
+                        authenticity_token: auth,
+                        ssid: ssid
+                    }
+                };
+            }
+            if (err.response.data.includes('eu.kith.com/account/register')) {
+                return { code: 'ACCOUNT', data: undefined };
+            }
+            //Check si l'on est bien sur eu.kith.com cela signifie qu'on est bien connecté / Récupération du sessionId pour accéder aux autres pages
+
+
+            if (err.response.data.includes('eu.kith.com/"')) {
+                user.sessionId = err.response.request.res.headers['set-cookie'][0].split('secure_session_id=')[1].split(';')[0]
+                return { code: 'SUCCESS', data: undefined };
+            }
+        } catch (e) {
+            
+            if (handleProxyError(err) === null) logError('An unexpected error occured.', true);
+            if (DEV) console.log(`(${user.Index}) Error happened proxy error, ${err.code}`);
+
+            return { code: 'PROXY', data: undefined };
+        }
+
+
+    }
+}
+
+async function challenge(ssid, proxyConfig) {
+
+    try {
+        response = await axios({
+            headers: {
+                'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
+                "Connection": "keep-alive",
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'cookie': '_secure_session_id=' + ssid
+            },
+            proxy: (CHARLES ? {
+                host: '127.0.0.1',
+                port: '8888',
+            } : proxyConfig),
+            resolveWithFullResponse: true,
+            maxRedirects: 0,
+            followRedirects: false,
+            // withCredentials: true,
+            gzip: true,
+
+            timeout: 3500,
+            method: 'GET',
+            url: `https://eu.kith.com/challenge`,
+
+        })
+
+        var authenticity_token = response.data.split('authenticity_token" value="')[1].split('"')[0]
+        // console.log(response.request.headers)
+        return authenticity_token
+
+    } catch (err) {
+       
+        try {
+            if (err.code == 'ECONNABORTED') return { code: 'PROXY', data: undefined }
+        } catch (e) {
+
+        }
         if (handleProxyError(err) === null) logError('An unexpected error occured.', true);
-        if (DEV) console.log(`(${user.Index}) Error happened proxy error, ${err.code}`);
         return { code: 'PROXY', data: undefined };
     }
 }
+
 async function createAccountAfterCaptcha(proxyConfig, user, sessionId, solvedCaptcha, authenticityToken) {
-    if(CHARLES) process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+    if (CHARLES) process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     if (DEV) console.log(`(${user.Index}) Create after captcha \nSession id:${sessionId}\nAuth token:${authenticityToken}`);
     //process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     try {
-        response = await request({
+        response = await axios({
             headers: {
                 'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
                 "Connection": "keep-alive",
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Cookie': `_secure_session_id=${sessionId}`
             },
-            proxy: (CHARLES?'http://127.0.0.1:8888':proxyConfig),
+            proxy: (CHARLES ? {
+                host: '127.0.0.1',
+                port: '8888',
+            } : proxyConfig),
             resolveWithFullResponse: true,
-            maxRedirects: 1,
-            followAllRedirects: true,
+            maxRedirects: 0,
+            followRedirects: false,
             withCredentials: true,
             timeout: 3500,
             method: 'POST',
-            uri: `https://eu.kith.com/account`,
-            body: qs.stringify({
+            url: `https://eu.kith.com/account`,
+            data: qs.stringify({
                 'authenticity_token': authenticityToken,
                 'g-recaptcha-response': solvedCaptcha,
             })
         })
-        if (response.body.includes('eu.kith.com/"')) {
-            if (DEV) console.log(`(${user.Index}) Succes, session id:${sessionId}`);
-            user.sessionId = sessionId
-            return { code: 'SUCCESS', data: undefined };
-        }
-        // il y a une redirection /register (compte existe déjà)
-        else if (response.body.includes('eu.kith.com/account/register')) return { code: 'ACCOUNT', data: undefined };
-        else if (response.body.includes('eu.kith.com/challenge')) {
-            if (DEV) console.log(`(${user.Index}) Anoter challenge triggered:\n ssid ${response.request.headers['cookie'].split(';')[0].split('=')[1]}`);
-            return {
-                code: 'ERROR',
-                data: undefined
-            };
-        }
-        else {
-            return {
-                code: 'ERROR',
-                data: undefined
-            };
-        }
+        // if (response.body.includes('eu.kith.com/"')) {
+        //     if (DEV) console.log(`(${user.Index}) Succes, session id:${sessionId}`);
+        //     user.sessionId = sessionId
+        //     return { code: 'SUCCESS', data: undefined };
+        // }
+        // // il y a une redirection /register (compte existe déjà)
+        // else if (response.body.includes('eu.kith.com/account/register')) return { code: 'ACCOUNT', data: undefined };
+        // else if (response.body.includes('eu.kith.com/challenge')) {
+        //     if (DEV) console.log(`(${user.Index}) Anoter challenge triggered:\n ssid ${response.request.headers['cookie'].split(';')[0].split('=')[1]}`);
+        //     return {
+        //         code: 'ERROR',
+        //         data: undefined
+        //     };
+        // }
+        // else {
+        //     return {
+        //         code: 'ERROR',
+        //         data: undefined
+        //     };
+        // }
         /*
         else if (response.body.includes('eu.kith.com/challenge')) {
             console.log('CHALLENGE_TOO_LONG')
@@ -154,13 +258,38 @@ async function createAccountAfterCaptcha(proxyConfig, user, sessionId, solvedCap
         }
         */
     } catch (err) {
-        if (DEV) console.log('Error happened');
+        if (DEV) console.log(err)
+        
+        if (err.response.data.includes('eu.kith.com/"')) {
+            // console.log(response.request.headers)
+
+            // console.log(response.request.headers['cookie'])
+            user.sessionId = err.response.headers['set-cookie'][0].split('=')[1].split(';')[0]
+
+            return { code: 'SUCCESS', data: undefined };
+        }
+
+        //Renvoie un challenge
+        else if (err.response.data.includes('eu.kith.com/challenge')) return { code: 'CHALLENGE', data: undefined };
+
+        // il y a une redirection /register (compte existe déjà)
+        else if (err.response.data.includes('eu.kith.com/account/register')) {
+            // console.log(err.response.data)
+            return { code: 'ACCOUNT', data: undefined }
+        }
+        else {
+            return {
+                code: 'ERROR',
+                data: undefined
+            };
+
+        }
     }
 
 }
 //Update ACCOUNT
 const update = async (proxyConfig, user) => {
-    if(CHARLES) process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+    if (CHARLES) process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     if (DEV) console.log(`(${user.Index}) Update is starting`);
     try {
         await request({
@@ -170,7 +299,7 @@ const update = async (proxyConfig, user) => {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'cookie': '_secure_session_id=' + user.sessionId
             },
-            proxy: (CHARLES?'http://127.0.0.1:8888':proxyConfig),
+            proxy: (CHARLES ? 'http://127.0.0.1:8888' : proxyConfig),
             resolveWithFullResponse: true,
             followAllRedirects: false,
             timeout: 3500,
@@ -240,7 +369,7 @@ async function register() {
                     if (code === 'SUCCESS') {
                         if (DEV) console.log(`Success (${user.Index})`);
                         successCount++;
-                        fs.appendFileSync('./KithEU/createdAccount.csv', `\n${user.Email},${user.Password}`);
+                        
                     }
                 })
                 index++;
@@ -257,11 +386,11 @@ async function register() {
                                 if (code === 'SUCCESS') {
                                     if (DEV) console.log(`Success (${user.Index})`);
                                     successCount++;
-                                    fs.appendFileSync('./KithEU/createdAccount.csv', `\n${user.Email},${user.Password}`);
+                                  
                                 }
                                 else {
                                     if (DEV) console.log(`Failed (${user.Index})`);
-                                    fs.appendFileSync('./KithEU/failedAccount.csv', `\n${user.Email},${user.Password}`);
+                                  
                                 }
                             })
                             index++;
@@ -283,9 +412,10 @@ async function register() {
 
 async function registerUser(user, proxies, twoCaptchaEnabled) {
     logInfo(`[${user.Index}] - User about to be created : ${user.Email}`, true);
-
+    user = await checkKithCSV(user);
+    if (user === 'ERROR') return 'ERROR';
     async function handleCreationResult(result) {
-        if (DEV) console.log(`(${user.Index}) Result :`); console.log(result)
+        if (DEV) console.log(`(${user.Index}) Result :`); 
         if (result === undefined) {
             logError(`[${user.Index}][${user.Email}]` + " | Too much fails accont won't be created", true);
             return 'ERROR';
@@ -298,6 +428,8 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
                 if (uRes === 'ERROR') logError(`[${user.Index}][${user.Email}]` + ` | Address update failed.`);
                 logSuccess(`[${user.Index}][${user.Email}]` + ` | Account successfully updated.`, true);
                 notifyDiscordAccountCreation(proxyConfig, 'SUCCESS', user.Email, user.Password, moduleK.label);
+                await sleep(Math.floor(Math.random() * (300 - 1 + 1)) + 1)
+                fs.appendFileSync('./KithEu/createdAccount.csv', `\n${user.Email},${user.Password}`);
                 return 'SUCCESS';
             case 'CHALLENGE':
                 if (twoCaptchaEnabled) {
@@ -322,6 +454,8 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
                 return await solveReCaptcha(siteKey, 'https://eu.kith.com/challenge', onCaptchaSolved);
             case 'ERROR':
                 logInfo(`[${user.Index}][${user.Email}]` + " | A rare error happened, we will try to fix them for the next Orion version.", true);
+                await sleep(Math.floor(Math.random() * (30 - 1 + 1)) + 1)
+                fs.appendFileSync('./KithEu/failedAccount.csv', `\n${user.Email},${user.Password}`);
                 return 'ERROR';
             default:
                 break;
@@ -351,6 +485,42 @@ function getAnotherProxy(proxies) {
     }
     const proxy = proxies.shift();
     return `http://${proxy.user}:${proxy.password}@${proxy.ip}:${proxy.port}`;
+}
+
+async function checkKithCSV(registerData) {
+    if (registerData.FirstName === '' || registerData.LastName === '' || registerData.Country === '' || registerData.Email === '' || registerData.Password === '' || registerData.Address === '' || registerData.PostalCode === '' || registerData.City === '') {
+        logError("Missing fields for this line.")
+        return 'ERROR';
+    }
+
+    
+    if (registerData.Password.toLowerCase() == 'random') {
+        registerData.Password = faker.internet.password()
+    }
+
+    if (registerData.FirstName.toLowerCase() == 'random') {
+        registerData.FirstName = faker.name.firstName()
+    }
+    if (registerData.LastName.toLowerCase() == 'random') {
+        registerData.LastName = faker.name.lastName()
+    }
+
+    if (registerData.Address.toLowerCase() == 'random') {
+        registerData.PostalCode = faker.address.streetAddress()
+    }
+
+    if (registerData.PostalCode.toLowerCase() == 'random') {
+        registerData.PostalCode = faker.address.zipCode()
+    }
+
+    if (registerData.City.toLowerCase() == 'random') {
+        registerData.City = faker.address.city()
+    }
+  
+
+    registerData.Phone = faker.phone.phoneNumberFormat()
+
+    return registerData
 }
 module.exports = {
     register

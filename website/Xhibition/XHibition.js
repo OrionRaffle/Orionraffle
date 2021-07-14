@@ -1,6 +1,6 @@
 const siteKey = '6LeoeSkTAAAAAA9rkZs5oS82l69OEYjKRZAiKdaF';
 const moduleK = {
-    label: 'KithEU'
+    label: 'Xhibition'
 }
 const DEV = false;
 

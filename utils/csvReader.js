@@ -245,6 +245,18 @@ async function csvRegisterXhibition() {
     return dataTab;
 }
 
+async function csvRegisterSneakerPolitics() {
+    var dataTab = [];
+    await new Promise(function (resolve) {
+        fs.createReadStream('./SneakerPolitics/register.csv')
+            .pipe(csv())
+            .on('data', (data) => { if (data.Email !== undefined && data.Email != '') dataTab.push(data); })
+            .on('end', async () => { resolve(); });
+    })
+   
+    return dataTab;
+}
+
 async function csvloginreaderCourir() {
     const logincsv = []
 
@@ -336,5 +348,7 @@ module.exports = {
 
     csvRegisterKith,//
 
-    csvRegisterXhibition
+    csvRegisterXhibition,
+
+    csvRegisterSneakerPolitics
 }

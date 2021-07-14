@@ -28,7 +28,7 @@ function getRandomIntInclusive(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-async function Xhibition() {
+async function xhibition() {
   displayModule(moduleK.label)
   var choice = await displayXhibitionMode();
   while (choice < 0 || choice > 3) {
@@ -49,7 +49,7 @@ async function Xhibition() {
     default:
       break;
   }
-  await Xhibition();
+  await xhibition();
 }
 
 async function generator() {
@@ -61,5 +61,5 @@ async function raffle() {
 }
 
 module.exports = {
-  Xhibition
+  xhibition
 }

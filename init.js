@@ -123,6 +123,35 @@ try {
     }
 } catch (err) {}
 try {
+    if (!fs.existsSync('SneakerPolitics')) {
+        fs.mkdirSync('SneakerPolitics');
+    }
+} catch (err) {}
+try {
+    if (!fs.existsSync('./SneakerPolitics/register.csv')) {
+        fs.writeFileSync(
+            './SneakerPolitics/register.csv',
+            'Email,Password,FirstName,LastName'
+        )
+    }
+} catch (err) {}
+try {
+    if (!fs.existsSync('./SneakerPolitics/createdAccount.csv')) {
+        fs.writeFileSync(
+            './SneakerPolitics/createdAccount.csv',
+            'Email,Password'
+        )
+    }
+} catch (err) {}
+try {
+    if (!fs.existsSync('./SneakerPolitics/failedAccount.csv')) {
+        fs.writeFileSync(
+            './SneakerPolitics/failedAccount.csv',
+            'Email,Password'
+        )
+    }
+} catch (err) {}
+try {
     if (!fs.existsSync('./Footshop/raffle.csv')) {
         fs.writeFileSync(
             './Footshop/raffle.csv',
