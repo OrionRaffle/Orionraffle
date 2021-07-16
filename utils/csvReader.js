@@ -184,6 +184,23 @@ async function csvReadProxy(callback) {
     }
     await callback(proxies);
 }
+async function csvReadProxy2() {
+    let proxies = [];
+    const proxyLines = fs.readFileSync('./proxy.txt').toString().split("\n");
+    for (lines in proxyLines) {
+        let data = proxyLines[lines].split(':')
+        if (data[0] === '') continue;
+        proxies.push(
+            {
+                ip: data[0],
+                port: data[1],
+                user: data[2],
+                password: data[3],
+            }
+        );
+    }
+    return proxies;
+}
 
 async function csvrafflereaderSNS() {
     const rafflecsv = []
@@ -255,7 +272,7 @@ async function csvRegisterXhibition() {
             .on('data', (data) => { if (data.Email !== undefined && data.Email != '') dataTab.push(data); })
             .on('end', async () => { resolve(); });
     })
-   
+
     return dataTab;
 }
 
@@ -267,7 +284,7 @@ async function csvRegisterSneakerPolitics() {
             .on('data', (data) => { if (data.Email !== undefined && data.Email != '') dataTab.push(data); })
             .on('end', async () => { resolve(); });
     })
-   
+
     return dataTab;
 }
 
@@ -350,6 +367,7 @@ module.exports = {
     csvReadClientAuth,//
     csvconfigreaderShuzu,
     csvReadProxy,//
+    csvReadProxy2,//
     csvrafflereaderSNS,
     csvupdatereaderSNS,
     csvrafflereaderFootshop,
