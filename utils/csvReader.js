@@ -259,6 +259,20 @@ async function csvRegisterXhibition() {
     return dataTab;
 }
 
+async function csvRaffleXhibition() {
+    var dataTab = [];
+    await new Promise(function (resolve) {
+        fs.createReadStream('./Xhibition/raffle.csv')
+            .pipe(csv())
+            .on('data', async (data) => {
+                if (data !== undefined) dataTab.push(data);
+            }
+            )
+            .on('end', async () => { resolve(); });
+    })
+    return dataTab;
+}
+
 async function csvRegisterSneakerPolitics() {
     var dataTab = [];
     await new Promise(function (resolve) {
@@ -364,6 +378,7 @@ module.exports = {
     csvRaffleKith,
 
     csvRegisterXhibition,
+    csvRaffleXhibition,
 
     csvRegisterSneakerPolitics
 }

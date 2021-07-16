@@ -59,18 +59,7 @@ async function generator() {
 }
 
 async function raffle(raffleTab) {
-  if (raffleTab === undefined) raffleTab = await getDataRaffle();
-  displayModule(moduleK.label);
-  var choice = await displayXhibitionRaffle(raffleTab);
-  while (choice < 0 || choice > raffleTab.length) {
-    logError('Invalid input.');
-    displayModule(moduleK.label);
-    choice = await displayXhibitionRaffle(raffleTab);
-  }
-  displayModule(moduleK.label);
-  if (choice === '0') return;
-
-  // await raffleKith(raffleTab[choice - 1])
+  await raffleXhibition(null)
 }
 
 module.exports = {

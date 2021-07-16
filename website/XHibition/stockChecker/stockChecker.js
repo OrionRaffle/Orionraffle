@@ -173,7 +173,9 @@ async function getRaffleInfo(raffle) {
                     setTimeout(testStep, 10 * 1000, step);
                     raffle.status = data.split('"status"')[1].split('"stringValue": "')[1].split('"')[0];
                     raffle.models = data.split('/models/')[1].split('"')[0];
-                    raffle.modelName = data.split('/models/')[1].split(`"stringValue": "'`)[1].split("'")[0]
+                    raffle.secretCustomerId = data.split('"secretCustomerId"')[1].split('"stringValue": "')[1].split('"')[0];
+                    raffle.modelName = data.split('"campaign_name"')[1].split(`stringValue": "`)[1].split('"')[0]
+
                     getRaffleStatus3(raffle);
                     getRaffleStatus4(raffle);   
                 }
@@ -553,6 +555,7 @@ async function getDataRaffle() {
     // console.log(raffleData)
     return raffleData;
 }
+
 // getDataRaffle()
 module.exports = {
     getDataRaffle

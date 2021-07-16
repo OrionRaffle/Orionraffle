@@ -114,6 +114,15 @@ try {
         )
     }
 } catch (err) { }
+
+try {
+    if (!fs.existsSync('./Xhibition/raffle.csv')) {
+        fs.writeFileSync(
+            './Xhibition/raffle.csv',
+            'Email,Password'
+        )
+    }
+} catch (err) { }
 try {
     if (!fs.existsSync('./Xhibition/createdAccount.csv')) {
         fs.writeFileSync(

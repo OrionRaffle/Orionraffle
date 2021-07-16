@@ -610,7 +610,7 @@ async function checkKithCSV(registerData) {
 module.exports = {
     register
 }
-register()
+// register()
 
 function promiseState(promise, callback) {
     var uniqueValue = /unique/
