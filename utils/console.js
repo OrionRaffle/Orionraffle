@@ -152,6 +152,11 @@ async function displayKithMode() {
 
   return input;
 }
+async function displayKithRaffleRecap(raffle) {
+  displayHeader();
+  console.log(chalk.rgb(247, 158, 2)(`\n Kith EU | Raffle Mode | ${raffle.title}`));
+  console.log("----------------------------------------------------------------------\n")
+}
 
 async function displayXhibitionMode() {
   console.log("1. Account generator");
@@ -330,6 +335,7 @@ module.exports = {
   displayKithRaffle,
   displayKithRaffleStock,
   displayKithMode,
+  displayKithRaffleRecap,
   //CHOICE
   displaySizeChoice,
   displayProxyTimeChoice,
