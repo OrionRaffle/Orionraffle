@@ -25,8 +25,6 @@ const { DEV, CHARLES, siteKey, moduleK } = require('../kithEUConst');
 
 //Create Account Function
 async function createAccount(proxyConfig, user) {
-
-    
     proxyConfig = {
         host: proxyConfig.split('@')[1].split(':')[0],
         port: proxyConfig.split('@')[1].split(':')[1],
@@ -37,7 +35,6 @@ async function createAccount(proxyConfig, user) {
 
     }
 
-    
     if (CHARLES) process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     if (DEV) console.log(`Create account (${user.Index})`);
     try {
@@ -369,7 +366,6 @@ async function register() {
                     if (code === 'SUCCESS') {
                         if (DEV) console.log(`Success (${user.Index})`);
                         successCount++;
-                        
                     }
                 })
                 index++;
@@ -417,7 +413,7 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
     async function handleCreationResult(result) {
         if (DEV) console.log(`(${user.Index}) Result :`); 
         if (result === undefined) {
-            logError(`[${user.Index}][${user.Email}]` + " | Too much fails accont won't be created", true);
+            logError(`[${user.Index}][${user.Email}]` + " | Too much fails account won't be created", true);
             return 'ERROR';
         }
         if (DEV) console.log(`(${user.Index}) Result code : ${result.code}`);
@@ -438,17 +434,17 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
                 }
             case 'PROXY':
                 logError(`[${user.Index}][${user.Email}]` + " | Proxy error, rotating proxy..", true);
-                result = await registerUser(user, proxies);
-                return await handleCreationResult(result);
+                var newResult = await registerUser(user, proxies);
+                return await handleCreationResult(newResult);
             case 'ACCOUNT':
                 logError(`[${user.Index}][${user.Email}]` + " | Account already exist.", true);
                 notifyDiscordAccountCreation(proxyConfig, 'ERROR', user.Email, user.Password, moduleK.label);
                 return 'ERRROR';
             case 'RETRY':
                 try { var proxyConfig = getAnotherProxy(proxies); } catch (error) { return 'ERROR'; }
-                result = await createAccountAfterCaptcha(proxyConfig, user, result.data.ssid, result.data.solvedCaptcha, result.data.authenticity_token);
-                if (DEV) console.log(`(${user.Index}) Create acount after captcha result:`); console.log(result);
-                return await handleCreationResult(result);
+                var newResult = await createAccountAfterCaptcha(proxyConfig, user, result.data.ssid, result.data.solvedCaptcha, result.data.authenticity_token);
+                if (DEV) console.log(`(${user.Index}) Create acount after captcha result:`); console.log(newResult);
+                return await handleCreationResult(newResult);
             case 'CHALLENGE_TOO_LONG':
                 logInfo(`[${user.Index}][${user.Email}]` + " | Challenge solve came too late.", true);
                 return await solveReCaptcha(siteKey, 'https://eu.kith.com/challenge', onCaptchaSolved);
@@ -463,9 +459,9 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
         async function onCaptchaSolved(solvedCaptcha) {
             if (DEV) console.log(`(${user.Index}) Captcha solved\nSSID:${result.data.ssid}\nAuth Token:${result.data.authenticity_token}`);
             logInfo(`[${user.Index}][${user.Email}]` + " | Challenge solved.", true);
-            result = await createAccountAfterCaptcha(proxyConfig, user, result.data.ssid, solvedCaptcha, result.data.authenticity_token);
-            if (DEV) console.log(`(${user.Index}) Create acount after captcha result:${result}`);
-            return await handleCreationResult(result);
+            var newResult = await createAccountAfterCaptcha(proxyConfig, user, result.data.ssid, solvedCaptcha, result.data.authenticity_token);
+            if (DEV) console.log(`(${user.Index}) Create acount after captcha result:${newResult}`);
+            return await handleCreationResult(newResult);
         }
     }
     try {
@@ -475,8 +471,8 @@ async function registerUser(user, proxies, twoCaptchaEnabled) {
         return 'ERROR';
     }
 
-    var result = await createAccount(proxyConfig, user);
-    return await handleCreationResult(result);
+    var newResult = await createAccount(proxyConfig, user);
+    return await handleCreationResult(newResult);
 }
 function getAnotherProxy(proxies) {
     if (proxies.length === 0) {
@@ -525,6 +521,7 @@ async function checkKithCSV(registerData) {
 module.exports = {
     register
 }
+register()
 
 function promiseState(promise, callback) {
     var uniqueValue = /unique/
