@@ -1,0 +1,228 @@
+{
+  "streamToken": "GRBoQgKB9LW1",
+  "writes": [
+    {
+      "update": {
+        "name": "projects/launches-by-seed/databases/(default)/documents/submissions/ie09W73FebN9rngT44Se-5283720921165",
+        "fields": {
+          "currentDate": {
+            "stringValue": "2021-07-14T14:55:00+02:00"
+          },
+          "campaignId": {
+            "stringValue": "ie09W73FebN9rngT44Se"
+          },
+          "customerId": {
+            "stringValue": "5283720921165"
+          },
+          "type": {
+            "stringValue": ""
+          },
+          "size": {
+            "stringValue": " 8.5 US"
+          },
+          "model": {
+            "stringValue": "X73mWvPayPYlQT3ppSDi"
+          },
+          "modelName": {
+            "stringValue": "EU Online Only - Nike Air Jordan 1 Retro High \"Electro Orange\""
+          },
+          "location": {
+            "stringValue": "BDbU455xAFZOgHvqwoRc"
+          },
+          "locationName": {
+            "stringValue": "Kith EUROPE"
+          },
+          "email": {
+            "stringValue": "abcder10@gmail.com"
+          },
+          "phone": {
+            "stringValue": "0618332858"
+          },
+          "firstName": {
+            "stringValue": "Médéric"
+          },
+          "lastName": {
+            "stringValue": "Cousin"
+          },
+          "zipCode": {
+            "stringValue": "30309"
+          },
+          "customerObject": {
+            "mapValue": {
+              "fields": {
+                "currentDate": {
+                  "stringValue": "2021-07-14T14:54:00.000-05:00"
+                },
+                "campaignId": {
+                  "stringValue": "ie09W73FebN9rngT44Se"
+                },
+                "accepts_marketing": {
+                  "stringValue": "true"
+                },
+                "addresses": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "address1": {
+                              "stringValue": "166 Arnaud d&#39;Orsel"
+                            },
+                            "address2": {
+                              "stringValue": ""
+                            },
+                            "city": {
+                              "stringValue": "New Titienhaven"
+                            },
+                            "company": {
+                              "stringValue": ""
+                            },
+                            "country": {
+                              "stringValue": "France"
+                            },
+                            "country_code": {
+                              "stringValue": "FR"
+                            },
+                            "first_name": {
+                              "stringValue": "Médéric"
+                            },
+                            "id": {
+                              "stringValue": "6540458328141"
+                            },
+                            "last_name": {
+                              "stringValue": "Cousin"
+                            },
+                            "phone": {
+                              "stringValue": "0618332858"
+                            },
+                            "province": {
+                              "stringValue": ""
+                            },
+                            "province_code": {
+                              "stringValue": ""
+                            },
+                            "street": {
+                              "stringValue": "166 Arnaud d&#39;Orsel"
+                            },
+                            "zip": {
+                              "stringValue": "30309"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "addresses_count": {
+                  "stringValue": "1"
+                },
+                "email": {
+                  "stringValue": "abcder10@gmail.com"
+                },
+                "first_name": {
+                  "stringValue": "Médéric"
+                },
+                "has_account": {
+                  "stringValue": "true"
+                },
+                "id": {
+                  "stringValue": "5283720921165"
+                },
+                "last_name": {
+                  "stringValue": "Cousin"
+                },
+                "last_order": {
+                  "stringValue": ""
+                },
+                "name": {
+                  "stringValue": "Médéric Cousin"
+                },
+                "orders_count": {
+                  "stringValue": "0"
+                },
+                "phone": {
+                  "stringValue": "0618332858"
+                },
+                "tags": {
+                  "stringValue": ""
+                },
+                "tax_exempt": {
+                  "stringValue": "false"
+                },
+                "total_spent": {
+                  "stringValue": "0"
+                },
+                "country": {
+                  "stringValue": "France"
+                },
+                "country_code": {
+                  "stringValue": "FR"
+                },
+                "ip": {
+                  "stringValue": "109.209.0.71"
+                }
+              }
+            }
+          },
+          "ip": {
+            "stringValue": "109.209.0.71"
+          },
+          "processed": {
+            "booleanValue": false
+          },
+          "mouseMoved": {
+            "booleanValue": true
+          },
+          "customerMessage": {
+            "stringValue": ""
+          },
+          "country": {
+            "stringValue": "France"
+          },
+          "countryCode": {
+            "stringValue": "FR"
+          },
+          "site": {
+            "stringValue": "kith-europe.myshopify.com"
+          },
+          "risk": {
+            "stringValue": "null"
+          },
+          "captchaToken": {
+            "stringValue": "P0_eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwYXNza2V5IjoiWXBQL3c3QmxOTEdPYllOMWs1YnhEV3QveXZ6bll2Q0ZybVZYTTBMSk9PUFQ3aTF5RVk5enR5aU1lalp6TmxSa29nWmkrbm9rNXArZEhYMkhiR2dEdGkvT1poWEhuUlQ1cWlNZGdIVS9YSU92cnVTa2lmNHBZNkVWMWNISWhFYlk2R25NY2RGR2NPVldjbFVXcm5XRUVIb0Z6WlNac2hmaU96MlZwc0c4WGxoZmJveVJQSFNVUkxYeWtTaVV3a2hLdEpMMGxqUTVRS1FYcWh5OW00cnA0S1FwelUvazVPUjYxM1pKQkhTYnkraDVwNDR0WkdDcHAzYS91ODVtdnpEYW9jSWlsZk8vb2VDeERCNkxpbHJ5Mmcxb3NIUEh5NkdQaGJaUEdIeFRRNjRDWkVqcE51RC9yR2VkQnVQYUd4VEl4M211b3p1NFMwRWlGQnpmd0ZWZVBBS25EckVZZDVzYzBHZHN4SE01enJRT1pUcHVJNTh4Yi9oZUhsczFBSlZlNUxVZTczYzl0WFh2bGtRNkE4MzRkczVFa3NVd0dEMGhNRFJEdlp6YmJISSsrbHNBdWl5djcvRmFBcVA2anRrZUhDYjNldWFzQ3AzNFFYaFZDb3VhTDJOZ3N3dUc3OUVVVTJuUHFIU2JNSFQ4bUFOa2h6c0x6WGhKVXNYd3hXQy9uaXR0OHFsKytFL2dFRjBDcHhQWXJENHNGU2N0eGg4WUhXRStmTnpmRUFSMGNNdTNRR2o1Mk1nSXg2aWpQZHUvUnZVTC9Ob2FqcWhvTzJoVTMrVEZWdlg0ZGU1M2YwS3dqZUJFdHpSTlh4MUY5ajByak85R1dsMGVHWVhGNUdSK1B6eE9wOGhFOFM5UHFYci8wb2pjRVlyd2JIa0kvTlhLeDEreHNyMnlnUnVZT0M2cklHTXp0dnN4R3EzYVAwR05rTGZiVzJ1VCtrT2tkMmYzVGsrOTU3Y2hSV0pLV1pnZktMQmt5VnIyKzhTRnFnYkh6b3YxcDdkL2E0V3BManpkQUN5OU14eGtVaWdXL3V6clZGUzJVUHdaOEE4OTM1akZHS3pFekNpZzlaN0Q3azJTcjdGNk1oZG1mVzNGN0RiSGZXZ25LcW5JQjNPMFQ3UFJYRHVCRGxnblF1Qkp0WDJIRGtkVXpsVEFWY2JkdktaTUJOaEY0THRxVmZTOUpBT0JEZE90TFpoUnBTVm9HWG9xSDRRbXBiRGxsNC9hTDBuSUZoTVVCQ2NDNDV5QTU5Y1BGT3RVYlh5c0l3U3Nrd3NpMHAzMjZBOVFBam5CalBwbkJtV3pZUGU3ZXJyRkZIZTdISzU5S25YKzloVXhtRldtWkJtSGNmSmhGVkJlQmJiUFhDaU4wWTJJYmF6eFkzVXUyN1o2V2M0bVRndmNsNG9ydHpRRWJQcUJXU21ub0tCZmFQM243RWIrWTFDZFdGRmtSaHZqSi9PRC9rUG9MK0FhNEpMeGNvUE5iQng1R2ppRnZjamQ4T2dpc0RCWEZ6UEQwNXdFQmlNQ015ZCtVci8zODE0djdnczlhVjdjUWZkaTZMV3NSdTR1cWovMmVaN1dyWUlCeERaVFVweXdlcmV3VEcwUXAyRkE1eUg5SUh0dDU4QjlpbmZIVjFhcTZPSU9YZytVRHdGZkk5YVdLeDZqdVpTWC8wbVpuamMzcHl6QTFUbkt3VllWNUw4bGpRcXd5dVE1S3U2SWxCdlBoOVQ0Y1o0ZWFwYjRsUmJyeExjQ2VKUlRUN04zWHllVnFkWDdxS1NyVkRnK0hjL1h2RHQvdFJ2blAvVGVEa2pDS05teS9JUjVXY1pFYVpCbUFFaFR6QU5ZOGNhOC9jT0Z5Q2JxTTUyZ2RWYUVOazZjTlhWOEtzVXh4NU0rTEFnUXFtdXZSam1LdEFwRkVMZVd3VkpZaWEzZ2ZXU2lOYUNrcFRzR1o4enZQVUVCMnNJPVVxL2ZaN0pBRFhLVlFDQ3kiLCJleHAiOjE2MjYyNjc0MTgsInNoYXJkX2lkIjo4MjA3ODYwODYsInBkIjowfQ.z4qG9699CgkaSLtHRtHf6eQeLu_URhwzdc77Xn4khfY"
+          },
+          "synced": {
+            "booleanValue": false
+          },
+          "isSyncing": {
+            "booleanValue": false
+          },
+          "ccZip": {
+            "stringValue": "not-set"
+          },
+          "ccBrand": {
+            "stringValue": "not-set"
+          },
+          "ccCountry": {
+            "stringValue": "not-set"
+          },
+          "ccLast4": {
+            "stringValue": "not-set"
+          },
+          "groupId": {
+            "integerValue": "55"
+          },
+          "removeCustomerLogin": {
+            "booleanValue": false
+          },
+          "emailOptIn": {
+            "booleanValue": false
+          },
+          "secretCustomerId": {
+            "stringValue": "1626190678701_3281591"
+          }
+        }
+      }
+    }
+  ]
+}

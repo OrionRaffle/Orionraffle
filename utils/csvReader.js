@@ -221,6 +221,20 @@ async function csvRegisterKith() {
     })
     return dataTab;
 }
+
+async function csvRaffleKith() {
+    var dataTab = [];
+    await new Promise(function (resolve) {
+        fs.createReadStream('./KithEU/raffle.csv')
+            .pipe(csv())
+            .on('data', async (data) => {
+                if (data !== undefined) dataTab.push(data);
+            }
+            )
+            .on('end', async () => { resolve(); });
+    })
+    return dataTab;
+}
 async function checkKithCSV(registerData) {
     if (registerData.FirstName === '' || registerData.LastName === '' || registerData.Country === '' || registerData.Email === '' || registerData.Password === '' || registerData.Address === '' || registerData.PostalCode === '' || registerData.City === '') {
         return undefined;
@@ -347,6 +361,7 @@ module.exports = {
     csvCourirInstoreLog,
 
     csvRegisterKith,//
+    csvRaffleKith,
 
     csvRegisterXhibition,
 

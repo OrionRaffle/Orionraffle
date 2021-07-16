@@ -58,8 +58,10 @@ async function generator() {
   await register();
 }
 
-async function raffle() {
-  await raffleKith()
+async function raffle(raffleTab) {
+ 
+
+  await raffleKith(null)
 }
 
 async function stockChecker(raffleTab) {

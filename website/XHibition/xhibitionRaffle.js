@@ -11,7 +11,8 @@ const {
   displayModule,
   logError,
   logInfo,
-  logSuccess
+  logSuccess,
+  displayXhibitionRaffle
 } = require('../../utils/console')
 
 const moduleK = {
@@ -53,11 +54,23 @@ async function xhibition() {
 }
 
 async function generator() {
+  
   await register();
 }
 
-async function raffle() {
-  await raffleXhibition()
+async function raffle(raffleTab) {
+  if (raffleTab === undefined) raffleTab = await getDataRaffle();
+  displayModule(moduleK.label);
+  var choice = await displayXhibitionRaffle(raffleTab);
+  while (choice < 0 || choice > raffleTab.length) {
+    logError('Invalid input.');
+    displayModule(moduleK.label);
+    choice = await displayXhibitionRaffle(raffleTab);
+  }
+  displayModule(moduleK.label);
+  if (choice === '0') return;
+
+  // await raffleKith(raffleTab[choice - 1])
 }
 
 module.exports = {

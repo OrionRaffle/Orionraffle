@@ -3,9 +3,30 @@ const qs = require('qs')
 const request = require('request-promise').defaults({
     jar: true
 });
+const { solvedHcaptcha } = require('../../../utils/2captcha');
+
+const inputReader = require('wait-console-input')
+
+const clear = require('console-clear')
+const setTitle = require('node-bash-title')
+const chalk = require('chalk')
+const figlet = require('figlet')
+const colors = require('colors')
+const lineReader = require('line-reader')
+
 var HttpsProxyAgent = require('https-proxy-agent');
 var randomstring = require("randomstring");
 const fetch = require('node-fetch');
+var moment = require('moment');
+
+var m = moment();
+
+const { csvRaffleKith } = require('../../../utils/csvReader');
+
+const {
+    csvproxyreader,
+    csvconfigreader,
+} = require('../../../init')
 
 const {
     menu,
@@ -38,79 +59,91 @@ async function sleep(ms) {
 
 
 // Obligatoire pour la sélection de raffle cf. getAllRaffle
-async function getSessionId(proxyConfig, user) {
+async function getSessionId(proxy, user) {
+    proxyconfig = {
+        host: proxy.ip,
+        port: proxy.port,
+        auth: {
+            username: proxy.user,
+            password: proxy.password
+        }
+    }
     try {
-        const response = await request({
-            proxy: proxyConfig,
+        const response = await axios({
+            proxy: proxyconfig,
             withCredentials: true,
             method: 'POST',
-            followAllRedirects: true,
+            maxRedirects: 0,
+            followRedirects: false,
+            timeout: 5000,
             resolveWithFullResponse: true,
-            maxRedirects: 1,
+
             headers: { //Headers minimum obligatoire
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0',
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
                 "Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Connection': 'keep-alive',
+                'accept-encoding': 'gzip'
             },
-            uri: 'https://eu.kith.com/account/login',
-            form: qs.stringify({
+            url: 'https://eu.kith.com/account/login',
+            data: qs.stringify({
                 'form_type': 'customer_login',
                 'utf8': '✓',
-                'customer[email]': user.email, //Email
-                'customer[password]': user.password, //Password
+                'customer[email]': user.Email, //Email
+                'customer[password]': user.Password, //Password
                 'return_url': '/account'
             }),
         })
         //Cette condition permet de vérifier si la redirection va sur /account dans le cas contraire, c'est un problème de login (email or password incorrect)
-        if (response.body.includes('"https://eu.kith.com/account"')) {
-            let sessionId = response.request.headers['cookie'].split(';')[0].split('=')[1];
-            return sessionId;
-        } else {
-            logError("Login error: Open a ticket please", true);
-            return null;
+
+
+
+    } catch (err) {
+        // console.log(err)
+        // console.log(await handleProxyError(err))
+        if (await handleProxyError(err) !== null) {
+            return 2
         }
-    } catch (err) {
-        console.log(err)
-        return handleProxyError(err);
-    }
-}
 
-async function getCountry() {
-    try {
-        const response = await request({
-            
-            withCredentials: true,
-            method: 'GET',
-            followAllRedirects: true,
-            resolveWithFullResponse: true,
-            maxRedirects: 1,
-            headers: { //Headers minimum obligatoire
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0',
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-                "Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Connection': 'keep-alive',
-            },
-            uri: 'http://country.io/names.json',
+        if (err.response.data.includes('"https://eu.kith.com/account"')) {
 
-        })
-        //Cette condition permet de vérifier si la redirection va sur /account dans le cas contraire, c'est un problème de login (email or password incorrect)
-        return JSON.parse(response.body)
-    } catch (err) {
+            let sessionId = err.response.request.res.headers['set-cookie'][0].split(';')[0].split('=')[1];
+            return sessionId;
+        }
+
+        if (err.response.data.includes('"https://eu.kith.com/account/login?return_url=%2Faccount"')) {
+            console.log('Compte existe pas')
+            return 1;
+        }
+
+        if (err.response.data.includes('"https://eu.kith.com/challenge"')) {
+            console.log('Challenge, proxy rotating')
+            return 2;
+        }
+
+        return 2
 
     }
 }
+
+
 
 
 //Récupération
 
 
 //Login Obligatoire
-async function getInformation(proxyConfig, user, sessionId) {
+async function getInformation(proxy, user, sessionId) {
     var raffleTab = []
-
+    proxyconfig = {
+        host: proxy.ip,
+        port: proxy.port,
+        auth: {
+            username: proxy.user,
+            password: proxy.password
+        }
+    }
     try {
         const response = await axios({
             headers: {
@@ -119,10 +152,12 @@ async function getInformation(proxyConfig, user, sessionId) {
                 "Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Connection': 'keep-alive',
+                "Accept-Encoding": "gzip, deflate, br",
                 'Cookie': '_secure_session_id=' + sessionId
             },
-            proxy: proxyConfig,
+            proxy: proxyconfig,
             withCredentials: true,
+            timeout: 5000,
             method: 'GET',
             url: 'https://eu.kith.com/account/addresses',
         })
@@ -140,18 +175,32 @@ async function getInformation(proxyConfig, user, sessionId) {
             user.City = data.split('address[city]')[1].split('value="')[1].split('"')[0]
             user.PostalCode = data.split('address[zip]')[1].split('value="')[1].split('"')[0]
             user.Phone = data.split('address[phone]')[1].split('value="')[1].split('"')[0]
+            user.IdAddress = data.split('data-form-id="')[1].split('"')[0]
+            user.Address_Count = String(data.split('address[first_name]').length - 1)
 
-            console.log(user)
+
+
         } else {
             console.log('No Address')
+            return 1
         }
     } catch (err) {
 
+        if (await handleProxyError(err) !== null) {
+            return 2
+        }
         console.log(err)
     }
 }
-const getSIDandgessionid = async (proxyConfig, user) => {
-
+const getSIDandgessionid = async (proxy, user) => {
+    proxyconfig = {
+        host: proxy.ip,
+        port: proxy.port,
+        auth: {
+            username: proxy.user,
+            password: proxy.password
+        }
+    }
     try {
         const response = await axios({
             headers: {
@@ -159,12 +208,13 @@ const getSIDandgessionid = async (proxyConfig, user) => {
                 "Accept": "*/*",
                 "Accept-Language": "fr-fr",
                 "Accept-Encoding": "gzip, deflate, br",
-                "Connection": "keep-alive",
                 'Content-Type': 'application/x-www-form-urlencoded',
+              
 
             },
-            proxy: proxyConfig,
+            proxy: proxyconfig,
             withCredentials: true,
+            timeout: 5000,
             method: 'POST',
             url: `https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel`,
             params: {
@@ -189,18 +239,133 @@ const getSIDandgessionid = async (proxyConfig, user) => {
         user.SID = response.data.split('","')[1].split('"')[0]
         user.gsessionid = response.headers['x-http-session-id']
 
-        console.log('Récupération SID (' + user.SID + ')')
-        console.log('Récupération gsessionid (' + user.gsessionid + ')')
+
 
     } catch (err) {
+        if (await handleProxyError(err) !== null) {
+            return 2
+        }
         console.log(err)
-        return 0
 
     }
 }
-//Récupération du SID et du gsession, obligatoire pour les prochaes requêtes
-const kithEntry2 = async (proxyConfig, user) => {
 
+const kithEntry2 = async (proxy, user) => {
+    proxyconfig = {
+        host: proxy.ip,
+        port: proxy.port,
+        auth: {
+            username: proxy.user,
+            password: proxy.password
+        }
+    }
+    try {
+        const response = await axios({
+            headers: {
+                'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
+                "Accept": "*/*",
+                "Accept-Language": "fr-fr",
+                "Accept-Encoding": "gzip, deflate, br",
+            },
+            proxy: proxyconfig,
+            timeout: 5000,
+            withCredentials: true,
+            method: 'GET',
+            url: `https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel`,
+            params: {
+                'database': 'projects/launches-by-seed/databases/(default)',
+                'gsessionid': user.gsessionid,
+                'VER': '8',
+                'RID': 'rpc',
+                'SID': user.SID,
+                'CI': '0',
+                'AID': '0',
+                'TYPE': 'xmlhttp',
+                'zx': randomstring.generate(11).toLowerCase(),
+                't': '1'
+            },
+
+        })
+
+
+
+
+    } catch (err) {
+        if (await handleProxyError(err) !== null) {
+            return 2
+        }
+
+        console.log(err)
+    }
+}
+
+//Récupération du SID et du gsession, obligatoire pour les prochaes requêtes
+const kithEntry3 = async (proxy, user, raffle) => {
+    proxyconfig = {
+        host: proxy.ip,
+        port: proxy.port,
+        auth: {
+            username: proxy.user,
+            password: proxy.password
+        }
+    }
+    try {
+        const response = await axios({
+            headers: {
+                'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36',
+                "Accept": "*/*",
+                "Accept-Language": "fr-fr",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Connection": "keep-alive",
+
+
+            },
+            proxy: proxyconfig,
+            timeout: 5000,
+            withCredentials: true,
+            method: 'POST',
+            url: `https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel`,
+            params: {
+                'database': 'projects/launches-by-seed/databases/(default)',
+                'VER': '8',
+                'gsessionid': user.gsessionid,
+                'SID': user.SID,
+                'RID': getRandomIntInclusive(1000, 99999),
+                'AID': '1',
+                'zx	': randomstring.generate(11).toLowerCase(),
+                't': '1',
+            },
+            data: qs.stringify({
+                'count': '1',
+                'ofs': '1',
+                'req0___data__': `{"streamToken":"GRBoQgKB9LW1","writes":[{"update":{"name":"projects/launches-by-seed/databases/(default)/documents/submissions/${raffle.campaignId}-${user.CustomerId}","fields":{"currentDate":{"stringValue":"${m.format()}"},"campaignId":{"stringValue":"${raffle.campaignId}"},"customerId":{"stringValue":"${user.CustomerId}"},"type":{"stringValue":""},"size":{"stringValue":"${user.size} US"},"model":{"stringValue":"${raffle.models}"},"modelName":{"stringValue":"${raffle.modelName}"},"location":{"stringValue":"${raffle.location}"},"locationName":{"stringValue":"${raffle.locationName}"},"email":{"stringValue":"${user.Email}"},"phone":{"stringValue":"${user.Phone}"},"firstName":{"stringValue":"${user.FirstName}"},"lastName":{"stringValue":"${user.LastName}"},"zipCode":{"stringValue":"${user.PostalCode}"},"customerObject":{"mapValue":{"fields":{"currentDate":{"stringValue":"${raffle.currentDate}"},"campaignId":{"stringValue":"${raffle.campaignId}"},"accepts_marketing":{"stringValue":"true"},"addresses":{"arrayValue":{"values":[{"mapValue":{"fields":{"address1":{"stringValue":"${user.Address}"},"address2":{"stringValue":""},"city":{"stringValue":"${user.City}"},"company":{"stringValue":""},"country":{"stringValue":"France"},"country_code":{"stringValue":"FR"},"first_name":{"stringValue":"${user.FirstName}"},"id":{"stringValue":"${user.IdAddress}"},"last_name":{"stringValue":"${user.LastName}"},"phone":{"stringValue":"${user.Phone}"},"province":{"stringValue":""},"province_code":{"stringValue":""},"street":{"stringValue":"${user.Address}"},"zip":{"stringValue":"${user.PostalCode}"}}}}]}},"addresses_count":{"stringValue":"${user.Address_Count}"},"email":{"stringValue":"${user.Email}"},"first_name":{"stringValue":"${user.FirstName}"},"has_account":{"stringValue":"true"},"id":{"stringValue":"${user.CustomerId}"},"last_name":{"stringValue":"${user.FirstName}"},"last_order":{"stringValue":""},"name":{"stringValue":"${user.FirstName} ${user.LastName}"},"orders_count":{"stringValue":"0"},"phone":{"stringValue":"${user.Phone}"},"tags":{"stringValue":""},"tax_exempt":{"stringValue":"false"},"total_spent":{"stringValue":"0"},"country":{"stringValue":"France"},"country_code":{"stringValue":"FR"},"ip":{"stringValue":"${user.ip}"}}}},"ip":{"stringValue":"109.209.0.71"},"processed":{"booleanValue":false},"mouseMoved":{"booleanValue":true},"customerMessage":{"stringValue":""},"country":{"stringValue":"France"},"countryCode":{"stringValue":"FR"},"site":{"stringValue":"kith-europe.myshopify.com"},"risk":{"stringValue":"null"},"captchaToken":{"stringValue":"${user.captcha}"},"synced":{"booleanValue":false},"isSyncing":{"booleanValue":false},"ccZip":{"stringValue":"not-set"},"ccBrand":{"stringValue":"not-set"},"ccCountry":{"stringValue":"not-set"},"ccLast4":{"stringValue":"not-set"},"groupId":{"integerValue":"${raffle.type == 'Online' ? '55' : '58'}"},"removeCustomerLogin":{"booleanValue":false},"emailOptIn":{"booleanValue":false},"secretCustomerId":{"stringValue":"${raffle.secretCustomerId}"}}}}]}`
+            })
+        })
+        
+        if (response.data.includes('1')) {
+            console.log('Entry success')
+        } else {
+            console.log('entry error')
+        }
+
+    } catch (err) {
+        if (await handleProxyError(err) !== null) {
+            return 2
+        }
+        console.log(err)
+
+    }
+}
+
+const kithEntry4 = async (proxy, user, raffle) => {
+    proxyconfig = {
+        host: proxy.ip,
+        port: proxy.port,
+        auth: {
+            username: proxy.user,
+            password: proxy.password
+        }
+    }
     try {
         const response = await axios({
             headers: {
@@ -212,7 +377,8 @@ const kithEntry2 = async (proxyConfig, user) => {
                 'Content-Type': 'application/x-www-form-urlencoded',
 
             },
-            proxy: proxyConfig,
+            proxy: proxyconfig,
+            timeout: 5000,
             withCredentials: true,
             method: 'POST',
             url: `https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel`,
@@ -222,289 +388,211 @@ const kithEntry2 = async (proxyConfig, user) => {
                 'gsessionid': user.gsessionid,
                 'SID': user.SID,
                 'RID': getRandomIntInclusive(1000, 99999),
+                'AID': '2',
                 'zx	': randomstring.generate(11).toLowerCase(),
                 't': '1',
             },
             data: qs.stringify({
                 'count': '1',
-                'ofs': '0',
-                'req0___data__':
-                {
-                    "streamToken": "GRBoQgKB9LW1",
-                    "writes": [
-                        {
-                            "update": {
-                                "name": "projects/launches-by-seed/databases/(default)/documents/submissions/yqRL4kPcTLDLKeBPQGSd-5141507702861",
-                                "fields": {
-                                    "currentDate": {
-                                        "stringValue": "2021-05-14T21:57:46+02:00"
-                                    },
-                                    "campaignId": {
-                                        "stringValue": user.campaignId
-                                    },
-                                    "customerId": {
-                                        "stringValue": user.customerId
-                                    },
-                                    "type": {
-                                        "stringValue": ""
-                                    },
+                'ofs': '2',
+                'req0___data__': `{"streamToken":"EAEZEGhCAoH0tbU=","writes":[{"update":{"name":"projects/launches-by-seed/databases/(default)/documents/submission_tracking/${raffle.campaignId}-${user.CustomerId}","fields":{"currentDate":{"stringValue":"${m.format()}"},"campaignId":{"stringValue":"${raffle.campaignId}"},"customerId":{"stringValue":"${user.CustomerId}"},"site":{"stringValue":"kith-europe.myshopify.com"},"email":{"stringValue":"${user.Email}"},"phone":{"stringValue":"${user.Phone}"},"ip":{"stringValue":"${user.ip}"}}}}]}`
 
-                                    "size": {
-                                        "stringValue": "8 US"
-                                    },
-                                    "model": {
-                                        "stringValue": "s8md8d2lbK4c8F9tzsBe"
-                                    },
-                                    "modelName": {
-                                        "stringValue": "Nike x Ambush Dunk Hi \"Deep Royal\" "
-                                    },
-                                    "location": {
-                                        "stringValue": "r8vaarOGcXtKkUXvcHcC"
-                                    },
-                                    "locationName": {
-                                        "stringValue": "Kith Paris"
-                                    },
-                                    "email": {
-                                        "stringValue": "jade.lambert29@outlook.com"
-                                    },
-                                    "phone": {
-                                        "stringValue": "0643774701"
-                                    },
-                                    "firstName": {
-                                        "stringValue": "Jade"
-                                    },
-                                    "lastName": {
-                                        "stringValue": "Lambert"
-                                    },
-                                    "zipCode": {
-                                        "stringValue": "44300"
-                                    },
-                                    "customerObject": {
-                                        "mapValue": {
-                                            "fields": {
-                                                "currentDate": {
-                                                    "stringValue": "2021-05-14T21:56:00.000-05:00"
-                                                },
-                                                "campaignId": {
-                                                    "stringValue": "yqRL4kPcTLDLKeBPQGSd"
-                                                },
-                                                "accepts_marketing": {
-                                                    "stringValue": "true"
-                                                },
-                                                "addresses": {
-                                                    "arrayValue": {
-                                                        "values": [
-                                                            {
-                                                                "mapValue": {
-                                                                    "fields": {
-                                                                        "address1": {
-                                                                            "stringValue": "31 Avenue Castellano"
-                                                                        },
-                                                                        "address2": {
-                                                                            "stringValue": ""
-                                                                        },
-                                                                        "city": {
-                                                                            "stringValue": "Nantes"
-                                                                        },
-                                                                        "company": {
-                                                                            "stringValue": ""
-                                                                        },
-                                                                        "country": {
-                                                                            "stringValue": "France"
-                                                                        },
-                                                                        "country_code": {
-                                                                            "stringValue": "FR"
-                                                                        },
-                                                                        "first_name": {
-                                                                            "stringValue": "Jade"
-                                                                        },
-                                                                        "id": {
-                                                                            "stringValue": "6338813100109"
-                                                                        },
-                                                                        "last_name": {
-                                                                            "stringValue": "Lambert"
-                                                                        },
-                                                                        "phone": {
-                                                                            "stringValue": "0643774701"
-                                                                        },
-                                                                        "province": {
-                                                                            "stringValue": ""
-                                                                        },
-                                                                        "province_code": {
-                                                                            "stringValue": ""
-                                                                        },
-                                                                        "street": {
-                                                                            "stringValue": "31 Avenue Castellano"
-                                                                        },
-                                                                        "zip": {
-                                                                            "stringValue": "44300"
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        ]
-                                                    }
-                                                },
-                                                "addresses_count": {
-                                                    "stringValue": "1"
-                                                },
-                                                "email": {
-                                                    "stringValue": "jade.lambert29@outlook.com"
-                                                },
-                                                "first_name": {
-                                                    "stringValue": "Jade"
-                                                },
-                                                "has_account": {
-                                                    "stringValue": "true"
-                                                },
-                                                "id": {
-                                                    "stringValue": "5141507702861"
-                                                },
-                                                "last_name": {
-                                                    "stringValue": "Lambert"
-                                                },
-                                                "last_order": {
-                                                    "stringValue": ""
-                                                },
-                                                "name": {
-                                                    "stringValue": "Jade Lambert"
-                                                },
-                                                "orders_count": {
-                                                    "stringValue": "0"
-                                                },
-                                                "phone": {
-                                                    "stringValue": "0643774701"
-                                                },
-                                                "tags": {
-                                                    "stringValue": ""
-                                                },
-                                                "tax_exempt": {
-                                                    "stringValue": "false"
-                                                },
-                                                "total_spent": {
-                                                    "stringValue": "0"
-                                                },
-                                                "country": {
-                                                    "stringValue": "France"
-                                                },
-                                                "country_code": {
-                                                    "stringValue": "FR"
-                                                },
-                                                "ip": {
-                                                    "stringValue": "86.236.253.237"
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "ip": {
-                                        "stringValue": "86.236.253.237"
-                                    },
-                                    "processed": {
-                                        "booleanValue": false
-                                    },
-                                    "mouseMoved": {
-                                        "booleanValue": true
-                                    },
-                                    "customerMessage": {
-                                        "stringValue": ""
-                                    },
-                                    "country": {
-                                        "stringValue": "France"
-                                    },
-                                    "countryCode": {
-                                        "stringValue": "FR"
-                                    },
-                                    "site": {
-                                        "stringValue": "kith-europe.myshopify.com"
-                                    },
-                                    "risk": {
-                                        "stringValue": "null"
-                                    },
-                                    "captchaToken": {
-                                        "stringValue": "P0_eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwYXNza2V5IjoiSnFqRXlyWFdsOGtyWXJwam9BK0hiMHlKVUV2WG5HOGpaNWxXUExoUkVic2hHWVhwRTJYRW1Cd3dZOWxrK1ZSZC9iRVF6cDVsUnpWOUVFeUFPQWhIYVZENWhtZVR1aDNBQ2VTM05vUytGZ2k4c1FjSE9reDkrSkU0SUE2ZHp5NkI0bTA4MG1qMnFJak1mcjNVZnZ6dHpCdXlzRmVrVFh5N3FPS0dQcGduakNETTZwZHdDOU5IUjR1SXQwN2c0cU85a0RJbFFCRmk5TitXeDJzT2R5OGNKZWF1T0ZjanlTamhGd2ttUnk3eEk3UllRYU4rS3lYTURYYXlhVEpxcWsxRHhoN1FYbkdHSHhKc0paNFNPb0l2THF6RFN1QWtmcTZqcWNVeUQ1OVhBSUZvQ242ZUUzTFc4cy9YanNUa1h0ekloQnNKZEpHa0UvTGRZRHRFWEpxMVViVlNjcXFXNmUzT3NXcmJMZWdRTG8zd3FHMGdpeFAwektWZytGc2k2SmR5d3c5dmMzZUhkaGJiZEFnZXpWK3VOWXVta3lhV0VJTXpWdThnNnJaMDZiNmpYcTVNMEhXaDNTQ3Y0MGNnWDU1MG94TWpzR1ZQSjZuOHhjUXFZV0svcld6VlFSendtNlBaVkcvRmxyOHVJOHpIL1FhMzZmejJzRmVSYWE3OFRXcmowViszVlQ0OWgwaTU3eGNuYVpvOXU4VTJxWGppK3RnY1JxZEduN2g5UWZ2dDJGaE9BU0JpUHlKOG1OMkNKb0hXYms5RDBMOExTV0N2R1JsTWNGc3d0bmRsdG5rZ0lxMFpTN2NvcTN0bmg4WCtmRXdUMGNtbGVBTTJZdmJrMFBFL2RqOTJWYk1sQURIUWlEUTJmVWcydERKREZucVpheW1VbVRTRDF4OENUbnpjWlkyYTJ2UHhVTzhpRUpUT3VkNFhvbWdDS2tSdzFxZTNmUEhmcWd2WUkvMjZucFk4cGZadFhyc3pTVzRXUmI5RjFqdlNpQUpvekVkQmtqaFFvd01ONWFmZHpacUhOTmhheDEzTUlBWDJFUlA2SGtmS0cwNGxTcHk5eGVOOVFMejNVMU9vR2RGQU9CeldmSC9wQ1c1SkJENkI0VjBRR09zanFLcFFQekNTRHFLUGcrWFEvMGpTa3ZseWdOY0J3YVpEc00vRXcxV2VrTEcyOElqSFpvU1BpKy8vZktwcmZaV3FacXQyTW1kNHhmOE9MajZjVkdkV3hacXV0Ni83ckVYSjFXYWFEd1ZNalZoMk1iOTlOeDRlOThYNVFmQmp0eS9XdHVuTll2ZS9xc1VUV0xkaFFRQVM0S0dZWnRCRGNjMEt1QWFwUlU0MDFUNVNJWE1FL1R5djhTem1tREFOdWpyVWxkQXVoKzBFWjh6VEdBZEpuOTVraGNCSmFYeXcwUHd4SXN2MmFscUQ1SWFBak9KTHcrZGpmR0d5SUFCTUFwSnRITHVoUDk1NGN5Z2FKazRhbkFXbHdDNmxHMlZBZTUyZ0xERkpPaGxzUGpPTUluVkdFb04wZUpCM0NhN29oLzdzR2ZhQUdlWDJvN3RzVFJ1eDFybm0xR3lUV2xnVWFzMEFnNWhzV2lNcHNGbEM2N2pRYXhoU205RkpLU0Y0VEh0S3VMVG0yODBBTUZWNFRyNThjcWhwR09LUXdyLzlIU0pVZENFbGU4MytQSlZhOVZwWVBiWlZuQittekhPTjBxM3crNmRVYi9CUG5RZDJpR3BHaklQbEh4YTVXZjlNVmVtdVh0cklBd3pCb21Ib1ZYcy9JZXk4RXN2a3lIM2xtTkR5REFsY3VsMERrdk9mait4NUh2cEhoQUFBZTFWaFZkN0JFckR2Uy93aUN3NEhLYjhWTWhQQnQ2QjJjd2tXS1B4OG1FYkk0Z2NENGJ3ZC8vcEs1SDNSZjFYVGkvUDlrcVVvb3pPYndCU1RQVUVxdDF5MEI0NFhIUzdLUDlENUFydnppOE5oTDE4aVlTaDVOeDJsVDJkK1F4RUN1NTFvdWdCaTRaTHJYVlJmeGI3MHc0cHRndzNBZ25iUGtJOCt6UnBrTkUwRlFpY1IvT3RYZGIwSk1xTFp5QkUybEtod3lEQ2FBd0dvelJyNGNBclZsVzRUd3BJb04xaXBGbG9sTjA3d3BJejB3N1B5Z3FzektMSk9zUnUwUXVFTjRnYVVXRlRaR0tjU0lGMGRkd05JWThNUElLeDdyRFJWSGZsVVVYVm9BZzduemZtSllYdDlmTWpYZ0swMTJiUFpxalo2RFRLSE14UnJ2Zm5TdDQ2NHFHWjZMYVNhclNzTW93UXhmaWdwOUhzYVIwbjRydkhiRWpacnZHeVkrZ0R6aURSZGs0MmZXNVEySDYwd1AzNEtGbTBla1h2NTZzeUFwRU1JaW8vb1V2Y2FEWUdpcGdpME1WSk1XeWxhZjlYQmtpYXNuRmZjTzhyZEY2OXNLNzZJQ0VvTmtqaGlkMWxvUVB1aFhicG14M25rWVVwY3RjRldiSldWNXdBRnJ3NWxyL3FjbHJKZ25ablhoelhZaUFlZnJ0UkV2ckdmWGE2K1NraGNFbE1wWjdZSlQ5MVA4SUlFTW9zUnNlYzNyblh4OEd0YXpOOEltYWNpVzdXbUc4S1RSbE5oTTNuY2s5VFdHRXZ1eUtGeCtPdHJUU1hURVZOa0Y5ekxQbDdXQ01CdHQwNVJHMzhpVlc2SzVaUDZlOXZvQXc5c3JCZXdTakhvWXg1RzhZeTdpNHVGSlYxRUhOSU9Ed254VUg2dG50QnV3OGt2eDhCekROMnoyVEwwUXZjekd5U0pRMUlWRWVVZDg4aWFremFFaG1BaFpObFZFWFRaR25PUFhlckpZNEhUSEJFaU4wNkljbkdLQTVNd0JNME1pVnp2enBHMkdUNEYvaHh2RWFIZVY0WVdPMEFhQnZLWExCZmRUSEE5QjZjTWdSSXAxWWVTQW5FN3RqeWhhQTBkb1BSNTdFK0VnOTRnditpd1lacVl4enJDWjRCckJxdFVveUhjV0NmKytHOXlSSTZqV1pwcTJIbWoreThUSVJtbTdhdnZvWWhFZCtteSt6UWt6WHp4VnFPTHVacnM1SEZ5YkMvbXJkSlc3Y2ZqVktlY1NkWEhTTzRvVTlTMXpSem5yK21BeHJjaEx3ZkNVV0QvemJxU2Z3YXAwMlZsaTlPSmxZVWZDS2xyS0dvWk45d0h2NmFuNFIvL0RSSk8xd0FES2thZWlIUHNaQ3hCNTJLR21TOG9adWYvTEZuSFVkRWJqTytIckYzTmZsOFljZWdsRDV2em9IQ3BKV2hJc0pwa2R6Z2V3bTVZbDErUEpTWGpaVVN6VE9VODlxOTlVNk9QM1drQ3BIRHZoejFhMkZwMlM2QUpKNHJIcU5BbXRlMzlTMll0YnhqU0R6WXJNSWZmdUlNaUxTcUx4bURBVk1RK0RnbFJFODJhQnpnUXVsRFJCWThiWldyUVR6K3JPemY5Z2Q3bE5VMjQydUViNVhmU2Q4TTBXR0ZicWF5eFIxbmZTSXFsdy9ta3VSbFk4S0t6TzIybTU3ZThSYkdQVUFtK0lIUXJQQTBpNktJUk1MVThjUEJxNEF0blhzQy9HTGI2WUgzQWc3eG5wTzJ2ZUQ3VVNTSktLNGRIQ1J4VHA0aGpraHJFUHo4TWxiTW4rY0lmRmx5azhZWDRBbS9SM29HREQyMUM0SmhPOGtNelJhd2l4dEE0c1h3bDlNaFZJcFQ2OVhWT3IvWGNzVThSekFFRS94ckdMTkdmSWRNSHVnNUFwY1NnSnNkQWR0bDZNSjhieEtYTFQxT2hGQjlhOHFRT3RydGxKN2ZYMU9FMjNPV3FzOG5MbEt0Wjd2M214VUlGYkw5NDE4bEtxVzdxRjlUeHZiK0JoeWR0UEpQM3JxZzZLZExXOFF6VGh1Umszelc1bzJwWXJNQUk5UFhiOVp1bW9INWxXdFQ0ME92ZWNrOXVDdWwwalJBa0ptKzk5ZmhpV2tDU3ppNDQzNXY1aXEzRnpJcHBXYVlTRktXZWt1MGVKRVJqWlpwVEtWemU5QTBZSjl0d1FIem42NnNXMWRLVXlobU5CRVBnZUNweEJ5YzVzRnBRNk1ucVlDaDJXemxvSGk4aElFVFMweHVnOWVPMkY4YXN0SUtLdHZEcDhmMmRiNmMzTU56eVZ6eEdmY1JadDIrdlhaaEVGSEluYm1zTlZkTFVCOGZORHlDcEVzR1c2QjFWcXBGSmk4Uy9Db1drR3FGMVBBZTV3b1RoSE0yVWRsQVdRVWRQTFl0dlk2cHRVV3pNZWFub01qYm9Gd1hzalFjdGZHWXEzMXN0OXQ5MFU5cDZqVnhwRmNXMTBxKzUxdndDalRodG9xMnJuZkdWaWh2N1B2bmhuL0k1ZWZFWU1LdHVBcnRwMGNKc2R3Tkt2dUZXRHRBZFhSYjFGT00wSjkxTENsU092SWUzc0c0b0xxZE1paW4yWUxnMFpnMU91MERla3hzRVRKZnlWcWhJMGlab21XdE5td1RHaXB2YXNROGdjMSt6WkVDcVk0UVMzUWY0WW1vaGV4SWtWRHpseHVjbElOa1pwR2RBbWNRb0xQM3VlYzdYWEJscmtUVFQ2ZVdNeXZtdzh0cUpnWVgyZDcwUHRkMmltY1pPQlJ1cnhmREZOa0F4YnFtTy9qZ1JwazJGR00yNkt0YWxraDNCTEl4TUhReXIvZkZmb1ZXOEplQ25GT21mWWQzV3lUTWVMekdGeGY3M3FjNXlTMGpGUTM4NGJPbGVzL21RNnVoTWxlZ094dXJVcVVUOGR6TjZONk53eERQeDJJSEFoOXphYUwxWUpHMHhZUXI0aDhhL1JRbkNtV044TWtiZHh5ZHRpbDhRK3J3dyIsImV4cCI6MTYyMTAyMjM4Miwic2hhcmRfaWQiOjgyMDc4NjA4NiwicGQiOjB9.EZsbOQewwcK3510wBxqpDKOW-rq-cS3_RoQh1habTww"
-                                    },
-                                    "synced": {
-                                        "booleanValue": false
-                                    },
-                                    "isSyncing": {
-                                        "booleanValue": false
-                                    },
-                                    "ccZip": {
-                                        "stringValue": "not-set"
-                                    },
-                                    "ccBrand": {
-                                        "stringValue": "not-set"
-                                    },
-                                    "ccCountry": {
-                                        "stringValue": "not-set"
-                                    },
-                                    "ccLast4": {
-                                        "stringValue": "not-set"
-                                    },
-                                    "groupId": {
-                                        "integerValue": "57"
-                                    }
-                                }
-                            }
-                        }
-                    ]
-                }
             })
         })
 
 
-        user.SID = response.data.split('","')[1].split('"')[0]
-        user.gsessionid = response.headers['x-http-session-id']
 
-        console.log('Récupération SID (' + user.SID + ')')
-        console.log('Récupération gsessionid (' + user.gsessionid + ')')
 
     } catch (err) {
-        console.log(err)
-        return 0
+        if (await handleProxyError(err) !== null) {
+            return 2
+        }
 
+        console.log(err)
     }
 }
 
-async function raffleKith() {
+const getIP = async (proxy) => {
+    proxyconfig = {
+        host: proxy.ip,
+        port: proxy.port,
+        auth: {
+            username: proxy.user,
+            password: proxy.password
+        }
+    }
+    try {
+        const resp = await axios({
+
+
+            method: 'get',
+            url: 'https://api.ipify.org?format=json',
+            proxy: proxyconfig,
+            timeout: 5000,
+        });
+
+
+        return resp.data.ip
+
+    } catch (err) {
+        if (await handleProxyError(err) !== null) {
+            return 2
+        }
+        console.log(err)
+    }
+}
+async function raffleKith(raffle) {
     // process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
-    // const user = {
-    //     'email': 'clementTest@gmail.com',
-    //     'password': 'POKEMON1'
-    // };
-    const user = {
-        'email': 'abcderub@gmail.com',
-        'password': 'yoloyolo'
-    };
 
-    const proxyConfig = {
-        host: '127.0.0.1',
-        port: '8888',
+    // const proxyConfig = {
+    //     host: '127.0.0.1',
+    //     port: '8888',
+    // }
+    raffle = {
+        link: 'https://eu.kith.com/pages/kith-drawing-3-2',
+        title: 'Paris Store Pick Up - Nike Air Jordan 1 Retro High "Electro Orange"',
+        campaignId: '0iCIBZOtwvyUR75VKybt',
+        currentDate: '2021-07-15T14:55:00.000-05:00',
+        dataLogin: {
+            SID: 'e43VuTG9lE9_O4R38iz81w',
+            gsessionid: 'xtDscvQCpw5xyrqZ5yRsENj0QlN2MESu9JGA5TIRG-A'
+        },
+        type: 'Instore',
+        status: 'open',
+        secretCustomerId: '1626191115673_4819271',
+        models: '6W5KYvF5MdLSwgvBXgSz',
+        modelName: 'Paris Store Pick Up - Nike Air Jordan 1 Retro High \\"Electro Orange\\"',
+        location: 'm66NNh8gQQK7SRTTIXlL',
+        locationName: 'Kith Paris',
+        sizes: [
+            '7', '7.5', '8',
+            '8.5', '9', '9.5',
+            '10', '10.5', '11',
+            '11.5', '12', '13'
+        ]
     }
 
+    clear()
+    console.log(chalk.rgb(247, 158, 2)(figlet.textSync(' Orion', { font: 'Larry 3D', horizontalLayout: 'fitted' })));
+    console.log(chalk.rgb(247, 158, 2)(`\n Kith EU | Raffle Mode | ${raffle.title}`))
+    console.log("----------------------------------------------------------------------\n")
 
-    // await getAllRaffle(proxyConfig, user)
-    console.log('LOGIN')
-    country = await getCountry()
+    console.log('Size available :', ...raffle.sizes)
 
-    sessionId = await getSessionId(proxyConfig, user)
+    let tabRange = []
+
+    console.log('\nFrom Size ?')
+    FromSize = inputReader.readFloat()
+    console.log('To Size')
+    ToSize = inputReader.readFloat()
+    if (FromSize > ToSize) return
+    for (j = 0; j < raffle.sizes.length; j++) {
+        if (raffle.sizes[j] >= FromSize && raffle.sizes[j] <= ToSize) {
+            tabRange.push(raffle.sizes[j])
+        }
+    }
+    if (tabRange == '') {
+        console.log(`[Error] Wrong size`)
+        await sleep(5000)
+        return
+    }
+    console.log(`\n[Info] Size range :`, ...tabRange)
+
+    clear()
+    console.log(chalk.rgb(247, 158, 2)(figlet.textSync(' Orion', { font: 'Larry 3D', horizontalLayout: 'fitted' })));
+    console.log(chalk.rgb(247, 158, 2)(`\n Kith EU | Raffle Mode | ${raffle.title}`))
+    console.log("----------------------------------------------------------------------\n")
+
+    console.log(`\n[Info] Size range :`, ...tabRange)
+
+
+
     // console.log(JSON.parse(country))
-    console.log(sessionId)
-    if (sessionId == 1) return
-
-    await getInformation(proxyConfig, user, sessionId)
-    console.log('------------------------------')
-    await sleep(500000)
-    // console.log('\nENTRY')
-    // console.log('\nFunction 1')
-
-    // // await kithEntry1(proxyConfig, user)
 
 
+    var registerData = []
+    await new Promise(async function (resolve) {
+        registerData = await csvRaffleKith();
+        resolve();
+    });
+
+    var proxyData = []
+    await new Promise(async function (resolve) {
+        proxyData = await csvproxyreader();
+        resolve();
+    });
+
+    let i = 0
+    let proxyN = 0
+    clear()
+    console.log(chalk.rgb(247, 158, 2)(figlet.textSync(' Orion', { font: 'Larry 3D', horizontalLayout: 'fitted' })));
+    console.log(chalk.rgb(247, 158, 2)(`\n Kith EU | Raffle Mode | ${raffle.title}`))
+    console.log("----------------------------------------------------------------------\n")
+
+
+
+    for (let i = 0; i < registerData.length; i++) {
+
+
+
+        user = registerData[i]
+        user.size = tabRange[Math.floor(Math.random() * tabRange.length)]
+        console.log('New Task ' + user.Email)
+
+        sessionId = await getSessionId(proxyData[proxyN], user)
+        if (sessionId == 2) {
+            proxyN++
+            sessionId = await getSessionId(proxyData[proxyN], user)
+        }
+
+        if (sessionId != 1) {
+
+
+            error = await getInformation(proxyData[proxyN], user, sessionId)
+            if (error == 2) {
+                proxyN++
+                error = await getInformation(proxyData[proxyN], user, sessionId)
+            }
+            if (error != 1) {
+
+                console.log('Récupération Info')
+
+                await getSIDandgessionid(proxyData[proxyN], user)
+                
+                user.ip = await getIP(proxyData[proxyN])
+                if (user.ip == 2) {
+                    proxyN++
+                    error = await getIP(proxyData[proxyN])
+                }
+              
+                kithEntry2(proxyData[proxyN], user)
+
+                console.log('HCAPTCHA')
+                await solvedHcaptcha('5d390af4-7556-44d7-b77d-2a4ade3ee3b2', 'eu.kith.com', onCaptchaSolved);
+                async function onCaptchaSolved(solvedCaptcha) {
+                    user.captcha = solvedCaptcha
+                }
+
+                error = await kithEntry3(proxyData[proxyN], user, raffle)
+                if (error == 2) {
+                    proxyN++
+                    error = await kithEntry3(proxyData[proxyN], user, raffle)
+                }
+                error = await kithEntry4(proxyData[proxyN], user, raffle)
+                if (error == 2) {
+                    proxyN++
+                    error = await kithEntry4(proxyData[proxyN], user, raffle)
+                }
+                proxyN++
+                console.log('------------------------------')
+            }
+        }
+    }
+    await sleep(50000)
 
 }
-
+// raffleKith()
 module.exports = {
     raffleKith
 }

@@ -24,6 +24,7 @@ async function handleProxyError(err) {
     if (err.code === 'ENOTFOUND'
         || err.code === 'ECONNREFUSED'
         || err.code === 'ENOENT'
+        || err.code === 'ECONNABORTED'
         || err.code === 'ECONNRESET') return logError('Proxy error.', true);
     else if (err.code === 'ERR_SOCKET_CLOSED') return logError('Proxy does not exist.', true);
     else if (err.response !== undefined){
