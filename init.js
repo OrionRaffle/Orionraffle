@@ -37,38 +37,38 @@ console.log(
 )
 const setTitle = require('node-bash-title')
 
-setTitle('OrionRaffle | Private Beta | V.'+version)
+setTitle('OrionRaffle | Private Beta | V.' + version)
 
 try {
     if (!fs.existsSync('SNS')) {
         fs.mkdirSync('SNS')
     }
-} catch (err) {}
+} catch (err) { }
 try {
     if (!fs.existsSync('Courir')) {
         fs.mkdirSync('Courir')
     }
-} catch (err) {}
+} catch (err) { }
 try {
     if (!fs.existsSync('Footshop')) {
         fs.mkdirSync('Footshop')
     }
-} catch (err) {}
+} catch (err) { }
 try {
     if (!fs.existsSync('CourirInstore')) {
         fs.mkdirSync('CourirInstore')
     }
-} catch (err) {}
+} catch (err) { }
 try {
     if (!fs.existsSync('ShuzuLab')) {
         fs.mkdirSync('ShuzuLab');
     }
-} catch (err) {}
+} catch (err) { }
 try {
     if (!fs.existsSync('KithEU')) {
         fs.mkdirSync('KithEU');
     }
-} catch (err) {}
+} catch (err) { }
 try {
     if (!fs.existsSync('./KithEU/register.csv')) {
         fs.writeFileSync(
@@ -76,7 +76,15 @@ try {
             'Email,Password,FirstName,LastName,Country,Address,PostalCode,City'
         )
     }
-} catch (err) {}
+} catch (err) { }
+try {
+    if (!fs.existsSync('./KithEU/raffle.csv')) {
+        fs.writeFileSync(
+            './KithEU/raffle.csv',
+            'Email,Password'
+        )
+    }
+} catch (err) { }
 try {
     if (!fs.existsSync('./KithEU/createdAccount.csv')) {
         fs.writeFileSync(
@@ -84,7 +92,7 @@ try {
             'Email,Password'
         )
     }
-} catch (err) {}
+} catch (err) { }
 try {
     if (!fs.existsSync('./KithEU/failedAccount.csv')) {
         fs.writeFileSync(
@@ -92,12 +100,12 @@ try {
             'Email,Password'
         )
     }
-} catch (err) {}
+} catch (err) { }
 try {
     if (!fs.existsSync('Xhibition')) {
         fs.mkdirSync('Xhibition');
     }
-} catch (err) {}
+} catch (err) { }
 try {
     if (!fs.existsSync('./Xhibition/register.csv')) {
         fs.writeFileSync(
@@ -105,7 +113,7 @@ try {
             'Email,Password,FirstName,LastName'
         )
     }
-} catch (err) {}
+} catch (err) { }
 try {
     if (!fs.existsSync('./Xhibition/createdAccount.csv')) {
         fs.writeFileSync(
@@ -113,7 +121,7 @@ try {
             'Email,Password'
         )
     }
-} catch (err) {}
+} catch (err) { }
 try {
     if (!fs.existsSync('./Xhibition/failedAccount.csv')) {
         fs.writeFileSync(
@@ -121,12 +129,12 @@ try {
             'Email,Password'
         )
     }
-} catch (err) {}
+} catch (err) { }
 try {
     if (!fs.existsSync('SneakerPolitics')) {
         fs.mkdirSync('SneakerPolitics');
     }
-} catch (err) {}
+} catch (err) { }
 try {
     if (!fs.existsSync('./SneakerPolitics/register.csv')) {
         fs.writeFileSync(
@@ -134,7 +142,7 @@ try {
             'Email,Password,FirstName,LastName'
         )
     }
-} catch (err) {}
+} catch (err) { }
 try {
     if (!fs.existsSync('./SneakerPolitics/createdAccount.csv')) {
         fs.writeFileSync(
@@ -142,7 +150,7 @@ try {
             'Email,Password'
         )
     }
-} catch (err) {}
+} catch (err) { }
 try {
     if (!fs.existsSync('./SneakerPolitics/failedAccount.csv')) {
         fs.writeFileSync(
@@ -150,7 +158,7 @@ try {
             'Email,Password'
         )
     }
-} catch (err) {}
+} catch (err) { }
 try {
     if (!fs.existsSync('./Footshop/raffle.csv')) {
         fs.writeFileSync(
@@ -158,13 +166,13 @@ try {
             'Email,FirstName,LastName,Country,Address,PostalCode,City,CardNumber,MM,YYYY,CVC'
         )
     }
-} catch (err) {}
+} catch (err) { }
 
 try {
     if (!fs.existsSync('./SNS/raffle.csv')) {
         fs.writeFileSync('./SNS/raffle.csv', 'Email,Password,ReDraw,CustomProxy')
     }
-} catch (err) {}
+} catch (err) { }
 try {
     if (!fs.existsSync('./Courir/register.csv')) {
         fs.writeFileSync(
@@ -172,7 +180,7 @@ try {
             'Email,Password,FirstName,LastName,Country,Address,Address2,PostalCode,City,State,CardNumber,MM,YY,CVC'
         )
     }
-} catch (err) {}
+} catch (err) { }
 try {
     if (!fs.existsSync('./Courir/login.csv')) {
         fs.writeFileSync(
@@ -180,13 +188,13 @@ try {
             'Email,Password,FirstName,LastName,Country,Address,Address2,PostalCode,City,State,CardNumber,MM,YY,CVC'
         )
     }
-} catch (err) {}
+} catch (err) { }
 
 try {
     if (!fs.existsSync('./ShuzuLab/raffle.csv')) {
         fs.writeFileSync('./ShuzuLab/raffle.csv', 'Email,Password,FirstName,LastName');
     }
-} catch (err) {}
+} catch (err) { }
 
 try {
     if (!fs.existsSync('./SNS/update.csv')) {
@@ -195,13 +203,13 @@ try {
             'Email,Password,FirstName,LastName,Country,Address,Address2,PostalCode,City,CardNumber,MM,YYYY,CVC,AddAddress,AddNumber,AddCC'
         )
     }
-} catch (err) {}
+} catch (err) { }
 
 try {
     if (!fs.existsSync('./proxy.txt')) {
         fs.writeFileSync('./proxy.txt', '')
     }
-} catch (err) {}
+} catch (err) { }
 
 try {
     if (!fs.existsSync('./config.csv')) {
@@ -211,20 +219,27 @@ try {
         )
         fs.appendFileSync('./config.csv', '\n,,')
     }
-} catch (err) {}
+} catch (err) { }
 
 try {
     if (!fs.existsSync('./CourirInstore/raffle.csv')) {
         fs.writeFileSync('./CourirInstore/raffle.csv', 'idShop,idCard,Country,DD,MM,YYYY')
     }
-} catch (err) {}
+} catch (err) { }
 
 function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function csvconfigreader() {
-  return fs.createReadStream('./config.csv').pipe(csv())
+    var configcsv = []
+
+    fs.createReadStream('./config.csv')
+        .pipe(csv())
+        .on('data', (data) => configcsv.push(data))
+        .on('end', () => { })
+    await sleep(1000)
+    return configcsv
 }
 
 async function csvconfigreaderShuzu() {
@@ -232,7 +247,7 @@ async function csvconfigreaderShuzu() {
     fs.createReadStream('./ShuzuLab/raffle.csv')
         .pipe(csv())
         .on('data', (data) => configcsv.push(data))
-        .on('end', () => {})
+        .on('end', () => { })
     await sleep(1000)
     return configcsv
 
@@ -244,7 +259,7 @@ async function csvupdatereaderSNS() {
     fs.createReadStream('./SNS/update.csv')
         .pipe(csv())
         .on('data', (data) => updatecsv.push(data))
-        .on('end', () => {})
+        .on('end', () => { })
     await sleep(2000)
 
     return updatecsv
@@ -280,7 +295,7 @@ async function csvrafflereaderSNS() {
     fs.createReadStream('./SNS/raffle.csv')
         .pipe(csv())
         .on('data', (data) => rafflecsv.push(data))
-        .on('end', () => {})
+        .on('end', () => { })
     await sleep(2000)
 
     return rafflecsv
@@ -292,7 +307,7 @@ async function csvregisterreaderCourir() {
     fs.createReadStream('./Courir/register.csv')
         .pipe(csv())
         .on('data', (data) => registercsv.push(data))
-        .on('end', () => {})
+        .on('end', () => { })
 
     await sleep(2000)
     return registercsv
@@ -304,7 +319,7 @@ async function csvloginreaderCourir() {
     fs.createReadStream('./Courir/login.csv')
         .pipe(csv())
         .on('data', (data) => logincsv.push(data))
-        .on('end', () => {})
+        .on('end', () => { })
 
     await sleep(2000)
     return logincsv
@@ -316,7 +331,7 @@ async function csvrafflereaderFootshop() {
     fs.createReadStream('./Footshop/raffle.csv')
         .pipe(csv())
         .on('data', (data) => rafflecsv.push(data))
-        .on('end', () => {})
+        .on('end', () => { })
     await sleep(2000)
 
     return rafflecsv
@@ -328,7 +343,7 @@ async function csvrafflereaderCourirInstore() {
     fs.createReadStream('./CourirInstore/raffle.csv')
         .pipe(csv())
         .on('data', (data) => rafflecsv.push(data))
-        .on('end', () => {})
+        .on('end', () => { })
     await sleep(2000)
 
     return rafflecsv
@@ -351,7 +366,7 @@ async function csvRegisterCourirLog(info) {
         if (!fs.existsSync('./Courir/log.csv')) {
             fs.writeFileSync('./Courir/log.csv', 'Mode,Date,Time,Email,Password,FirstName,LastName,Country,Address,Address2,PostalCode,City,State,CardNumber,MM,YY,CVC')
         }
-    } catch (err) {}
+    } catch (err) { }
     a = await date()
     fs.appendFileSync('./Courir/log.csv', `\nregister,${formattedDate()},${a},${info.Email},${info.Password},${info.FirstName},${info.LastName},${info.Country},${info.Address},${info.Address2},${info.PostalCode},${info.City},${info.State},${info.CardNumber},${info.MM},${info.YY},${info.CVC}`)
 }
@@ -360,7 +375,7 @@ async function csvLoginCourirLog(info) {
         if (!fs.existsSync('./Courir/log.csv')) {
             fs.writeFileSync('./Courir/log.csv', 'Mode,Date,Time,Email,Password,FirstName,LastName,Country,Address,Address2,PostalCode,City,State,CardNumber,MM,YY,CVC')
         }
-    } catch (err) {}
+    } catch (err) { }
     a = await date()
     fs.appendFileSync('./Courir/log.csv', `\nlogin,${formattedDate()},${a},${info.Email},${info.Password},${info.FirstName},${info.LastName},${info.Country},${info.Address},${info.Address2},${info.PostalCode},${info.City},${info.State},${info.CardNumber},${info.MM},${info.YY},${info.CVC}`)
 }
@@ -370,7 +385,7 @@ async function csvCourirInstoreLog(info) {
         if (!fs.existsSync('./CourirInstore/log.csv')) {
             fs.writeFileSync('./CourirInstore/log.csv', 'Date,Shop,idCard,Country')
         }
-    } catch (err) {}
+    } catch (err) { }
     fs.appendFileSync('./CourirInstore/log.csv', `\n${formattedDate()},${info.name},${info.idCard},${info.Country}`)
 }
 module.exports = {

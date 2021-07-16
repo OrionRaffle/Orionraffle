@@ -116,6 +116,7 @@ async function getCampaignId(raffle, sessionId) {
             url: raffle.link,
         });
         raffle.campaignId = response.data.split("'campaignId': '")[1].split("'")[0];
+        raffle.currentDate = response.data.split("currentDate': '")[1].split("'")[0]
     } catch (err) { return handleProxyError(err); }
 }
 
@@ -195,22 +196,32 @@ async function getRaffleInfo(raffle) {
                     step = 1;
                     setTimeout(testStep, 10 * 1000, step);
                     raffle.status = data.split('"status"')[1].split('"stringValue": "')[1].split('"')[0];
+                    raffle.secretCustomerId = data.split('"secretCustomerId"')[1].split('"stringValue": "')[1].split('"')[0];
                     raffle.models = data.split('/models/')[1].split('"')[0];
+                    raffle.modelName = data.split('"campaign_name"')[1].split(`stringValue": "`)[1].split('""')[0] + '"'
+                   
+
                     getRaffleStatus3(raffle);
                     getRaffleStatus4(raffle);
                 }
                 if (data.includes("/locations/") && ((step === 1) || (step === 2))) {
                     raffle.location = data.split('/locations/')[1].split('"')[0];
+                    
+                    
+
                     if (raffle.location.length !== 20) return;
 
                     if (step === 1) {
                         getRaffleStatus5(raffle);
                         getRaffleStatus6(raffle);
                         step = 2;
+                        raffle.locationName = data.split(`"locationName"`)[1].split(`"stringValue": "`)[1].split('"')[0];
                     }
 
                     if (raffle.type === 'Instore' && data.includes('Kith Paris')) {
                         raffle.location = data.split('/locations/')[2].split('"')[0];
+                        raffle.locationName = 'Kith Paris'
+
                         getRaffleStatus7(raffle);
                         getRaffleStatus8(raffle);
                         if (DEV) console.log('Step 1 completed');
@@ -574,8 +585,11 @@ async function getDataRaffle() {
         'password': 'POKEMON1'
     };
     const raffleData = await getAllRaffle(user);
+    console.log(raffleData)
     return raffleData;
 }
+
+// getDataRaffle()
 module.exports = {
     getDataRaffle
 }

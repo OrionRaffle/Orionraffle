@@ -177,6 +177,23 @@ async function displayKithRaffle(rafflesData) {
   input = inputReader.readLine();
   return input;
 }
+
+async function displayXhibitionRaffle(rafflesData) {
+  let index = 0;
+  rafflesData.forEach(raffle => {
+    index++;
+    console.log(`${index}. ${raffle.title} (${raffle.status} | ${raffle.type})`)
+  })
+  if (rafflesData.length === 0) {
+    logInfo('No raffle.');
+    return undefined;
+  }
+  console.log(`\n0. Back`)
+  console.log("\n-----------------------------------------------------\n")
+  input = inputReader.readLine();
+  return input;
+}
+
 async function displayKithRaffleStock(raffle) {
   console.log(`${raffle.title}\n`);
   for (let i = 0; i < raffle.sizes.length; i++) {
@@ -324,6 +341,7 @@ module.exports = {
   displayLydiaAppCode,
   //XHibition
   displayXhibitionMode,
+  displayXhibitionRaffle,
   
   displayRecap,
   percent,

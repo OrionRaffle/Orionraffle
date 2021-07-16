@@ -16,6 +16,19 @@ async function solveReCaptcha(siteKey, url, callback) {
     return result;
 }
 
+async function solvedHcaptcha(siteKey, url, callback) {
+    var result = await new Promise(async function(resolve) {
+        await csvReadClientAuth(async function (data) {
+            const solver = new Captcha.Solver(data.Key2Captcha)
+            solver.hcaptcha(siteKey, url)
+                .then(async (res) => {
+                    var res = await callback(res.data); 
+                    resolve(res); 
+                });
+        });
+    })
+    return result;
+}
 
 /*
 http://2captcha.com/in.php?
@@ -26,5 +39,6 @@ key=1abc234de56fab7c89012d34e56fa7b8 OK
 */
 
 module.exports = {
-    solveReCaptcha
+    solveReCaptcha,
+    solvedHcaptcha
 }

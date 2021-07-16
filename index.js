@@ -5,7 +5,8 @@ const colors = require('colors')
 const { SNS } = require('./website/SNS/SNS')
 const { shuzu } = require('./website/Shuzu/ShuzuLab')
 const { kith } = require('./website/KithEU/kithRaffle')
-const { Xhibition } = require('./website/Xhibition/xhibitionRaffle')
+const { xhibition } = require('./website/Xhibition/xhibitionRaffle')
+const { sneakerPolitics } = require('./website/SneakersPolitics/sneakerPoliticsRaffle')
 
 // const { footlocker } = require('./website/FootLocker/FootLocker')
 const { courir, syncCourir } = require('./website/CourirOnline/courir')
@@ -36,7 +37,8 @@ const allModules = [
   new Module('Courir Instore', courirInstore, false),
   //new Module('ShuzuLab', shuzu, false),
   new Module('Kith EU', kith, true),
-  new Module('XHibition', Xhibition, true)
+  new Module('XHibition', xhibition, true),
+  new Module('SneakerPolitics', sneakerPolitics, false)
 
 ]
 
@@ -59,14 +61,14 @@ async function main() {
   async function displayMenu() {
     choice = await menu(allModules, discordUsername);
     choice = parseInt(choice);
-    if (isNaN(choice) || choice>allModules.length || choice<1) logError('Wrong input.');
-    else{
+    if (isNaN(choice) || choice > allModules.length || choice < 1) logError('Wrong input.');
+    else {
       choice--;
-      if (allModules[choice].state){
+      if (allModules[choice].state) {
         try {
           await allModules[choice].callback(version, allModules[choice]);
         } catch (error) {
-          logError('An error occured.'+error);
+          logError('An error occured.' + error);
         }
       }
       else logError('Module down.');

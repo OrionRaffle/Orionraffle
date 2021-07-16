@@ -28,9 +28,9 @@ function getRandomIntInclusive(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 const moduleK = {
-    label: 'Kith EU'
+    label: 'Xhibition'
 }
-const DEV = true;
+const DEV = false;
 
 // Obligatoire pour la sélection de raffle cf. getAllRaffle
 
@@ -182,7 +182,7 @@ async function getRaffleInfo(raffle) {
                 if (data.includes("/locations/") && ((step === 1) || (step === 2))) {
                    
                     raffle.location = data.split('/locations/')[1].split('"')[0];
-                    raffle.locationName = data.split(`"locationName"`)[1].split(`"stringValue": "`)[1].split('"')[0];
+                    raffle.locationName = 'Xhibition.co (Online)'
                     if (raffle.location.length !== 20) return;
 
                     if (step === 1) {
@@ -550,7 +550,7 @@ async function getDataRaffle() {
         'password': 'yoloyolo'
     };
     const raffleData = await getAllRaffle(user);
-
+    // console.log(raffleData)
     return raffleData;
 }
 // getDataRaffle()

@@ -24,6 +24,93 @@ const { DEV, CHARLES, siteKey, moduleK } = require('../kithEUConst');
 
 
 //Create Account Function
+const getIdRecaptcha = async (key, proxy) => {
+    proxyconfig = {
+      host: proxy.ip,
+      port: proxy.port,
+      auth: {
+        username: proxy.user,
+        password: proxy.password,
+      },
+    }
+  
+    try {
+      const resp = await axios({
+        headers: {
+          'user-agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36',
+          accept: '*/*',
+          'content-type': 'application/json',
+        },
+  
+        method: 'GET',
+        url: `http://2captcha.com/in.php?key=${key}&method=userrecaptcha&json=1&googlekey=6LcEQb0UAAAAAFluVqTQqxfo1T9f7SM7jycCZBET&pageurl=https://www.sneakql.com/`,
+        proxy: proxyconfig,
+        timeout: 10000,
+      })
+      
+      switch (resp.data.request) {
+        case 'ERROR_ZERO_BALANCE':
+          console.log('You have no more money on 2captcha')
+          return -1
+        case 'ERROR_WRONG_USER_KEY':
+          console.log("The key you've provided does not exist.")
+          return -1
+        case 'ERROR_KEY_DOES_NOT_EXIST':
+          console.log("The key you've provided does not exist.")
+          return -1
+  
+        case 'ERROR_NO_SLOT_AVAILABLE':
+          console.log('There is a queue to get a recaptcha solved.')
+          return 1
+      }
+  
+      return resp.data.request
+  
+  
+    } catch (err) {
+  
+      return 0
+    }
+  }
+  
+  const getTokenRecaptcha = async (key, proxy, id) => {
+    proxyconfig = {
+      host: proxy.ip,
+      port: proxy.port,
+      auth: {
+        username: proxy.user,
+        password: proxy.password,
+      },
+    }
+  
+    try {
+      const resp = await axios({
+        headers: {
+          'user-agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36',
+          accept: '*/*',
+          'content-type': 'application/json',
+        },
+  
+        method: 'GET',
+        timeout:10000,
+        url: `http://2captcha.com/res.php?key=${key}&method=userrecaptcha&json=1&action=get&id=${id}`,
+        proxy: proxyconfig,
+  
+      })
+   
+  
+      if (resp.data.request === 'CAPCHA_NOT_READY') {
+        return 1
+      }
+  
+      return resp.data.request
+    } catch (err) {
+      return 0
+    }
+  }
+  
 async function createAccount(proxyConfig, user) {
 
     
@@ -37,7 +124,7 @@ async function createAccount(proxyConfig, user) {
 
     }
 
-    
+    console.log(proxyConfig)
     if (CHARLES) process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     if (DEV) console.log(`Create account (${user.Index})`);
     try {
@@ -50,14 +137,15 @@ async function createAccount(proxyConfig, user) {
             proxy: (CHARLES ? {
                 host: '127.0.0.1',
                 port: '8888',
-            } : proxyConfig),
+            } : proxyConfig
+              ),
             resolveWithFullResponse: true,
             maxRedirects: 0,
             followRedirects: false,
             // withCredentials: true,
             timeout: 6000,
             method: 'POST',
-            url: `https://eu.kith.com/account`,
+            url: `http://eu.kith.com/account`,
             data: qs.stringify({
                 'form_type': 'create_customer',
                 'utf8': '✓',
@@ -95,7 +183,7 @@ async function createAccount(proxyConfig, user) {
         //     return { code: 'SUCCESS', data: undefined };
         // }
     } catch (err) {
-        // console.log(err)
+        console.log(err)
         try {
             if (err.code == 'ECONNABORTED') return { code: 'PROXY', data: undefined }
         } catch (e) {
