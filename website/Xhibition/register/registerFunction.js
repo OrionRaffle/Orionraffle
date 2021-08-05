@@ -44,7 +44,8 @@ async function createAccount(proxyConfig, user) {
 
     }
 
-    // console.log(proxyConfig)
+
+    console.log(proxyConfig)
     // process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     try {
         response = await axios({
@@ -233,7 +234,7 @@ async function createAccountAfterCaptcha(proxyConfig, user, sessionId, solvedCap
 
         // il y a une redirection /register (compte existe déjà)
         else if (err.response.data.includes('xhibition.co/account/register')) {
-            ccnsole.log(err.response.data)
+            console.log(err.response.data)
             return { code: 'ACCOUNT', data: undefined }
         }
         else {

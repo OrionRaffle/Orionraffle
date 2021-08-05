@@ -30,18 +30,37 @@ function getRandomIntInclusive(min, max) {
 const moduleK = {
     label: 'Kith EU'
 }
-const DEV = false;
+const DEV = true;
 
 // Obligatoire pour la sélection de raffle cf. getAllRaffle
 async function getSessionId(proxyConfig, user) {
+    let sessionId
+    // process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+    // console.log(proxyConfig)
+    // proxyConfig = {
+    //     host: proxyConfig.split('@')[1].split(':')[0],
+    //     port: proxyConfig.split('@')[1].split(':')[1],
+    //     auth: {
+    //         username: proxyConfig.split('//')[1].split(':')[0],
+    //         password: proxyConfig.split('//')[1].split(':')[1].split('@')[0].replace(/\n|\r/g, ""),
+    //     },
+
+    // }
+
+    // console.log(proxyConfig)
     try {
-        const response = await request({
-            proxy: `http://${proxyConfig.auth.username}:${proxyConfig.auth.password}@${proxyConfig.host}:${proxyConfig.port}`,
+        const response = await axios({
+            // proxy: `http://${proxyConfig.auth.username}:${proxyConfig.auth.password}@${proxyConfig.host}:${proxyConfig.port}`,
+            // proxy: {
+            //     host:'127.0.0.1',
+            //     port:'8888'
+            // },
+            proxy:proxyConfig,
             withCredentials: true,
             method: 'POST',
             followAllRedirects: true,
             resolveWithFullResponse: true,
-            maxRedirects: 1,
+            maxRedirects: 2,
             headers: { //Headers minimum obligatoire
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0',
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
@@ -49,8 +68,8 @@ async function getSessionId(proxyConfig, user) {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Connection': 'keep-alive',
             },
-            uri: 'https://eu.kith.com/account/login',
-            form: qs.stringify({
+            url: 'https://eu.kith.com/account/login',
+            body: qs.stringify({
                 'form_type': 'customer_login',
                 'utf8': '✓',
                 'customer[email]': user.email, //Email
@@ -59,15 +78,21 @@ async function getSessionId(proxyConfig, user) {
             }),
         })
         //Cette condition permet de vérifier si la redirection va sur /account dans le cas contraire, c'est un problème de login (email or password incorrect)
-        if (response.body.includes('"https://eu.kith.com/account"')) {
-            let sessionId = response.request.headers['cookie'].split(';')[0].split('=')[1];
-            return sessionId;
-        } else {
-            logError("Login error: Open a ticket please", true);
-            return null;
-        }
+
     } catch (err) {
-        return handleProxyError(err);
+        console.log(err)
+
+        // console.log(err.response.request.res)
+        try {
+
+            if (err.response.data.includes('"https://eu.kith.com/account"')) {
+                sessionId = err.response.request.res.headers['set-cookie'][0].split('secure_session_id=')[1].split(';')[0]
+                return sessionid
+            }
+        } catch (e) {
+
+            return handleProxyError(err) 
+        }
     }
 }
 
@@ -199,15 +224,15 @@ async function getRaffleInfo(raffle) {
                     raffle.secretCustomerId = data.split('"secretCustomerId"')[1].split('"stringValue": "')[1].split('"')[0];
                     raffle.models = data.split('/models/')[1].split('"')[0];
                     raffle.modelName = data.split('"campaign_name"')[1].split(`stringValue": "`)[1].split('""')[0] + '"'
-                   
+
 
                     getRaffleStatus3(raffle);
                     getRaffleStatus4(raffle);
                 }
                 if (data.includes("/locations/") && ((step === 1) || (step === 2))) {
                     raffle.location = data.split('/locations/')[1].split('"')[0];
-                    
-                    
+
+
 
                     if (raffle.location.length !== 20) return;
 

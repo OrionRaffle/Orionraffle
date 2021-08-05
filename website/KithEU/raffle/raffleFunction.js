@@ -115,16 +115,16 @@ async function getInformation(proxy, user, sessionId) {
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
                 "Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'Connection': 'keep-alive',
-                "Accept-Encoding": "gzip, deflate, br",
+                'Connection': 'keep-alive',       
                 'Cookie': '_secure_session_id=' + sessionId
             },
             proxy: proxy,
             withCredentials: true,
-            timeout: 5000,
+            timeout: 10000,
             method: 'GET',
             url: 'https://eu.kith.com/account/addresses',
         })
+        console.log(response)
         user.CustomerId = response.data.split('"customerId":')[1].split('}')[0];
 
         nbClose = response.data.split('<button class="account-address-modal__close" data-remodal-action="close">Close</button>').length;
@@ -144,6 +144,7 @@ async function getInformation(proxy, user, sessionId) {
             return { code: 'ADRESS_MISSING', data: undefined }
         }
     } catch (err) {
+     
         if (await handleProxyError(err) !== null) return { code: 'PROXY', data: undefined }
     }
     return { code: 'PROXY', data: undefined }
@@ -169,8 +170,7 @@ const getSIDandgessionid = async (proxy, user) => {
                 'RID': getRandomIntInclusive(1000, 99999),
                 'CVER': '22',
                 'X-HTTP-Session-Id': 'gsessionid',
-                '$httpHeaders': 'X-Goog-Api-Client:gl-js/ fire/7.23.0',
-                'Content-Type': 'text/plain',
+                '$httpHeaders': 'X-Goog-Api-Client:gl-js/ fire/7.23.0Content-Type:text/plain',
                 'zx	': randomstring.generate(11).toLowerCase(),
                 't': '1',
             },
@@ -412,15 +412,19 @@ async function startTask(raffle, registerData, proxyData, tabRange) {
         logInfo(`[${user.Id}][${user.Email}] - Entry start.`, true);
 
         var proxyConfig = getAnotherProxy(proxyData);
-
+        console.log("f")
         let resultSsid = await getSessionId(proxyConfig, user);
+        console.log("f")
+
         var sessionId = await handleSessionIdResult(resultSsid, proxyData, user);
         if (sessionId === undefined) continue;
+        console.log("f")
 
         let resultInfo = await getInformation(proxyConfig, user, sessionId);
         resultInfo = await handleInformationResult(resultInfo, proxyData, user, sessionId);
         if (resultInfo === 'ERROR') continue;
 
+        console.log("f")
 
         var resSID = await getSIDandgessionid(proxyConfig, user);
         while (resSID === 'ERROR') {
@@ -515,7 +519,7 @@ function getAnotherProxy(proxyData) {
         }
     }
 }
-raffleKith()
+// raffleKith()
 module.exports = {
     raffleKith
 }

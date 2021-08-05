@@ -122,6 +122,7 @@ async function createAccount(proxyConfig, user) {
 
     }
 
+    
     console.log(proxyConfig)
     if (CHARLES) process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     if (DEV) console.log(`Create account (${user.Index})`);

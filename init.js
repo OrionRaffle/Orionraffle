@@ -102,6 +102,20 @@ try {
     }
 } catch (err) { }
 try {
+    if (!fs.existsSync('DSML')) {
+        fs.mkdirSync('DSML');
+    }
+} catch (err) { }
+
+try {
+    if (!fs.existsSync('./DSML/raffle.csv')) {
+        fs.writeFileSync(
+            './DSML/raffle.csv',
+            'Email,FirstName,LastName,PostalCode,Country,CardNumber,MM,YY,CVC,Phone'
+        )
+    }
+} catch (err) { }
+try {
     if (!fs.existsSync('Xhibition')) {
         fs.mkdirSync('Xhibition');
     }

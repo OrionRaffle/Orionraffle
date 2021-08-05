@@ -83,6 +83,7 @@ function getDate() {
 * @param    {String}      message  Message
 */
 function logError(message, displayDate = false) {
+  // console.log(message)
   if (displayDate) message = `${getDate()} - ${message}`;
   console.log(colors.brightRed(`[Error]\t: ${message}`));
   logInFile(`[Error]\t: ${message}`);
@@ -160,7 +161,17 @@ async function displayKithRaffleRecap(raffle) {
 
 async function displayXhibitionMode() {
   console.log("1. Account generator");
-  console.log("2. Raffle mode (closed)");
+  console.log("2. Raffle mode");
+  console.log("3. Stock checker\n");
+
+  console.log("0. Back");
+  var input = inputReader.readInteger();
+
+  return input;
+}
+
+async function displayDSMLMode() {
+  console.log("1. Raffle mode");
 
   console.log("0. Back");
   var input = inputReader.readInteger();
@@ -200,6 +211,15 @@ async function displayXhibitionRaffle(rafflesData) {
 }
 
 async function displayKithRaffleStock(raffle) {
+  console.log(`${raffle.title}\n`);
+  for (let i = 0; i < raffle.sizes.length; i++) {
+    console.log(`${raffle.sizes[i]} : ${raffle.inventory[i]} pieces`);
+  }
+  await pressToQuit();
+  return;
+}
+
+async function displayXhibitionRaffleStock(raffle) {
   console.log(`${raffle.title}\n`);
   for (let i = 0; i < raffle.sizes.length; i++) {
     console.log(`${raffle.sizes[i]} : ${raffle.inventory[i]} pieces`);
@@ -348,6 +368,10 @@ module.exports = {
   //XHibition
   displayXhibitionMode,
   displayXhibitionRaffle,
+  displayXhibitionRaffleStock,
+
+  //DSML
+  displayDSMLMode,
   
   displayRecap,
   percent,

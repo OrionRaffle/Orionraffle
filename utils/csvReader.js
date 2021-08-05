@@ -290,6 +290,20 @@ async function csvRaffleXhibition() {
     return dataTab;
 }
 
+async function csvRaffleDSML() {
+    var dataTab = [];
+    await new Promise(function (resolve) {
+        fs.createReadStream('./DSML/raffle.csv')
+            .pipe(csv())
+            .on('data', async (data) => {
+                if (data !== undefined) dataTab.push(data);
+            }
+            )
+            .on('end', async () => { resolve(); });
+    })
+    return dataTab;
+}
+
 async function csvRegisterSneakerPolitics() {
     var dataTab = [];
     await new Promise(function (resolve) {
@@ -395,6 +409,8 @@ module.exports = {
     csvRegisterKith,//
     csvRaffleKith,
 
+    csvRaffleDSML, 
+    
     csvRegisterXhibition,
     csvRaffleXhibition,
 

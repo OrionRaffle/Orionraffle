@@ -7,6 +7,8 @@ const { shuzu } = require('./website/Shuzu/ShuzuLab')
 const { kith } = require('./website/KithEU/kithRaffle')
 const { xhibition } = require('./website/Xhibition/xhibitionRaffle')
 const { sneakerPolitics } = require('./website/SneakersPolitics/sneakerPoliticsRaffle')
+const { dsml } = require('./website/DSML/DSMLraffle')
+
 
 // const { footlocker } = require('./website/FootLocker/FootLocker')
 const { courir, syncCourir } = require('./website/CourirOnline/courir')
@@ -38,7 +40,9 @@ const allModules = [
   //new Module('ShuzuLab', shuzu, false),
   new Module('Kith EU', kith, true),
   new Module('XHibition', xhibition, true),
-  new Module('SneakerPolitics', sneakerPolitics, false)
+  new Module('SneakerPolitics', sneakerPolitics, false),
+  new Module('DSML', dsml, true)
+
 
 ]
 

@@ -212,7 +212,7 @@ async function getRaffleInfo(raffle) {
                         for (let i = 0; i < stockString.length; i++) {
                             if (stockString[i + 1].split('stringValue": "')[1] === undefined) stock = '0'
                             else stock = stockString[i + 1].split('stringValue": "')[1].split('"')[0];
-                            stock = '0';
+                            if (isNaN(stock)) stock = '0';
                             let size = sizeString[i + 1].split('stringValue": "')[1].split('"')[0].trim();
                             sizes.push(size);
                             inventory.push(stock);
@@ -552,7 +552,8 @@ async function getDataRaffle() {
         'password': 'yoloyolo'
     };
     const raffleData = await getAllRaffle(user);
-    // console.log(raffleData)
+    console.log(raffleData)
+    
     return raffleData;
 }
 

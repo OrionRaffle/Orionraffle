@@ -3,7 +3,7 @@ const moduleK = {
     label: 'KithEU'
 }
 const DEV = true;
-const CHARLES = false
+const CHARLES = true
 
 module.exports = {
     siteKey,
