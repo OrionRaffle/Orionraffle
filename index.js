@@ -63,7 +63,7 @@ async function menu() {
 }
 
 try {
-  const client = require('discord-rich-presence')('812828492474613780')
+  const client = require('discord-rich-presence')('')
 
   client.on('unhandledRejection', () => {
     rpc_client = null
