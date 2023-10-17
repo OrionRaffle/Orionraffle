@@ -9,12 +9,7 @@ function sleep(ms) {
 
 async function connexion(key, version) {
   let user
-  const connection = mysql.createConnection({
-    host: '185.31.40.53',
-    user: 'orion',
-    password: '785421BG',
-    database: 'orion_user',
-  })
+  const connection = mysql.createConnection({})
 
   connection.connect()
   q = `SELECT user from orion_user where pw="${key}"`
